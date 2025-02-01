@@ -70,3 +70,11 @@ z = y + 5
 """
     result = parser.parse(test_code)
     print("AST:", result)
+
+def p_statement_if(p):
+    '''statement : IF LPAREN expression RPAREN LBRACE program RBRACE
+                 | IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE'''
+    if len(p) == 8:
+        p[0] = ('if', p[3], p[6])  # Apenas if
+    else:
+        p[0] = ('if-else', p[3], p[6], p[10])  # If + else

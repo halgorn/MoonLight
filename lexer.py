@@ -1,5 +1,16 @@
 import ply.lex as lex
 
+# Adicionando palavras-chave
+reserved = {
+    'if': 'IF',
+    'else': 'ELSE',
+}
+
+
+
+t_LBRACE  = r'\{'
+t_RBRACE  = r'\}'
+
 # Definição dos tokens
 tokens = (
     'IDENTIFIER',  # Identificadores como nomes de variáveis
@@ -11,8 +22,9 @@ tokens = (
     'DIVIDE',      # Operador '/'
     'LPAREN',      # Parêntese esquerdo '('
     'RPAREN',      # Parêntese direito ')'
+    
 )
-
+tokens = tokens + tuple(reserved.values())
 # Regex para tokens
 t_ASSIGN    = r'='
 t_PLUS      = r'\+'
@@ -36,6 +48,7 @@ def t_NUMBER(t):
 # Função para reconhecer identificadores
 def t_IDENTIFIER(t):
     r'[a-zA-Z_][a-zA-Z0-9_]*'
+    t.type = reserved.get(t.value, 'IDENTIFIER')
     return t
 
 # Ignorar quebras de linha e atualizar a contagem de linhas
