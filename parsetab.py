@@ -6,9 +6,9 @@ _tabversion = '3.10'
 
 _lr_method = 'LALR'
 
-_lr_signature = 'leftPLUSMINUSleftMULTIPLYDIVIDEASSIGN DIVIDE IDENTIFIER LPAREN MINUS MULTIPLY NUMBER PLUS RPARENprogram : program statementprogram : statementstatement : IDENTIFIER ASSIGN expressionexpression : expression PLUS expression\n                  | expression MINUS expression\n                  | expression MULTIPLY expression\n                  | expression DIVIDE expressionexpression : LPAREN expression RPARENexpression : NUMBERexpression : IDENTIFIER'
+_lr_signature = 'leftPLUSMINUSleftMULTIPLYDIVIDEASSIGN DIVIDE ELSE EQ FALSE FOR GT IDENTIFIER IF LBRACE LPAREN LT MINUS MULTIPLY NEQ NUMBER PLUS PRINT RBRACE RPAREN SEMICOLON STRING TRUE WHILEprogram : program statementprogram : statementstatement : IDENTIFIER ASSIGN expressionstatement : IF LPAREN expression RPAREN LBRACE program RBRACE\n                 | IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACEstatement : WHILE LPAREN expression RPAREN LBRACE program RBRACEstatement : FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACEstatement : PRINT LPAREN expression RPARENexpression : expression PLUS expression\n                  | expression MINUS expression\n                  | expression MULTIPLY expression\n                  | expression DIVIDE expressionexpression : expression GT expression\n                  | expression LT expression\n                  | expression EQ expression\n                  | expression NEQ expressionexpression : LPAREN expression RPARENexpression : NUMBERexpression : STRINGexpression : TRUE\n                  | FALSEexpression : IDENTIFIER'
     
-_lr_action_items = {'IDENTIFIER':([0,1,2,4,5,6,7,8,9,10,11,12,13,15,16,17,18,19,],[3,3,-2,-1,6,-10,-3,6,-9,6,6,6,6,-4,-5,-6,-7,-8,]),'$end':([1,2,4,6,7,9,15,16,17,18,19,],[0,-2,-1,-10,-3,-9,-4,-5,-6,-7,-8,]),'ASSIGN':([3,],[5,]),'LPAREN':([5,8,10,11,12,13,],[8,8,8,8,8,8,]),'NUMBER':([5,8,10,11,12,13,],[9,9,9,9,9,9,]),'PLUS':([6,7,9,14,15,16,17,18,19,],[-10,10,-9,10,-4,-5,-6,-7,-8,]),'MINUS':([6,7,9,14,15,16,17,18,19,],[-10,11,-9,11,-4,-5,-6,-7,-8,]),'MULTIPLY':([6,7,9,14,15,16,17,18,19,],[-10,12,-9,12,12,12,-6,-7,-8,]),'DIVIDE':([6,7,9,14,15,16,17,18,19,],[-10,13,-9,13,13,13,-6,-7,-8,]),'RPAREN':([6,9,14,15,16,17,18,19,],[-10,-9,19,-4,-5,-6,-7,-8,]),}
+_lr_action_items = {'IDENTIFIER':([0,1,2,8,9,10,11,12,13,14,15,16,17,18,19,20,25,26,27,28,29,30,31,32,36,37,38,39,40,41,42,43,44,45,46,47,48,50,51,52,53,54,58,59,60,61,62,63,],[3,3,-2,-1,14,14,14,3,14,-22,-3,14,-18,-19,-20,-21,14,14,14,14,14,14,14,14,14,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,3,3,3,3,3,-4,-6,3,3,3,3,-5,-7,]),'IF':([0,1,2,8,12,14,15,17,18,19,20,37,38,39,40,41,42,43,44,45,46,47,48,50,51,52,53,54,58,59,60,61,62,63,],[4,4,-2,-1,4,-22,-3,-18,-19,-20,-21,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,4,4,4,4,4,-4,-6,4,4,4,4,-5,-7,]),'WHILE':([0,1,2,8,12,14,15,17,18,19,20,37,38,39,40,41,42,43,44,45,46,47,48,50,51,52,53,54,58,59,60,61,62,63,],[5,5,-2,-1,5,-22,-3,-18,-19,-20,-21,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,5,5,5,5,5,-4,-6,5,5,5,5,-5,-7,]),'FOR':([0,1,2,8,12,14,15,17,18,19,20,37,38,39,40,41,42,43,44,45,46,47,48,50,51,52,53,54,58,59,60,61,62,63,],[6,6,-2,-1,6,-22,-3,-18,-19,-20,-21,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,6,6,6,6,6,-4,-6,6,6,6,6,-5,-7,]),'PRINT':([0,1,2,8,12,14,15,17,18,19,20,37,38,39,40,41,42,43,44,45,46,47,48,50,51,52,53,54,58,59,60,61,62,63,],[7,7,-2,-1,7,-22,-3,-18,-19,-20,-21,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,7,7,7,7,7,-4,-6,7,7,7,7,-5,-7,]),'$end':([1,2,8,14,15,17,18,19,20,37,38,39,40,41,42,43,44,45,46,53,54,62,63,],[0,-2,-1,-22,-3,-18,-19,-20,-21,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-4,-6,-5,-7,]),'RBRACE':([2,8,14,15,17,18,19,20,37,38,39,40,41,42,43,44,45,46,50,51,53,54,60,61,62,63,],[-2,-1,-22,-3,-18,-19,-20,-21,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,53,54,-4,-6,62,63,-5,-7,]),'ASSIGN':([3,],[9,]),'LPAREN':([4,5,6,7,9,10,11,13,16,25,26,27,28,29,30,31,32,36,],[10,11,12,13,16,16,16,16,16,16,16,16,16,16,16,16,16,16,]),'NUMBER':([9,10,11,13,16,25,26,27,28,29,30,31,32,36,],[17,17,17,17,17,17,17,17,17,17,17,17,17,17,]),'STRING':([9,10,11,13,16,25,26,27,28,29,30,31,32,36,],[18,18,18,18,18,18,18,18,18,18,18,18,18,18,]),'TRUE':([9,10,11,13,16,25,26,27,28,29,30,31,32,36,],[19,19,19,19,19,19,19,19,19,19,19,19,19,19,]),'FALSE':([9,10,11,13,16,25,26,27,28,29,30,31,32,36,],[20,20,20,20,20,20,20,20,20,20,20,20,20,20,]),'PLUS':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,25,-18,-19,-20,-21,25,25,25,25,-9,-10,-11,-12,25,25,25,25,-17,25,]),'MINUS':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,26,-18,-19,-20,-21,26,26,26,26,-9,-10,-11,-12,26,26,26,26,-17,26,]),'MULTIPLY':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,27,-18,-19,-20,-21,27,27,27,27,27,27,-11,-12,27,27,27,27,-17,27,]),'DIVIDE':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,28,-18,-19,-20,-21,28,28,28,28,28,28,-11,-12,28,28,28,28,-17,28,]),'GT':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,29,-18,-19,-20,-21,29,29,29,29,-9,-10,-11,-12,29,29,29,29,-17,29,]),'LT':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,30,-18,-19,-20,-21,30,30,30,30,-9,-10,-11,-12,30,30,30,30,-17,30,]),'EQ':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,31,-18,-19,-20,-21,31,31,31,31,-9,-10,-11,-12,31,31,31,31,-17,31,]),'NEQ':([14,15,17,18,19,20,21,22,24,33,38,39,40,41,42,43,44,45,46,49,],[-22,32,-18,-19,-20,-21,32,32,32,32,-9,-10,-11,-12,32,32,32,32,-17,32,]),'SEMICOLON':([14,15,17,18,19,20,23,37,38,39,40,41,42,43,44,45,46,49,53,54,62,63,],[-22,-3,-18,-19,-20,-21,36,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,52,-4,-6,-5,-7,]),'RPAREN':([14,15,17,18,19,20,21,22,24,33,37,38,39,40,41,42,43,44,45,46,53,54,55,62,63,],[-22,-3,-18,-19,-20,-21,34,35,37,46,-8,-9,-10,-11,-12,-13,-14,-15,-16,-17,-4,-6,57,-5,-7,]),'LBRACE':([34,35,56,57,],[47,48,58,59,]),'ELSE':([53,],[56,]),}
 
 _lr_action = {}
 for _k, _v in _lr_action_items.items():
@@ -17,7 +17,7 @@ for _k, _v in _lr_action_items.items():
       _lr_action[_x][_k] = _y
 del _lr_action_items
 
-_lr_goto_items = {'program':([0,],[1,]),'statement':([0,1,],[2,4,]),'expression':([5,8,10,11,12,13,],[7,14,15,16,17,18,]),}
+_lr_goto_items = {'program':([0,47,48,58,59,],[1,50,51,60,61,]),'statement':([0,1,12,47,48,50,51,52,58,59,60,61,],[2,8,23,2,2,8,8,55,2,2,8,8,]),'expression':([9,10,11,13,16,25,26,27,28,29,30,31,32,36,],[15,21,22,24,33,38,39,40,41,42,43,44,45,49,]),}
 
 _lr_goto = {}
 for _k, _v in _lr_goto_items.items():
@@ -27,14 +27,26 @@ for _k, _v in _lr_goto_items.items():
 del _lr_goto_items
 _lr_productions = [
   ("S' -> program","S'",1,None,None,None),
-  ('program -> program statement','program',2,'p_program_multiple','parser.py',14),
-  ('program -> statement','program',1,'p_program_single','parser.py',18),
-  ('statement -> IDENTIFIER ASSIGN expression','statement',3,'p_statement_assign','parser.py',25),
-  ('expression -> expression PLUS expression','expression',3,'p_expression_binop','parser.py',32),
-  ('expression -> expression MINUS expression','expression',3,'p_expression_binop','parser.py',33),
-  ('expression -> expression MULTIPLY expression','expression',3,'p_expression_binop','parser.py',34),
-  ('expression -> expression DIVIDE expression','expression',3,'p_expression_binop','parser.py',35),
-  ('expression -> LPAREN expression RPAREN','expression',3,'p_expression_group','parser.py',39),
-  ('expression -> NUMBER','expression',1,'p_expression_number','parser.py',43),
-  ('expression -> IDENTIFIER','expression',1,'p_expression_identifier','parser.py',47),
+  ('program -> program statement','program',2,'p_program_multiple','parser.py',10),
+  ('program -> statement','program',1,'p_program_single','parser.py',14),
+  ('statement -> IDENTIFIER ASSIGN expression','statement',3,'p_statement_assign','parser.py',18),
+  ('statement -> IF LPAREN expression RPAREN LBRACE program RBRACE','statement',7,'p_statement_if','parser.py',22),
+  ('statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE','statement',11,'p_statement_if','parser.py',23),
+  ('statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE','statement',7,'p_statement_while','parser.py',30),
+  ('statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE','statement',11,'p_statement_for','parser.py',34),
+  ('statement -> PRINT LPAREN expression RPAREN','statement',4,'p_statement_print','parser.py',38),
+  ('expression -> expression PLUS expression','expression',3,'p_expression_binop','parser.py',42),
+  ('expression -> expression MINUS expression','expression',3,'p_expression_binop','parser.py',43),
+  ('expression -> expression MULTIPLY expression','expression',3,'p_expression_binop','parser.py',44),
+  ('expression -> expression DIVIDE expression','expression',3,'p_expression_binop','parser.py',45),
+  ('expression -> expression GT expression','expression',3,'p_expression_comparison','parser.py',49),
+  ('expression -> expression LT expression','expression',3,'p_expression_comparison','parser.py',50),
+  ('expression -> expression EQ expression','expression',3,'p_expression_comparison','parser.py',51),
+  ('expression -> expression NEQ expression','expression',3,'p_expression_comparison','parser.py',52),
+  ('expression -> LPAREN expression RPAREN','expression',3,'p_expression_group','parser.py',56),
+  ('expression -> NUMBER','expression',1,'p_expression_number','parser.py',60),
+  ('expression -> STRING','expression',1,'p_expression_string','parser.py',64),
+  ('expression -> TRUE','expression',1,'p_expression_bool','parser.py',68),
+  ('expression -> FALSE','expression',1,'p_expression_bool','parser.py',69),
+  ('expression -> IDENTIFIER','expression',1,'p_expression_identifier','parser.py',73),
 ]

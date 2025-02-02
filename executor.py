@@ -1,83 +1,78 @@
 from parser import parser
 
-variaveis = {}  # Armazena nome -> valor
+# Dicionário global para armazenar variáveis
+variaveis = {}
 
 def interpretar(ast):
-    """
-    Interpreta um nó ou lista de nós da AST.
-    """
-    # Se for lista, percorre cada declaração
     if isinstance(ast, list):
+        # Lista de instruções: interpreta cada uma delas
         for node in ast:
             interpretar(node)
         return
 
-    # Se for tupla, verifica o tipo de operação
     if isinstance(ast, tuple):
         op = ast[0]
-        
+
         if op == 'assign':
-            # Ex: ('assign', 'x', expressão)
+            # Atribuição: o valor da expressão é avaliado e salvo na variável
             variaveis[ast[1]] = interpretar(ast[2])
-        
+
         elif op in ['+', '-', '*', '/']:
-            # Ex: ('+', exp1, exp2)
+            # Operações aritméticas
             val_esq = interpretar(ast[1])
             val_dir = interpretar(ast[2])
-            if op == '+':
-                return val_esq + val_dir
-            elif op == '-':
-                return val_esq - val_dir
-            elif op == '*':
-                return val_esq * val_dir
-            elif op == '/':
-                return val_esq / val_dir
-        
+            # Usa a operação nativa do Python; cuidado com a segurança se expandir a linguagem
+            return eval(f"{val_esq} {op} {val_dir}")
+
+        elif op in ['>', '<', '==', '!=']:
+            # Operações de comparação
+            val_esq = interpretar(ast[1])
+            val_dir = interpretar(ast[2])
+            return eval(f"{val_esq} {op} {val_dir}")
+
         elif op == 'var':
-            # Retorna o valor da variável se existir
-            nome_var = ast[1]
-            return variaveis.get(nome_var, 0)  # Retorna 0 se não existir
-        
+            # Uso de variável
+            return variaveis.get(ast[1], 0)
+
         elif op == 'if':
-            # Executa o bloco do IF se a condição for verdadeira
-            condicao = interpretar(ast[1])
-            if condicao:
+            if interpretar(ast[1]):
                 interpretar(ast[2])
-        
+
         elif op == 'if-else':
-            # Executa o bloco do IF ou do ELSE dependendo da condição
-            condicao = interpretar(ast[1])
-            if condicao:
+            if interpretar(ast[1]):
                 interpretar(ast[2])
             else:
                 interpretar(ast[3])
-        
+
+        elif op == 'while':
+            while interpretar(ast[1]):
+                interpretar(ast[2])
+
+        elif op == 'for':
+            # A tupla do for foi definida como: ('for', init, condition, update, body)
+            interpretar(ast[1])  # inicialização
+            while interpretar(ast[2]):
+                interpretar(ast[4])  # corpo (lista de instruções)
+                interpretar(ast[3])  # atualização
+
         else:
             print(f"Operação desconhecida: {op}")
-    
+
     else:
-        # Se for um número (int ou float)
+        # Caso seja um valor simples (número, string, booleano) já avaliado
         return ast
 
 def executar_codigo(codigo):
-    """
-    Executa todo o código, interpretando a AST resultante.
-    """
     ast = parser.parse(codigo)
     interpretar(ast)
-    print("Estado final das variáveis:")
-    print(variaveis)
+    print("Estado final das variáveis:", variaveis)
 
-# (Opcional) Teste rápido do executor
 if __name__ == "__main__":
+    # Código de teste (pode ser removido)
     teste = """
-x = 10
-y = 5
-
-if (x > y) {
-    z = x - y
-} else {
-    z = y - x
+x = 0
+while (x < 5) {
+    x = x + 1
 }
 """
     executar_codigo(teste)

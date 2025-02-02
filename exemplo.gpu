@@ -1,14 +1,19 @@
 x = 10
 y = 5
 z = 0
+
 if (x > y) {
     z = x - y
 } else {
     z = y - x
 }
+
 while (x > 0) {
     x = x - 1
 }
+
 for (i = 0; i < 10; i = i + 1) {
     y = y + 1
 }
+
+print(z)
