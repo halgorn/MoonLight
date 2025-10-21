@@ -1,19 +1,17 @@
+# Teste de variáveis e funções com suporte a diferentes tipos e lambda
+
 x = 10
-y = 5
-z = 0
+y = 3.14
+nome = "Bruno"
+flag = True
+nulo = None
 
-if (x > y) {
-    z = x - y
-} else {
-    z = y - x
+def soma(a, b) {
+    return a + b
 }
 
-while (x > 0) {
-    x = x - 1
-}
+resultado = soma(5, 10)
+print(resultado)
 
-for (i = 0; i < 10; i = i + 1) {
-    y = y + 1
-}
-
-print(z)
+dobro = lambda(x) x * 2
+print(dobro(4))

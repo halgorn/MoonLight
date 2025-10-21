@@ -1,5 +1,11 @@
 Created by PLY version 3.11 (http://www.dabeaz.com/ply)
 
+Unused terminals:
+
+    FILTER
+    MAP
+    REDUCE
+
 Grammar
 
 Rule 0     S' -> program
@@ -11,53 +17,76 @@ Rule 5     statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE L
 Rule 6     statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE
 Rule 7     statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
 Rule 8     statement -> PRINT LPAREN expression RPAREN
-Rule 9     expression -> expression PLUS expression
-Rule 10    expression -> expression MINUS expression
-Rule 11    expression -> expression MULTIPLY expression
-Rule 12    expression -> expression DIVIDE expression
-Rule 13    expression -> expression GT expression
-Rule 14    expression -> expression LT expression
-Rule 15    expression -> expression EQ expression
-Rule 16    expression -> expression NEQ expression
-Rule 17    expression -> LPAREN expression RPAREN
-Rule 18    expression -> NUMBER
-Rule 19    expression -> STRING
-Rule 20    expression -> TRUE
-Rule 21    expression -> FALSE
-Rule 22    expression -> IDENTIFIER
+Rule 9     statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+Rule 10    parameter_list -> IDENTIFIER
+Rule 11    parameter_list -> parameter_list COMMA IDENTIFIER
+Rule 12    parameter_list -> empty
+Rule 13    statement -> RETURN expression
+Rule 14    expression -> LAMBDA LPAREN parameter_list RPAREN expression
+Rule 15    expression -> IDENTIFIER LPAREN argument_list RPAREN
+Rule 16    argument_list -> expression
+Rule 17    argument_list -> argument_list COMMA expression
+Rule 18    argument_list -> empty
+Rule 19    expression -> expression PLUS expression
+Rule 20    expression -> expression MINUS expression
+Rule 21    expression -> expression MULTIPLY expression
+Rule 22    expression -> expression DIVIDE expression
+Rule 23    expression -> expression GT expression
+Rule 24    expression -> expression LT expression
+Rule 25    expression -> expression EQ expression
+Rule 26    expression -> expression NEQ expression
+Rule 27    expression -> LPAREN expression RPAREN
+Rule 28    expression -> NUMBER
+Rule 29    expression -> STRING
+Rule 30    expression -> TRUE
+Rule 31    expression -> FALSE
+Rule 32    expression -> NONE
+Rule 33    expression -> IDENTIFIER
+Rule 34    empty -> <empty>
 
 Terminals, with rules where they appear
 
 ASSIGN               : 3
-DIVIDE               : 12
+COMMA                : 11 17
+DEF                  : 9
+DIVIDE               : 22
 ELSE                 : 5
-EQ                   : 15
-FALSE                : 21
+EQ                   : 25
+FALSE                : 31
+FILTER               : 
 FOR                  : 7
-GT                   : 13
-IDENTIFIER           : 3 22
+GT                   : 23
+IDENTIFIER           : 3 9 10 11 15 33
 IF                   : 4 5
-LBRACE               : 4 5 5 6 7
-LPAREN               : 4 5 6 7 8 17
-LT                   : 14
-MINUS                : 10
-MULTIPLY             : 11
-NEQ                  : 16
-NUMBER               : 18
-PLUS                 : 9
+LAMBDA               : 14
+LBRACE               : 4 5 5 6 7 9
+LPAREN               : 4 5 6 7 8 9 14 15 27
+LT                   : 24
+MAP                  : 
+MINUS                : 20
+MULTIPLY             : 21
+NEQ                  : 26
+NONE                 : 32
+NUMBER               : 28
+PLUS                 : 19
 PRINT                : 8
-RBRACE               : 4 5 5 6 7
-RPAREN               : 4 5 6 7 8 17
+RBRACE               : 4 5 5 6 7 9
+REDUCE               : 
+RETURN               : 13
+RPAREN               : 4 5 6 7 8 9 14 15 27
 SEMICOLON            : 7 7
-STRING               : 19
-TRUE                 : 20
+STRING               : 29
+TRUE                 : 30
 WHILE                : 6
 error                : 
 
 Nonterminals, with rules where they appear
 
-expression           : 3 4 5 6 7 8 9 9 10 10 11 11 12 12 13 13 14 14 15 15 16 16 17
-program              : 1 4 5 5 6 7 0
+argument_list        : 15 17
+empty                : 12 18
+expression           : 3 4 5 6 7 8 13 14 16 17 19 19 20 20 21 21 22 22 23 23 24 24 25 25 26 26 27
+parameter_list       : 9 11 14
+program              : 1 4 5 5 6 7 9 0
 statement            : 1 2 7 7
 
 Parsing method: LALR
@@ -73,12 +102,16 @@ state 0
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
     program                        shift and go to state 1
     statement                      shift and go to state 2
@@ -93,14 +126,18 @@ state 1
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    statement                      shift and go to state 8
+    statement                      shift and go to state 10
 
 state 2
 
@@ -111,6 +148,8 @@ state 2
     WHILE           reduce using rule 2 (program -> statement .)
     FOR             reduce using rule 2 (program -> statement .)
     PRINT           reduce using rule 2 (program -> statement .)
+    DEF             reduce using rule 2 (program -> statement .)
+    RETURN          reduce using rule 2 (program -> statement .)
     $end            reduce using rule 2 (program -> statement .)
     RBRACE          reduce using rule 2 (program -> statement .)
 
@@ -119,7 +158,7 @@ state 3
 
     (3) statement -> IDENTIFIER . ASSIGN expression
 
-    ASSIGN          shift and go to state 9
+    ASSIGN          shift and go to state 11
 
 
 state 4
@@ -127,31 +166,70 @@ state 4
     (4) statement -> IF . LPAREN expression RPAREN LBRACE program RBRACE
     (5) statement -> IF . LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE
 
-    LPAREN          shift and go to state 10
+    LPAREN          shift and go to state 12
 
 
 state 5
 
     (6) statement -> WHILE . LPAREN expression RPAREN LBRACE program RBRACE
 
-    LPAREN          shift and go to state 11
+    LPAREN          shift and go to state 13
 
 
 state 6
 
     (7) statement -> FOR . LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
 
-    LPAREN          shift and go to state 12
+    LPAREN          shift and go to state 14
 
 
 state 7
 
     (8) statement -> PRINT . LPAREN expression RPAREN
 
-    LPAREN          shift and go to state 13
+    LPAREN          shift and go to state 15
 
 
 state 8
+
+    (9) statement -> DEF . IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+
+    IDENTIFIER      shift and go to state 16
+
+
+state 9
+
+    (13) statement -> RETURN . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 17
+
+state 10
 
     (1) program -> program statement .
 
@@ -160,93 +238,110 @@ state 8
     WHILE           reduce using rule 1 (program -> program statement .)
     FOR             reduce using rule 1 (program -> program statement .)
     PRINT           reduce using rule 1 (program -> program statement .)
+    DEF             reduce using rule 1 (program -> program statement .)
+    RETURN          reduce using rule 1 (program -> program statement .)
     $end            reduce using rule 1 (program -> program statement .)
     RBRACE          reduce using rule 1 (program -> program statement .)
 
 
-state 9
+state 11
 
     (3) statement -> IDENTIFIER ASSIGN . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
 
-    expression                     shift and go to state 15
+    expression                     shift and go to state 26
 
-state 10
+state 12
 
     (4) statement -> IF LPAREN . expression RPAREN LBRACE program RBRACE
     (5) statement -> IF LPAREN . expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
 
-    expression                     shift and go to state 21
+    expression                     shift and go to state 27
 
-state 11
+state 13
 
     (6) statement -> WHILE LPAREN . expression RPAREN LBRACE program RBRACE
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
 
-    expression                     shift and go to state 22
+    expression                     shift and go to state 28
 
-state 12
+state 14
 
     (7) statement -> FOR LPAREN . statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (3) statement -> . IDENTIFIER ASSIGN expression
@@ -255,574 +350,795 @@ state 12
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    statement                      shift and go to state 23
-
-state 13
-
-    (8) statement -> PRINT LPAREN . expression RPAREN
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
-
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
-
-    expression                     shift and go to state 24
-
-state 14
-
-    (22) expression -> IDENTIFIER .
-
-    PLUS            reduce using rule 22 (expression -> IDENTIFIER .)
-    MINUS           reduce using rule 22 (expression -> IDENTIFIER .)
-    MULTIPLY        reduce using rule 22 (expression -> IDENTIFIER .)
-    DIVIDE          reduce using rule 22 (expression -> IDENTIFIER .)
-    GT              reduce using rule 22 (expression -> IDENTIFIER .)
-    LT              reduce using rule 22 (expression -> IDENTIFIER .)
-    EQ              reduce using rule 22 (expression -> IDENTIFIER .)
-    NEQ             reduce using rule 22 (expression -> IDENTIFIER .)
-    IDENTIFIER      reduce using rule 22 (expression -> IDENTIFIER .)
-    IF              reduce using rule 22 (expression -> IDENTIFIER .)
-    WHILE           reduce using rule 22 (expression -> IDENTIFIER .)
-    FOR             reduce using rule 22 (expression -> IDENTIFIER .)
-    PRINT           reduce using rule 22 (expression -> IDENTIFIER .)
-    $end            reduce using rule 22 (expression -> IDENTIFIER .)
-    SEMICOLON       reduce using rule 22 (expression -> IDENTIFIER .)
-    RBRACE          reduce using rule 22 (expression -> IDENTIFIER .)
-    RPAREN          reduce using rule 22 (expression -> IDENTIFIER .)
-
+    statement                      shift and go to state 29
 
 state 15
 
+    (8) statement -> PRINT LPAREN . expression RPAREN
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 30
+
+state 16
+
+    (9) statement -> DEF IDENTIFIER . LPAREN parameter_list RPAREN LBRACE program RBRACE
+
+    LPAREN          shift and go to state 31
+
+
+state 17
+
+    (13) statement -> RETURN expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    IDENTIFIER      reduce using rule 13 (statement -> RETURN expression .)
+    IF              reduce using rule 13 (statement -> RETURN expression .)
+    WHILE           reduce using rule 13 (statement -> RETURN expression .)
+    FOR             reduce using rule 13 (statement -> RETURN expression .)
+    PRINT           reduce using rule 13 (statement -> RETURN expression .)
+    DEF             reduce using rule 13 (statement -> RETURN expression .)
+    RETURN          reduce using rule 13 (statement -> RETURN expression .)
+    $end            reduce using rule 13 (statement -> RETURN expression .)
+    SEMICOLON       reduce using rule 13 (statement -> RETURN expression .)
+    RBRACE          reduce using rule 13 (statement -> RETURN expression .)
+    RPAREN          reduce using rule 13 (statement -> RETURN expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+
+state 18
+
+    (14) expression -> LAMBDA . LPAREN parameter_list RPAREN expression
+
+    LPAREN          shift and go to state 40
+
+
+state 19
+
+    (27) expression -> LPAREN . expression RPAREN
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 41
+
+state 20
+
+    (15) expression -> IDENTIFIER . LPAREN argument_list RPAREN
+    (33) expression -> IDENTIFIER .
+
+    LPAREN          shift and go to state 42
+    PLUS            reduce using rule 33 (expression -> IDENTIFIER .)
+    MINUS           reduce using rule 33 (expression -> IDENTIFIER .)
+    MULTIPLY        reduce using rule 33 (expression -> IDENTIFIER .)
+    DIVIDE          reduce using rule 33 (expression -> IDENTIFIER .)
+    GT              reduce using rule 33 (expression -> IDENTIFIER .)
+    LT              reduce using rule 33 (expression -> IDENTIFIER .)
+    EQ              reduce using rule 33 (expression -> IDENTIFIER .)
+    NEQ             reduce using rule 33 (expression -> IDENTIFIER .)
+    IDENTIFIER      reduce using rule 33 (expression -> IDENTIFIER .)
+    IF              reduce using rule 33 (expression -> IDENTIFIER .)
+    WHILE           reduce using rule 33 (expression -> IDENTIFIER .)
+    FOR             reduce using rule 33 (expression -> IDENTIFIER .)
+    PRINT           reduce using rule 33 (expression -> IDENTIFIER .)
+    DEF             reduce using rule 33 (expression -> IDENTIFIER .)
+    RETURN          reduce using rule 33 (expression -> IDENTIFIER .)
+    $end            reduce using rule 33 (expression -> IDENTIFIER .)
+    SEMICOLON       reduce using rule 33 (expression -> IDENTIFIER .)
+    RBRACE          reduce using rule 33 (expression -> IDENTIFIER .)
+    RPAREN          reduce using rule 33 (expression -> IDENTIFIER .)
+    COMMA           reduce using rule 33 (expression -> IDENTIFIER .)
+
+
+state 21
+
+    (28) expression -> NUMBER .
+
+    PLUS            reduce using rule 28 (expression -> NUMBER .)
+    MINUS           reduce using rule 28 (expression -> NUMBER .)
+    MULTIPLY        reduce using rule 28 (expression -> NUMBER .)
+    DIVIDE          reduce using rule 28 (expression -> NUMBER .)
+    GT              reduce using rule 28 (expression -> NUMBER .)
+    LT              reduce using rule 28 (expression -> NUMBER .)
+    EQ              reduce using rule 28 (expression -> NUMBER .)
+    NEQ             reduce using rule 28 (expression -> NUMBER .)
+    IDENTIFIER      reduce using rule 28 (expression -> NUMBER .)
+    IF              reduce using rule 28 (expression -> NUMBER .)
+    WHILE           reduce using rule 28 (expression -> NUMBER .)
+    FOR             reduce using rule 28 (expression -> NUMBER .)
+    PRINT           reduce using rule 28 (expression -> NUMBER .)
+    DEF             reduce using rule 28 (expression -> NUMBER .)
+    RETURN          reduce using rule 28 (expression -> NUMBER .)
+    $end            reduce using rule 28 (expression -> NUMBER .)
+    SEMICOLON       reduce using rule 28 (expression -> NUMBER .)
+    RBRACE          reduce using rule 28 (expression -> NUMBER .)
+    RPAREN          reduce using rule 28 (expression -> NUMBER .)
+    COMMA           reduce using rule 28 (expression -> NUMBER .)
+
+
+state 22
+
+    (29) expression -> STRING .
+
+    PLUS            reduce using rule 29 (expression -> STRING .)
+    MINUS           reduce using rule 29 (expression -> STRING .)
+    MULTIPLY        reduce using rule 29 (expression -> STRING .)
+    DIVIDE          reduce using rule 29 (expression -> STRING .)
+    GT              reduce using rule 29 (expression -> STRING .)
+    LT              reduce using rule 29 (expression -> STRING .)
+    EQ              reduce using rule 29 (expression -> STRING .)
+    NEQ             reduce using rule 29 (expression -> STRING .)
+    IDENTIFIER      reduce using rule 29 (expression -> STRING .)
+    IF              reduce using rule 29 (expression -> STRING .)
+    WHILE           reduce using rule 29 (expression -> STRING .)
+    FOR             reduce using rule 29 (expression -> STRING .)
+    PRINT           reduce using rule 29 (expression -> STRING .)
+    DEF             reduce using rule 29 (expression -> STRING .)
+    RETURN          reduce using rule 29 (expression -> STRING .)
+    $end            reduce using rule 29 (expression -> STRING .)
+    SEMICOLON       reduce using rule 29 (expression -> STRING .)
+    RBRACE          reduce using rule 29 (expression -> STRING .)
+    RPAREN          reduce using rule 29 (expression -> STRING .)
+    COMMA           reduce using rule 29 (expression -> STRING .)
+
+
+state 23
+
+    (30) expression -> TRUE .
+
+    PLUS            reduce using rule 30 (expression -> TRUE .)
+    MINUS           reduce using rule 30 (expression -> TRUE .)
+    MULTIPLY        reduce using rule 30 (expression -> TRUE .)
+    DIVIDE          reduce using rule 30 (expression -> TRUE .)
+    GT              reduce using rule 30 (expression -> TRUE .)
+    LT              reduce using rule 30 (expression -> TRUE .)
+    EQ              reduce using rule 30 (expression -> TRUE .)
+    NEQ             reduce using rule 30 (expression -> TRUE .)
+    IDENTIFIER      reduce using rule 30 (expression -> TRUE .)
+    IF              reduce using rule 30 (expression -> TRUE .)
+    WHILE           reduce using rule 30 (expression -> TRUE .)
+    FOR             reduce using rule 30 (expression -> TRUE .)
+    PRINT           reduce using rule 30 (expression -> TRUE .)
+    DEF             reduce using rule 30 (expression -> TRUE .)
+    RETURN          reduce using rule 30 (expression -> TRUE .)
+    $end            reduce using rule 30 (expression -> TRUE .)
+    SEMICOLON       reduce using rule 30 (expression -> TRUE .)
+    RBRACE          reduce using rule 30 (expression -> TRUE .)
+    RPAREN          reduce using rule 30 (expression -> TRUE .)
+    COMMA           reduce using rule 30 (expression -> TRUE .)
+
+
+state 24
+
+    (31) expression -> FALSE .
+
+    PLUS            reduce using rule 31 (expression -> FALSE .)
+    MINUS           reduce using rule 31 (expression -> FALSE .)
+    MULTIPLY        reduce using rule 31 (expression -> FALSE .)
+    DIVIDE          reduce using rule 31 (expression -> FALSE .)
+    GT              reduce using rule 31 (expression -> FALSE .)
+    LT              reduce using rule 31 (expression -> FALSE .)
+    EQ              reduce using rule 31 (expression -> FALSE .)
+    NEQ             reduce using rule 31 (expression -> FALSE .)
+    IDENTIFIER      reduce using rule 31 (expression -> FALSE .)
+    IF              reduce using rule 31 (expression -> FALSE .)
+    WHILE           reduce using rule 31 (expression -> FALSE .)
+    FOR             reduce using rule 31 (expression -> FALSE .)
+    PRINT           reduce using rule 31 (expression -> FALSE .)
+    DEF             reduce using rule 31 (expression -> FALSE .)
+    RETURN          reduce using rule 31 (expression -> FALSE .)
+    $end            reduce using rule 31 (expression -> FALSE .)
+    SEMICOLON       reduce using rule 31 (expression -> FALSE .)
+    RBRACE          reduce using rule 31 (expression -> FALSE .)
+    RPAREN          reduce using rule 31 (expression -> FALSE .)
+    COMMA           reduce using rule 31 (expression -> FALSE .)
+
+
+state 25
+
+    (32) expression -> NONE .
+
+    PLUS            reduce using rule 32 (expression -> NONE .)
+    MINUS           reduce using rule 32 (expression -> NONE .)
+    MULTIPLY        reduce using rule 32 (expression -> NONE .)
+    DIVIDE          reduce using rule 32 (expression -> NONE .)
+    GT              reduce using rule 32 (expression -> NONE .)
+    LT              reduce using rule 32 (expression -> NONE .)
+    EQ              reduce using rule 32 (expression -> NONE .)
+    NEQ             reduce using rule 32 (expression -> NONE .)
+    IDENTIFIER      reduce using rule 32 (expression -> NONE .)
+    IF              reduce using rule 32 (expression -> NONE .)
+    WHILE           reduce using rule 32 (expression -> NONE .)
+    FOR             reduce using rule 32 (expression -> NONE .)
+    PRINT           reduce using rule 32 (expression -> NONE .)
+    DEF             reduce using rule 32 (expression -> NONE .)
+    RETURN          reduce using rule 32 (expression -> NONE .)
+    $end            reduce using rule 32 (expression -> NONE .)
+    SEMICOLON       reduce using rule 32 (expression -> NONE .)
+    RBRACE          reduce using rule 32 (expression -> NONE .)
+    RPAREN          reduce using rule 32 (expression -> NONE .)
+    COMMA           reduce using rule 32 (expression -> NONE .)
+
+
+state 26
+
     (3) statement -> IDENTIFIER ASSIGN expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
 
     IDENTIFIER      reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     IF              reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     WHILE           reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     FOR             reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     PRINT           reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
+    DEF             reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
+    RETURN          reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     $end            reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     SEMICOLON       reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     RBRACE          reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
     RPAREN          reduce using rule 3 (statement -> IDENTIFIER ASSIGN expression .)
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
 
-
-state 16
-
-    (17) expression -> LPAREN . expression RPAREN
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
-
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
-
-    expression                     shift and go to state 33
-
-state 17
-
-    (18) expression -> NUMBER .
-
-    PLUS            reduce using rule 18 (expression -> NUMBER .)
-    MINUS           reduce using rule 18 (expression -> NUMBER .)
-    MULTIPLY        reduce using rule 18 (expression -> NUMBER .)
-    DIVIDE          reduce using rule 18 (expression -> NUMBER .)
-    GT              reduce using rule 18 (expression -> NUMBER .)
-    LT              reduce using rule 18 (expression -> NUMBER .)
-    EQ              reduce using rule 18 (expression -> NUMBER .)
-    NEQ             reduce using rule 18 (expression -> NUMBER .)
-    IDENTIFIER      reduce using rule 18 (expression -> NUMBER .)
-    IF              reduce using rule 18 (expression -> NUMBER .)
-    WHILE           reduce using rule 18 (expression -> NUMBER .)
-    FOR             reduce using rule 18 (expression -> NUMBER .)
-    PRINT           reduce using rule 18 (expression -> NUMBER .)
-    $end            reduce using rule 18 (expression -> NUMBER .)
-    SEMICOLON       reduce using rule 18 (expression -> NUMBER .)
-    RBRACE          reduce using rule 18 (expression -> NUMBER .)
-    RPAREN          reduce using rule 18 (expression -> NUMBER .)
-
-
-state 18
-
-    (19) expression -> STRING .
-
-    PLUS            reduce using rule 19 (expression -> STRING .)
-    MINUS           reduce using rule 19 (expression -> STRING .)
-    MULTIPLY        reduce using rule 19 (expression -> STRING .)
-    DIVIDE          reduce using rule 19 (expression -> STRING .)
-    GT              reduce using rule 19 (expression -> STRING .)
-    LT              reduce using rule 19 (expression -> STRING .)
-    EQ              reduce using rule 19 (expression -> STRING .)
-    NEQ             reduce using rule 19 (expression -> STRING .)
-    IDENTIFIER      reduce using rule 19 (expression -> STRING .)
-    IF              reduce using rule 19 (expression -> STRING .)
-    WHILE           reduce using rule 19 (expression -> STRING .)
-    FOR             reduce using rule 19 (expression -> STRING .)
-    PRINT           reduce using rule 19 (expression -> STRING .)
-    $end            reduce using rule 19 (expression -> STRING .)
-    SEMICOLON       reduce using rule 19 (expression -> STRING .)
-    RBRACE          reduce using rule 19 (expression -> STRING .)
-    RPAREN          reduce using rule 19 (expression -> STRING .)
-
-
-state 19
-
-    (20) expression -> TRUE .
-
-    PLUS            reduce using rule 20 (expression -> TRUE .)
-    MINUS           reduce using rule 20 (expression -> TRUE .)
-    MULTIPLY        reduce using rule 20 (expression -> TRUE .)
-    DIVIDE          reduce using rule 20 (expression -> TRUE .)
-    GT              reduce using rule 20 (expression -> TRUE .)
-    LT              reduce using rule 20 (expression -> TRUE .)
-    EQ              reduce using rule 20 (expression -> TRUE .)
-    NEQ             reduce using rule 20 (expression -> TRUE .)
-    IDENTIFIER      reduce using rule 20 (expression -> TRUE .)
-    IF              reduce using rule 20 (expression -> TRUE .)
-    WHILE           reduce using rule 20 (expression -> TRUE .)
-    FOR             reduce using rule 20 (expression -> TRUE .)
-    PRINT           reduce using rule 20 (expression -> TRUE .)
-    $end            reduce using rule 20 (expression -> TRUE .)
-    SEMICOLON       reduce using rule 20 (expression -> TRUE .)
-    RBRACE          reduce using rule 20 (expression -> TRUE .)
-    RPAREN          reduce using rule 20 (expression -> TRUE .)
-
-
-state 20
-
-    (21) expression -> FALSE .
-
-    PLUS            reduce using rule 21 (expression -> FALSE .)
-    MINUS           reduce using rule 21 (expression -> FALSE .)
-    MULTIPLY        reduce using rule 21 (expression -> FALSE .)
-    DIVIDE          reduce using rule 21 (expression -> FALSE .)
-    GT              reduce using rule 21 (expression -> FALSE .)
-    LT              reduce using rule 21 (expression -> FALSE .)
-    EQ              reduce using rule 21 (expression -> FALSE .)
-    NEQ             reduce using rule 21 (expression -> FALSE .)
-    IDENTIFIER      reduce using rule 21 (expression -> FALSE .)
-    IF              reduce using rule 21 (expression -> FALSE .)
-    WHILE           reduce using rule 21 (expression -> FALSE .)
-    FOR             reduce using rule 21 (expression -> FALSE .)
-    PRINT           reduce using rule 21 (expression -> FALSE .)
-    $end            reduce using rule 21 (expression -> FALSE .)
-    SEMICOLON       reduce using rule 21 (expression -> FALSE .)
-    RBRACE          reduce using rule 21 (expression -> FALSE .)
-    RPAREN          reduce using rule 21 (expression -> FALSE .)
-
-
-state 21
-
-    (4) statement -> IF LPAREN expression . RPAREN LBRACE program RBRACE
-    (5) statement -> IF LPAREN expression . RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-    RPAREN          shift and go to state 34
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
-
-
-state 22
-
-    (6) statement -> WHILE LPAREN expression . RPAREN LBRACE program RBRACE
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-    RPAREN          shift and go to state 35
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
-
-
-state 23
-
-    (7) statement -> FOR LPAREN statement . SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
-
-    SEMICOLON       shift and go to state 36
-
-
-state 24
-
-    (8) statement -> PRINT LPAREN expression . RPAREN
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-    RPAREN          shift and go to state 37
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
-
-
-state 25
-
-    (9) expression -> expression PLUS . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
-
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
-
-    expression                     shift and go to state 38
-
-state 26
-
-    (10) expression -> expression MINUS . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
-
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
-
-    expression                     shift and go to state 39
 
 state 27
 
-    (11) expression -> expression MULTIPLY . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (4) statement -> IF LPAREN expression . RPAREN LBRACE program RBRACE
+    (5) statement -> IF LPAREN expression . RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    RPAREN          shift and go to state 43
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
 
-    expression                     shift and go to state 40
 
 state 28
 
-    (12) expression -> expression DIVIDE . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (6) statement -> WHILE LPAREN expression . RPAREN LBRACE program RBRACE
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    RPAREN          shift and go to state 44
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
 
-    expression                     shift and go to state 41
 
 state 29
 
-    (13) expression -> expression GT . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (7) statement -> FOR LPAREN statement . SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    SEMICOLON       shift and go to state 45
 
-    expression                     shift and go to state 42
 
 state 30
 
-    (14) expression -> expression LT . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (8) statement -> PRINT LPAREN expression . RPAREN
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    RPAREN          shift and go to state 46
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
 
-    expression                     shift and go to state 43
 
 state 31
 
-    (15) expression -> expression EQ . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (9) statement -> DEF IDENTIFIER LPAREN . parameter_list RPAREN LBRACE program RBRACE
+    (10) parameter_list -> . IDENTIFIER
+    (11) parameter_list -> . parameter_list COMMA IDENTIFIER
+    (12) parameter_list -> . empty
+    (34) empty -> .
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    IDENTIFIER      shift and go to state 47
+    RPAREN          reduce using rule 34 (empty -> .)
+    COMMA           reduce using rule 34 (empty -> .)
 
-    expression                     shift and go to state 44
+    parameter_list                 shift and go to state 48
+    empty                          shift and go to state 49
 
 state 32
 
-    (16) expression -> expression NEQ . expression
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (19) expression -> expression PLUS . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
 
-    expression                     shift and go to state 45
+    expression                     shift and go to state 50
 
 state 33
 
-    (17) expression -> LPAREN expression . RPAREN
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
+    (20) expression -> expression MINUS . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
 
-    RPAREN          shift and go to state 46
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
 
+    expression                     shift and go to state 51
 
 state 34
+
+    (21) expression -> expression MULTIPLY . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 52
+
+state 35
+
+    (22) expression -> expression DIVIDE . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 53
+
+state 36
+
+    (23) expression -> expression GT . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 54
+
+state 37
+
+    (24) expression -> expression LT . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 55
+
+state 38
+
+    (25) expression -> expression EQ . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 56
+
+state 39
+
+    (26) expression -> expression NEQ . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 57
+
+state 40
+
+    (14) expression -> LAMBDA LPAREN . parameter_list RPAREN expression
+    (10) parameter_list -> . IDENTIFIER
+    (11) parameter_list -> . parameter_list COMMA IDENTIFIER
+    (12) parameter_list -> . empty
+    (34) empty -> .
+
+    IDENTIFIER      shift and go to state 47
+    RPAREN          reduce using rule 34 (empty -> .)
+    COMMA           reduce using rule 34 (empty -> .)
+
+    parameter_list                 shift and go to state 58
+    empty                          shift and go to state 49
+
+state 41
+
+    (27) expression -> LPAREN expression . RPAREN
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    RPAREN          shift and go to state 59
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+
+state 42
+
+    (15) expression -> IDENTIFIER LPAREN . argument_list RPAREN
+    (16) argument_list -> . expression
+    (17) argument_list -> . argument_list COMMA expression
+    (18) argument_list -> . empty
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+    (34) empty -> .
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+    RPAREN          reduce using rule 34 (empty -> .)
+    COMMA           reduce using rule 34 (empty -> .)
+
+    argument_list                  shift and go to state 60
+    expression                     shift and go to state 61
+    empty                          shift and go to state 62
+
+state 43
 
     (4) statement -> IF LPAREN expression RPAREN . LBRACE program RBRACE
     (5) statement -> IF LPAREN expression RPAREN . LBRACE program RBRACE ELSE LBRACE program RBRACE
 
-    LBRACE          shift and go to state 47
+    LBRACE          shift and go to state 63
 
 
-state 35
+state 44
 
     (6) statement -> WHILE LPAREN expression RPAREN . LBRACE program RBRACE
 
-    LBRACE          shift and go to state 48
+    LBRACE          shift and go to state 64
 
 
-state 36
+state 45
 
     (7) statement -> FOR LPAREN statement SEMICOLON . expression SEMICOLON statement RPAREN LBRACE program RBRACE
-    (9) expression -> . expression PLUS expression
-    (10) expression -> . expression MINUS expression
-    (11) expression -> . expression MULTIPLY expression
-    (12) expression -> . expression DIVIDE expression
-    (13) expression -> . expression GT expression
-    (14) expression -> . expression LT expression
-    (15) expression -> . expression EQ expression
-    (16) expression -> . expression NEQ expression
-    (17) expression -> . LPAREN expression RPAREN
-    (18) expression -> . NUMBER
-    (19) expression -> . STRING
-    (20) expression -> . TRUE
-    (21) expression -> . FALSE
-    (22) expression -> . IDENTIFIER
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
 
-    LPAREN          shift and go to state 16
-    NUMBER          shift and go to state 17
-    STRING          shift and go to state 18
-    TRUE            shift and go to state 19
-    FALSE           shift and go to state 20
-    IDENTIFIER      shift and go to state 14
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
 
-    expression                     shift and go to state 49
+    expression                     shift and go to state 65
 
-state 37
+state 46
 
     (8) statement -> PRINT LPAREN expression RPAREN .
 
@@ -831,388 +1147,492 @@ state 37
     WHILE           reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
     FOR             reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
     PRINT           reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
+    DEF             reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
+    RETURN          reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
     $end            reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
     SEMICOLON       reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
     RBRACE          reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
     RPAREN          reduce using rule 8 (statement -> PRINT LPAREN expression RPAREN .)
 
 
-state 38
-
-    (9) expression -> expression PLUS expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-    PLUS            reduce using rule 9 (expression -> expression PLUS expression .)
-    MINUS           reduce using rule 9 (expression -> expression PLUS expression .)
-    GT              reduce using rule 9 (expression -> expression PLUS expression .)
-    LT              reduce using rule 9 (expression -> expression PLUS expression .)
-    EQ              reduce using rule 9 (expression -> expression PLUS expression .)
-    NEQ             reduce using rule 9 (expression -> expression PLUS expression .)
-    IDENTIFIER      reduce using rule 9 (expression -> expression PLUS expression .)
-    IF              reduce using rule 9 (expression -> expression PLUS expression .)
-    WHILE           reduce using rule 9 (expression -> expression PLUS expression .)
-    FOR             reduce using rule 9 (expression -> expression PLUS expression .)
-    PRINT           reduce using rule 9 (expression -> expression PLUS expression .)
-    $end            reduce using rule 9 (expression -> expression PLUS expression .)
-    SEMICOLON       reduce using rule 9 (expression -> expression PLUS expression .)
-    RBRACE          reduce using rule 9 (expression -> expression PLUS expression .)
-    RPAREN          reduce using rule 9 (expression -> expression PLUS expression .)
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-
-  ! MULTIPLY        [ reduce using rule 9 (expression -> expression PLUS expression .) ]
-  ! DIVIDE          [ reduce using rule 9 (expression -> expression PLUS expression .) ]
-  ! PLUS            [ shift and go to state 25 ]
-  ! MINUS           [ shift and go to state 26 ]
-  ! GT              [ shift and go to state 29 ]
-  ! LT              [ shift and go to state 30 ]
-  ! EQ              [ shift and go to state 31 ]
-  ! NEQ             [ shift and go to state 32 ]
-
-
-state 39
-
-    (10) expression -> expression MINUS expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-    PLUS            reduce using rule 10 (expression -> expression MINUS expression .)
-    MINUS           reduce using rule 10 (expression -> expression MINUS expression .)
-    GT              reduce using rule 10 (expression -> expression MINUS expression .)
-    LT              reduce using rule 10 (expression -> expression MINUS expression .)
-    EQ              reduce using rule 10 (expression -> expression MINUS expression .)
-    NEQ             reduce using rule 10 (expression -> expression MINUS expression .)
-    IDENTIFIER      reduce using rule 10 (expression -> expression MINUS expression .)
-    IF              reduce using rule 10 (expression -> expression MINUS expression .)
-    WHILE           reduce using rule 10 (expression -> expression MINUS expression .)
-    FOR             reduce using rule 10 (expression -> expression MINUS expression .)
-    PRINT           reduce using rule 10 (expression -> expression MINUS expression .)
-    $end            reduce using rule 10 (expression -> expression MINUS expression .)
-    SEMICOLON       reduce using rule 10 (expression -> expression MINUS expression .)
-    RBRACE          reduce using rule 10 (expression -> expression MINUS expression .)
-    RPAREN          reduce using rule 10 (expression -> expression MINUS expression .)
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-
-  ! MULTIPLY        [ reduce using rule 10 (expression -> expression MINUS expression .) ]
-  ! DIVIDE          [ reduce using rule 10 (expression -> expression MINUS expression .) ]
-  ! PLUS            [ shift and go to state 25 ]
-  ! MINUS           [ shift and go to state 26 ]
-  ! GT              [ shift and go to state 29 ]
-  ! LT              [ shift and go to state 30 ]
-  ! EQ              [ shift and go to state 31 ]
-  ! NEQ             [ shift and go to state 32 ]
-
-
-state 40
-
-    (11) expression -> expression MULTIPLY expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-    PLUS            reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    MINUS           reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    MULTIPLY        reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    DIVIDE          reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    GT              reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    LT              reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    EQ              reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    NEQ             reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    IDENTIFIER      reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    IF              reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    WHILE           reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    FOR             reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    PRINT           reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    $end            reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    SEMICOLON       reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    RBRACE          reduce using rule 11 (expression -> expression MULTIPLY expression .)
-    RPAREN          reduce using rule 11 (expression -> expression MULTIPLY expression .)
-
-  ! PLUS            [ shift and go to state 25 ]
-  ! MINUS           [ shift and go to state 26 ]
-  ! MULTIPLY        [ shift and go to state 27 ]
-  ! DIVIDE          [ shift and go to state 28 ]
-  ! GT              [ shift and go to state 29 ]
-  ! LT              [ shift and go to state 30 ]
-  ! EQ              [ shift and go to state 31 ]
-  ! NEQ             [ shift and go to state 32 ]
-
-
-state 41
-
-    (12) expression -> expression DIVIDE expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-    PLUS            reduce using rule 12 (expression -> expression DIVIDE expression .)
-    MINUS           reduce using rule 12 (expression -> expression DIVIDE expression .)
-    MULTIPLY        reduce using rule 12 (expression -> expression DIVIDE expression .)
-    DIVIDE          reduce using rule 12 (expression -> expression DIVIDE expression .)
-    GT              reduce using rule 12 (expression -> expression DIVIDE expression .)
-    LT              reduce using rule 12 (expression -> expression DIVIDE expression .)
-    EQ              reduce using rule 12 (expression -> expression DIVIDE expression .)
-    NEQ             reduce using rule 12 (expression -> expression DIVIDE expression .)
-    IDENTIFIER      reduce using rule 12 (expression -> expression DIVIDE expression .)
-    IF              reduce using rule 12 (expression -> expression DIVIDE expression .)
-    WHILE           reduce using rule 12 (expression -> expression DIVIDE expression .)
-    FOR             reduce using rule 12 (expression -> expression DIVIDE expression .)
-    PRINT           reduce using rule 12 (expression -> expression DIVIDE expression .)
-    $end            reduce using rule 12 (expression -> expression DIVIDE expression .)
-    SEMICOLON       reduce using rule 12 (expression -> expression DIVIDE expression .)
-    RBRACE          reduce using rule 12 (expression -> expression DIVIDE expression .)
-    RPAREN          reduce using rule 12 (expression -> expression DIVIDE expression .)
-
-  ! PLUS            [ shift and go to state 25 ]
-  ! MINUS           [ shift and go to state 26 ]
-  ! MULTIPLY        [ shift and go to state 27 ]
-  ! DIVIDE          [ shift and go to state 28 ]
-  ! GT              [ shift and go to state 29 ]
-  ! LT              [ shift and go to state 30 ]
-  ! EQ              [ shift and go to state 31 ]
-  ! NEQ             [ shift and go to state 32 ]
-
-
-state 42
-
-    (13) expression -> expression GT expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-  ! shift/reduce conflict for PLUS resolved as shift
-  ! shift/reduce conflict for MINUS resolved as shift
-  ! shift/reduce conflict for MULTIPLY resolved as shift
-  ! shift/reduce conflict for DIVIDE resolved as shift
-  ! shift/reduce conflict for GT resolved as shift
-  ! shift/reduce conflict for LT resolved as shift
-  ! shift/reduce conflict for EQ resolved as shift
-  ! shift/reduce conflict for NEQ resolved as shift
-    IDENTIFIER      reduce using rule 13 (expression -> expression GT expression .)
-    IF              reduce using rule 13 (expression -> expression GT expression .)
-    WHILE           reduce using rule 13 (expression -> expression GT expression .)
-    FOR             reduce using rule 13 (expression -> expression GT expression .)
-    PRINT           reduce using rule 13 (expression -> expression GT expression .)
-    $end            reduce using rule 13 (expression -> expression GT expression .)
-    SEMICOLON       reduce using rule 13 (expression -> expression GT expression .)
-    RBRACE          reduce using rule 13 (expression -> expression GT expression .)
-    RPAREN          reduce using rule 13 (expression -> expression GT expression .)
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
-
-  ! PLUS            [ reduce using rule 13 (expression -> expression GT expression .) ]
-  ! MINUS           [ reduce using rule 13 (expression -> expression GT expression .) ]
-  ! MULTIPLY        [ reduce using rule 13 (expression -> expression GT expression .) ]
-  ! DIVIDE          [ reduce using rule 13 (expression -> expression GT expression .) ]
-  ! GT              [ reduce using rule 13 (expression -> expression GT expression .) ]
-  ! LT              [ reduce using rule 13 (expression -> expression GT expression .) ]
-  ! EQ              [ reduce using rule 13 (expression -> expression GT expression .) ]
-  ! NEQ             [ reduce using rule 13 (expression -> expression GT expression .) ]
-
-
-state 43
-
-    (14) expression -> expression LT expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-  ! shift/reduce conflict for PLUS resolved as shift
-  ! shift/reduce conflict for MINUS resolved as shift
-  ! shift/reduce conflict for MULTIPLY resolved as shift
-  ! shift/reduce conflict for DIVIDE resolved as shift
-  ! shift/reduce conflict for GT resolved as shift
-  ! shift/reduce conflict for LT resolved as shift
-  ! shift/reduce conflict for EQ resolved as shift
-  ! shift/reduce conflict for NEQ resolved as shift
-    IDENTIFIER      reduce using rule 14 (expression -> expression LT expression .)
-    IF              reduce using rule 14 (expression -> expression LT expression .)
-    WHILE           reduce using rule 14 (expression -> expression LT expression .)
-    FOR             reduce using rule 14 (expression -> expression LT expression .)
-    PRINT           reduce using rule 14 (expression -> expression LT expression .)
-    $end            reduce using rule 14 (expression -> expression LT expression .)
-    SEMICOLON       reduce using rule 14 (expression -> expression LT expression .)
-    RBRACE          reduce using rule 14 (expression -> expression LT expression .)
-    RPAREN          reduce using rule 14 (expression -> expression LT expression .)
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
-
-  ! PLUS            [ reduce using rule 14 (expression -> expression LT expression .) ]
-  ! MINUS           [ reduce using rule 14 (expression -> expression LT expression .) ]
-  ! MULTIPLY        [ reduce using rule 14 (expression -> expression LT expression .) ]
-  ! DIVIDE          [ reduce using rule 14 (expression -> expression LT expression .) ]
-  ! GT              [ reduce using rule 14 (expression -> expression LT expression .) ]
-  ! LT              [ reduce using rule 14 (expression -> expression LT expression .) ]
-  ! EQ              [ reduce using rule 14 (expression -> expression LT expression .) ]
-  ! NEQ             [ reduce using rule 14 (expression -> expression LT expression .) ]
-
-
-state 44
-
-    (15) expression -> expression EQ expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-  ! shift/reduce conflict for PLUS resolved as shift
-  ! shift/reduce conflict for MINUS resolved as shift
-  ! shift/reduce conflict for MULTIPLY resolved as shift
-  ! shift/reduce conflict for DIVIDE resolved as shift
-  ! shift/reduce conflict for GT resolved as shift
-  ! shift/reduce conflict for LT resolved as shift
-  ! shift/reduce conflict for EQ resolved as shift
-  ! shift/reduce conflict for NEQ resolved as shift
-    IDENTIFIER      reduce using rule 15 (expression -> expression EQ expression .)
-    IF              reduce using rule 15 (expression -> expression EQ expression .)
-    WHILE           reduce using rule 15 (expression -> expression EQ expression .)
-    FOR             reduce using rule 15 (expression -> expression EQ expression .)
-    PRINT           reduce using rule 15 (expression -> expression EQ expression .)
-    $end            reduce using rule 15 (expression -> expression EQ expression .)
-    SEMICOLON       reduce using rule 15 (expression -> expression EQ expression .)
-    RBRACE          reduce using rule 15 (expression -> expression EQ expression .)
-    RPAREN          reduce using rule 15 (expression -> expression EQ expression .)
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
-
-  ! PLUS            [ reduce using rule 15 (expression -> expression EQ expression .) ]
-  ! MINUS           [ reduce using rule 15 (expression -> expression EQ expression .) ]
-  ! MULTIPLY        [ reduce using rule 15 (expression -> expression EQ expression .) ]
-  ! DIVIDE          [ reduce using rule 15 (expression -> expression EQ expression .) ]
-  ! GT              [ reduce using rule 15 (expression -> expression EQ expression .) ]
-  ! LT              [ reduce using rule 15 (expression -> expression EQ expression .) ]
-  ! EQ              [ reduce using rule 15 (expression -> expression EQ expression .) ]
-  ! NEQ             [ reduce using rule 15 (expression -> expression EQ expression .) ]
-
-
-state 45
-
-    (16) expression -> expression NEQ expression .
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
-
-  ! shift/reduce conflict for PLUS resolved as shift
-  ! shift/reduce conflict for MINUS resolved as shift
-  ! shift/reduce conflict for MULTIPLY resolved as shift
-  ! shift/reduce conflict for DIVIDE resolved as shift
-  ! shift/reduce conflict for GT resolved as shift
-  ! shift/reduce conflict for LT resolved as shift
-  ! shift/reduce conflict for EQ resolved as shift
-  ! shift/reduce conflict for NEQ resolved as shift
-    IDENTIFIER      reduce using rule 16 (expression -> expression NEQ expression .)
-    IF              reduce using rule 16 (expression -> expression NEQ expression .)
-    WHILE           reduce using rule 16 (expression -> expression NEQ expression .)
-    FOR             reduce using rule 16 (expression -> expression NEQ expression .)
-    PRINT           reduce using rule 16 (expression -> expression NEQ expression .)
-    $end            reduce using rule 16 (expression -> expression NEQ expression .)
-    SEMICOLON       reduce using rule 16 (expression -> expression NEQ expression .)
-    RBRACE          reduce using rule 16 (expression -> expression NEQ expression .)
-    RPAREN          reduce using rule 16 (expression -> expression NEQ expression .)
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
-
-  ! PLUS            [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-  ! MINUS           [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-  ! MULTIPLY        [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-  ! DIVIDE          [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-  ! GT              [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-  ! LT              [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-  ! EQ              [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-  ! NEQ             [ reduce using rule 16 (expression -> expression NEQ expression .) ]
-
-
-state 46
-
-    (17) expression -> LPAREN expression RPAREN .
-
-    PLUS            reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    MINUS           reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    MULTIPLY        reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    DIVIDE          reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    GT              reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    LT              reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    EQ              reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    NEQ             reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    IDENTIFIER      reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    IF              reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    WHILE           reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    FOR             reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    PRINT           reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    $end            reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    SEMICOLON       reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    RBRACE          reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-    RPAREN          reduce using rule 17 (expression -> LPAREN expression RPAREN .)
-
-
 state 47
+
+    (10) parameter_list -> IDENTIFIER .
+
+    RPAREN          reduce using rule 10 (parameter_list -> IDENTIFIER .)
+    COMMA           reduce using rule 10 (parameter_list -> IDENTIFIER .)
+
+
+state 48
+
+    (9) statement -> DEF IDENTIFIER LPAREN parameter_list . RPAREN LBRACE program RBRACE
+    (11) parameter_list -> parameter_list . COMMA IDENTIFIER
+
+    RPAREN          shift and go to state 66
+    COMMA           shift and go to state 67
+
+
+state 49
+
+    (12) parameter_list -> empty .
+
+    RPAREN          reduce using rule 12 (parameter_list -> empty .)
+    COMMA           reduce using rule 12 (parameter_list -> empty .)
+
+
+state 50
+
+    (19) expression -> expression PLUS expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    PLUS            reduce using rule 19 (expression -> expression PLUS expression .)
+    MINUS           reduce using rule 19 (expression -> expression PLUS expression .)
+    GT              reduce using rule 19 (expression -> expression PLUS expression .)
+    LT              reduce using rule 19 (expression -> expression PLUS expression .)
+    EQ              reduce using rule 19 (expression -> expression PLUS expression .)
+    NEQ             reduce using rule 19 (expression -> expression PLUS expression .)
+    IDENTIFIER      reduce using rule 19 (expression -> expression PLUS expression .)
+    IF              reduce using rule 19 (expression -> expression PLUS expression .)
+    WHILE           reduce using rule 19 (expression -> expression PLUS expression .)
+    FOR             reduce using rule 19 (expression -> expression PLUS expression .)
+    PRINT           reduce using rule 19 (expression -> expression PLUS expression .)
+    DEF             reduce using rule 19 (expression -> expression PLUS expression .)
+    RETURN          reduce using rule 19 (expression -> expression PLUS expression .)
+    $end            reduce using rule 19 (expression -> expression PLUS expression .)
+    SEMICOLON       reduce using rule 19 (expression -> expression PLUS expression .)
+    RBRACE          reduce using rule 19 (expression -> expression PLUS expression .)
+    RPAREN          reduce using rule 19 (expression -> expression PLUS expression .)
+    COMMA           reduce using rule 19 (expression -> expression PLUS expression .)
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+
+  ! MULTIPLY        [ reduce using rule 19 (expression -> expression PLUS expression .) ]
+  ! DIVIDE          [ reduce using rule 19 (expression -> expression PLUS expression .) ]
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 33 ]
+  ! GT              [ shift and go to state 36 ]
+  ! LT              [ shift and go to state 37 ]
+  ! EQ              [ shift and go to state 38 ]
+  ! NEQ             [ shift and go to state 39 ]
+
+
+state 51
+
+    (20) expression -> expression MINUS expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    PLUS            reduce using rule 20 (expression -> expression MINUS expression .)
+    MINUS           reduce using rule 20 (expression -> expression MINUS expression .)
+    GT              reduce using rule 20 (expression -> expression MINUS expression .)
+    LT              reduce using rule 20 (expression -> expression MINUS expression .)
+    EQ              reduce using rule 20 (expression -> expression MINUS expression .)
+    NEQ             reduce using rule 20 (expression -> expression MINUS expression .)
+    IDENTIFIER      reduce using rule 20 (expression -> expression MINUS expression .)
+    IF              reduce using rule 20 (expression -> expression MINUS expression .)
+    WHILE           reduce using rule 20 (expression -> expression MINUS expression .)
+    FOR             reduce using rule 20 (expression -> expression MINUS expression .)
+    PRINT           reduce using rule 20 (expression -> expression MINUS expression .)
+    DEF             reduce using rule 20 (expression -> expression MINUS expression .)
+    RETURN          reduce using rule 20 (expression -> expression MINUS expression .)
+    $end            reduce using rule 20 (expression -> expression MINUS expression .)
+    SEMICOLON       reduce using rule 20 (expression -> expression MINUS expression .)
+    RBRACE          reduce using rule 20 (expression -> expression MINUS expression .)
+    RPAREN          reduce using rule 20 (expression -> expression MINUS expression .)
+    COMMA           reduce using rule 20 (expression -> expression MINUS expression .)
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+
+  ! MULTIPLY        [ reduce using rule 20 (expression -> expression MINUS expression .) ]
+  ! DIVIDE          [ reduce using rule 20 (expression -> expression MINUS expression .) ]
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 33 ]
+  ! GT              [ shift and go to state 36 ]
+  ! LT              [ shift and go to state 37 ]
+  ! EQ              [ shift and go to state 38 ]
+  ! NEQ             [ shift and go to state 39 ]
+
+
+state 52
+
+    (21) expression -> expression MULTIPLY expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    PLUS            reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    MINUS           reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    MULTIPLY        reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    DIVIDE          reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    GT              reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    LT              reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    EQ              reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    NEQ             reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    IDENTIFIER      reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    IF              reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    WHILE           reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    FOR             reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    PRINT           reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    DEF             reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    RETURN          reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    $end            reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    SEMICOLON       reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    RBRACE          reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    RPAREN          reduce using rule 21 (expression -> expression MULTIPLY expression .)
+    COMMA           reduce using rule 21 (expression -> expression MULTIPLY expression .)
+
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 33 ]
+  ! MULTIPLY        [ shift and go to state 34 ]
+  ! DIVIDE          [ shift and go to state 35 ]
+  ! GT              [ shift and go to state 36 ]
+  ! LT              [ shift and go to state 37 ]
+  ! EQ              [ shift and go to state 38 ]
+  ! NEQ             [ shift and go to state 39 ]
+
+
+state 53
+
+    (22) expression -> expression DIVIDE expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    PLUS            reduce using rule 22 (expression -> expression DIVIDE expression .)
+    MINUS           reduce using rule 22 (expression -> expression DIVIDE expression .)
+    MULTIPLY        reduce using rule 22 (expression -> expression DIVIDE expression .)
+    DIVIDE          reduce using rule 22 (expression -> expression DIVIDE expression .)
+    GT              reduce using rule 22 (expression -> expression DIVIDE expression .)
+    LT              reduce using rule 22 (expression -> expression DIVIDE expression .)
+    EQ              reduce using rule 22 (expression -> expression DIVIDE expression .)
+    NEQ             reduce using rule 22 (expression -> expression DIVIDE expression .)
+    IDENTIFIER      reduce using rule 22 (expression -> expression DIVIDE expression .)
+    IF              reduce using rule 22 (expression -> expression DIVIDE expression .)
+    WHILE           reduce using rule 22 (expression -> expression DIVIDE expression .)
+    FOR             reduce using rule 22 (expression -> expression DIVIDE expression .)
+    PRINT           reduce using rule 22 (expression -> expression DIVIDE expression .)
+    DEF             reduce using rule 22 (expression -> expression DIVIDE expression .)
+    RETURN          reduce using rule 22 (expression -> expression DIVIDE expression .)
+    $end            reduce using rule 22 (expression -> expression DIVIDE expression .)
+    SEMICOLON       reduce using rule 22 (expression -> expression DIVIDE expression .)
+    RBRACE          reduce using rule 22 (expression -> expression DIVIDE expression .)
+    RPAREN          reduce using rule 22 (expression -> expression DIVIDE expression .)
+    COMMA           reduce using rule 22 (expression -> expression DIVIDE expression .)
+
+  ! PLUS            [ shift and go to state 32 ]
+  ! MINUS           [ shift and go to state 33 ]
+  ! MULTIPLY        [ shift and go to state 34 ]
+  ! DIVIDE          [ shift and go to state 35 ]
+  ! GT              [ shift and go to state 36 ]
+  ! LT              [ shift and go to state 37 ]
+  ! EQ              [ shift and go to state 38 ]
+  ! NEQ             [ shift and go to state 39 ]
+
+
+state 54
+
+    (23) expression -> expression GT expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for MULTIPLY resolved as shift
+  ! shift/reduce conflict for DIVIDE resolved as shift
+  ! shift/reduce conflict for GT resolved as shift
+  ! shift/reduce conflict for LT resolved as shift
+  ! shift/reduce conflict for EQ resolved as shift
+  ! shift/reduce conflict for NEQ resolved as shift
+    IDENTIFIER      reduce using rule 23 (expression -> expression GT expression .)
+    IF              reduce using rule 23 (expression -> expression GT expression .)
+    WHILE           reduce using rule 23 (expression -> expression GT expression .)
+    FOR             reduce using rule 23 (expression -> expression GT expression .)
+    PRINT           reduce using rule 23 (expression -> expression GT expression .)
+    DEF             reduce using rule 23 (expression -> expression GT expression .)
+    RETURN          reduce using rule 23 (expression -> expression GT expression .)
+    $end            reduce using rule 23 (expression -> expression GT expression .)
+    SEMICOLON       reduce using rule 23 (expression -> expression GT expression .)
+    RBRACE          reduce using rule 23 (expression -> expression GT expression .)
+    RPAREN          reduce using rule 23 (expression -> expression GT expression .)
+    COMMA           reduce using rule 23 (expression -> expression GT expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+  ! PLUS            [ reduce using rule 23 (expression -> expression GT expression .) ]
+  ! MINUS           [ reduce using rule 23 (expression -> expression GT expression .) ]
+  ! MULTIPLY        [ reduce using rule 23 (expression -> expression GT expression .) ]
+  ! DIVIDE          [ reduce using rule 23 (expression -> expression GT expression .) ]
+  ! GT              [ reduce using rule 23 (expression -> expression GT expression .) ]
+  ! LT              [ reduce using rule 23 (expression -> expression GT expression .) ]
+  ! EQ              [ reduce using rule 23 (expression -> expression GT expression .) ]
+  ! NEQ             [ reduce using rule 23 (expression -> expression GT expression .) ]
+
+
+state 55
+
+    (24) expression -> expression LT expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for MULTIPLY resolved as shift
+  ! shift/reduce conflict for DIVIDE resolved as shift
+  ! shift/reduce conflict for GT resolved as shift
+  ! shift/reduce conflict for LT resolved as shift
+  ! shift/reduce conflict for EQ resolved as shift
+  ! shift/reduce conflict for NEQ resolved as shift
+    IDENTIFIER      reduce using rule 24 (expression -> expression LT expression .)
+    IF              reduce using rule 24 (expression -> expression LT expression .)
+    WHILE           reduce using rule 24 (expression -> expression LT expression .)
+    FOR             reduce using rule 24 (expression -> expression LT expression .)
+    PRINT           reduce using rule 24 (expression -> expression LT expression .)
+    DEF             reduce using rule 24 (expression -> expression LT expression .)
+    RETURN          reduce using rule 24 (expression -> expression LT expression .)
+    $end            reduce using rule 24 (expression -> expression LT expression .)
+    SEMICOLON       reduce using rule 24 (expression -> expression LT expression .)
+    RBRACE          reduce using rule 24 (expression -> expression LT expression .)
+    RPAREN          reduce using rule 24 (expression -> expression LT expression .)
+    COMMA           reduce using rule 24 (expression -> expression LT expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+  ! PLUS            [ reduce using rule 24 (expression -> expression LT expression .) ]
+  ! MINUS           [ reduce using rule 24 (expression -> expression LT expression .) ]
+  ! MULTIPLY        [ reduce using rule 24 (expression -> expression LT expression .) ]
+  ! DIVIDE          [ reduce using rule 24 (expression -> expression LT expression .) ]
+  ! GT              [ reduce using rule 24 (expression -> expression LT expression .) ]
+  ! LT              [ reduce using rule 24 (expression -> expression LT expression .) ]
+  ! EQ              [ reduce using rule 24 (expression -> expression LT expression .) ]
+  ! NEQ             [ reduce using rule 24 (expression -> expression LT expression .) ]
+
+
+state 56
+
+    (25) expression -> expression EQ expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for MULTIPLY resolved as shift
+  ! shift/reduce conflict for DIVIDE resolved as shift
+  ! shift/reduce conflict for GT resolved as shift
+  ! shift/reduce conflict for LT resolved as shift
+  ! shift/reduce conflict for EQ resolved as shift
+  ! shift/reduce conflict for NEQ resolved as shift
+    IDENTIFIER      reduce using rule 25 (expression -> expression EQ expression .)
+    IF              reduce using rule 25 (expression -> expression EQ expression .)
+    WHILE           reduce using rule 25 (expression -> expression EQ expression .)
+    FOR             reduce using rule 25 (expression -> expression EQ expression .)
+    PRINT           reduce using rule 25 (expression -> expression EQ expression .)
+    DEF             reduce using rule 25 (expression -> expression EQ expression .)
+    RETURN          reduce using rule 25 (expression -> expression EQ expression .)
+    $end            reduce using rule 25 (expression -> expression EQ expression .)
+    SEMICOLON       reduce using rule 25 (expression -> expression EQ expression .)
+    RBRACE          reduce using rule 25 (expression -> expression EQ expression .)
+    RPAREN          reduce using rule 25 (expression -> expression EQ expression .)
+    COMMA           reduce using rule 25 (expression -> expression EQ expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+  ! PLUS            [ reduce using rule 25 (expression -> expression EQ expression .) ]
+  ! MINUS           [ reduce using rule 25 (expression -> expression EQ expression .) ]
+  ! MULTIPLY        [ reduce using rule 25 (expression -> expression EQ expression .) ]
+  ! DIVIDE          [ reduce using rule 25 (expression -> expression EQ expression .) ]
+  ! GT              [ reduce using rule 25 (expression -> expression EQ expression .) ]
+  ! LT              [ reduce using rule 25 (expression -> expression EQ expression .) ]
+  ! EQ              [ reduce using rule 25 (expression -> expression EQ expression .) ]
+  ! NEQ             [ reduce using rule 25 (expression -> expression EQ expression .) ]
+
+
+state 57
+
+    (26) expression -> expression NEQ expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for MULTIPLY resolved as shift
+  ! shift/reduce conflict for DIVIDE resolved as shift
+  ! shift/reduce conflict for GT resolved as shift
+  ! shift/reduce conflict for LT resolved as shift
+  ! shift/reduce conflict for EQ resolved as shift
+  ! shift/reduce conflict for NEQ resolved as shift
+    IDENTIFIER      reduce using rule 26 (expression -> expression NEQ expression .)
+    IF              reduce using rule 26 (expression -> expression NEQ expression .)
+    WHILE           reduce using rule 26 (expression -> expression NEQ expression .)
+    FOR             reduce using rule 26 (expression -> expression NEQ expression .)
+    PRINT           reduce using rule 26 (expression -> expression NEQ expression .)
+    DEF             reduce using rule 26 (expression -> expression NEQ expression .)
+    RETURN          reduce using rule 26 (expression -> expression NEQ expression .)
+    $end            reduce using rule 26 (expression -> expression NEQ expression .)
+    SEMICOLON       reduce using rule 26 (expression -> expression NEQ expression .)
+    RBRACE          reduce using rule 26 (expression -> expression NEQ expression .)
+    RPAREN          reduce using rule 26 (expression -> expression NEQ expression .)
+    COMMA           reduce using rule 26 (expression -> expression NEQ expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+  ! PLUS            [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+  ! MINUS           [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+  ! MULTIPLY        [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+  ! DIVIDE          [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+  ! GT              [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+  ! LT              [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+  ! EQ              [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+  ! NEQ             [ reduce using rule 26 (expression -> expression NEQ expression .) ]
+
+
+state 58
+
+    (14) expression -> LAMBDA LPAREN parameter_list . RPAREN expression
+    (11) parameter_list -> parameter_list . COMMA IDENTIFIER
+
+    RPAREN          shift and go to state 68
+    COMMA           shift and go to state 67
+
+
+state 59
+
+    (27) expression -> LPAREN expression RPAREN .
+
+    PLUS            reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    MINUS           reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    MULTIPLY        reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    DIVIDE          reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    GT              reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    LT              reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    EQ              reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    NEQ             reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    IDENTIFIER      reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    IF              reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    WHILE           reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    FOR             reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    PRINT           reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    DEF             reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    RETURN          reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    $end            reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    SEMICOLON       reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    RBRACE          reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    RPAREN          reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+    COMMA           reduce using rule 27 (expression -> LPAREN expression RPAREN .)
+
+
+state 60
+
+    (15) expression -> IDENTIFIER LPAREN argument_list . RPAREN
+    (17) argument_list -> argument_list . COMMA expression
+
+    RPAREN          shift and go to state 69
+    COMMA           shift and go to state 70
+
+
+state 61
+
+    (16) argument_list -> expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    RPAREN          reduce using rule 16 (argument_list -> expression .)
+    COMMA           reduce using rule 16 (argument_list -> expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+
+state 62
+
+    (18) argument_list -> empty .
+
+    RPAREN          reduce using rule 18 (argument_list -> empty .)
+    COMMA           reduce using rule 18 (argument_list -> empty .)
+
+
+state 63
 
     (4) statement -> IF LPAREN expression RPAREN LBRACE . program RBRACE
     (5) statement -> IF LPAREN expression RPAREN LBRACE . program RBRACE ELSE LBRACE program RBRACE
@@ -1224,17 +1644,21 @@ state 47
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    program                        shift and go to state 50
+    program                        shift and go to state 71
     statement                      shift and go to state 2
 
-state 48
+state 64
 
     (6) statement -> WHILE LPAREN expression RPAREN LBRACE . program RBRACE
     (1) program -> . program statement
@@ -1245,40 +1669,148 @@ state 48
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    program                        shift and go to state 51
+    program                        shift and go to state 72
     statement                      shift and go to state 2
 
-state 49
+state 65
 
     (7) statement -> FOR LPAREN statement SEMICOLON expression . SEMICOLON statement RPAREN LBRACE program RBRACE
-    (9) expression -> expression . PLUS expression
-    (10) expression -> expression . MINUS expression
-    (11) expression -> expression . MULTIPLY expression
-    (12) expression -> expression . DIVIDE expression
-    (13) expression -> expression . GT expression
-    (14) expression -> expression . LT expression
-    (15) expression -> expression . EQ expression
-    (16) expression -> expression . NEQ expression
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
 
-    SEMICOLON       shift and go to state 52
-    PLUS            shift and go to state 25
-    MINUS           shift and go to state 26
-    MULTIPLY        shift and go to state 27
-    DIVIDE          shift and go to state 28
-    GT              shift and go to state 29
-    LT              shift and go to state 30
-    EQ              shift and go to state 31
-    NEQ             shift and go to state 32
+    SEMICOLON       shift and go to state 73
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
 
 
-state 50
+state 66
+
+    (9) statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN . LBRACE program RBRACE
+
+    LBRACE          shift and go to state 74
+
+
+state 67
+
+    (11) parameter_list -> parameter_list COMMA . IDENTIFIER
+
+    IDENTIFIER      shift and go to state 75
+
+
+state 68
+
+    (14) expression -> LAMBDA LPAREN parameter_list RPAREN . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 76
+
+state 69
+
+    (15) expression -> IDENTIFIER LPAREN argument_list RPAREN .
+
+    PLUS            reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    MINUS           reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    MULTIPLY        reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    DIVIDE          reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    GT              reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    LT              reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    EQ              reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    NEQ             reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    IDENTIFIER      reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    IF              reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    WHILE           reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    FOR             reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    PRINT           reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    DEF             reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    RETURN          reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    $end            reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    SEMICOLON       reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    RBRACE          reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    RPAREN          reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+    COMMA           reduce using rule 15 (expression -> IDENTIFIER LPAREN argument_list RPAREN .)
+
+
+state 70
+
+    (17) argument_list -> argument_list COMMA . expression
+    (14) expression -> . LAMBDA LPAREN parameter_list RPAREN expression
+    (15) expression -> . IDENTIFIER LPAREN argument_list RPAREN
+    (19) expression -> . expression PLUS expression
+    (20) expression -> . expression MINUS expression
+    (21) expression -> . expression MULTIPLY expression
+    (22) expression -> . expression DIVIDE expression
+    (23) expression -> . expression GT expression
+    (24) expression -> . expression LT expression
+    (25) expression -> . expression EQ expression
+    (26) expression -> . expression NEQ expression
+    (27) expression -> . LPAREN expression RPAREN
+    (28) expression -> . NUMBER
+    (29) expression -> . STRING
+    (30) expression -> . TRUE
+    (31) expression -> . FALSE
+    (32) expression -> . NONE
+    (33) expression -> . IDENTIFIER
+
+    LAMBDA          shift and go to state 18
+    IDENTIFIER      shift and go to state 20
+    LPAREN          shift and go to state 19
+    NUMBER          shift and go to state 21
+    STRING          shift and go to state 22
+    TRUE            shift and go to state 23
+    FALSE           shift and go to state 24
+    NONE            shift and go to state 25
+
+    expression                     shift and go to state 77
+
+state 71
 
     (4) statement -> IF LPAREN expression RPAREN LBRACE program . RBRACE
     (5) statement -> IF LPAREN expression RPAREN LBRACE program . RBRACE ELSE LBRACE program RBRACE
@@ -1289,17 +1821,21 @@ state 50
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
-    RBRACE          shift and go to state 53
+    RBRACE          shift and go to state 78
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    statement                      shift and go to state 8
+    statement                      shift and go to state 10
 
-state 51
+state 72
 
     (6) statement -> WHILE LPAREN expression RPAREN LBRACE program . RBRACE
     (1) program -> program . statement
@@ -1309,17 +1845,21 @@ state 51
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
-    RBRACE          shift and go to state 54
+    RBRACE          shift and go to state 79
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    statement                      shift and go to state 8
+    statement                      shift and go to state 10
 
-state 52
+state 73
 
     (7) statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON . statement RPAREN LBRACE program RBRACE
     (3) statement -> . IDENTIFIER ASSIGN expression
@@ -1328,16 +1868,128 @@ state 52
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    statement                      shift and go to state 55
+    statement                      shift and go to state 80
 
-state 53
+state 74
+
+    (9) statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE . program RBRACE
+    (1) program -> . program statement
+    (2) program -> . statement
+    (3) statement -> . IDENTIFIER ASSIGN expression
+    (4) statement -> . IF LPAREN expression RPAREN LBRACE program RBRACE
+    (5) statement -> . IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE
+    (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
+    (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
+    (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
+
+    IDENTIFIER      shift and go to state 3
+    IF              shift and go to state 4
+    WHILE           shift and go to state 5
+    FOR             shift and go to state 6
+    PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
+
+    program                        shift and go to state 81
+    statement                      shift and go to state 2
+
+state 75
+
+    (11) parameter_list -> parameter_list COMMA IDENTIFIER .
+
+    RPAREN          reduce using rule 11 (parameter_list -> parameter_list COMMA IDENTIFIER .)
+    COMMA           reduce using rule 11 (parameter_list -> parameter_list COMMA IDENTIFIER .)
+
+
+state 76
+
+    (14) expression -> LAMBDA LPAREN parameter_list RPAREN expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+  ! shift/reduce conflict for PLUS resolved as shift
+  ! shift/reduce conflict for MINUS resolved as shift
+  ! shift/reduce conflict for MULTIPLY resolved as shift
+  ! shift/reduce conflict for DIVIDE resolved as shift
+  ! shift/reduce conflict for GT resolved as shift
+  ! shift/reduce conflict for LT resolved as shift
+  ! shift/reduce conflict for EQ resolved as shift
+  ! shift/reduce conflict for NEQ resolved as shift
+    IDENTIFIER      reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    IF              reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    WHILE           reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    FOR             reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    PRINT           reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    DEF             reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    RETURN          reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    $end            reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    SEMICOLON       reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    RBRACE          reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    RPAREN          reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    COMMA           reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+  ! PLUS            [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+  ! MINUS           [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+  ! MULTIPLY        [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+  ! DIVIDE          [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+  ! GT              [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+  ! LT              [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+  ! EQ              [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+  ! NEQ             [ reduce using rule 14 (expression -> LAMBDA LPAREN parameter_list RPAREN expression .) ]
+
+
+state 77
+
+    (17) argument_list -> argument_list COMMA expression .
+    (19) expression -> expression . PLUS expression
+    (20) expression -> expression . MINUS expression
+    (21) expression -> expression . MULTIPLY expression
+    (22) expression -> expression . DIVIDE expression
+    (23) expression -> expression . GT expression
+    (24) expression -> expression . LT expression
+    (25) expression -> expression . EQ expression
+    (26) expression -> expression . NEQ expression
+
+    RPAREN          reduce using rule 17 (argument_list -> argument_list COMMA expression .)
+    COMMA           reduce using rule 17 (argument_list -> argument_list COMMA expression .)
+    PLUS            shift and go to state 32
+    MINUS           shift and go to state 33
+    MULTIPLY        shift and go to state 34
+    DIVIDE          shift and go to state 35
+    GT              shift and go to state 36
+    LT              shift and go to state 37
+    EQ              shift and go to state 38
+    NEQ             shift and go to state 39
+
+
+state 78
 
     (4) statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .
     (5) statement -> IF LPAREN expression RPAREN LBRACE program RBRACE . ELSE LBRACE program RBRACE
@@ -1347,14 +1999,16 @@ state 53
     WHILE           reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
     FOR             reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
     PRINT           reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
+    DEF             reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
+    RETURN          reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
     $end            reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
     SEMICOLON       reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
     RBRACE          reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
     RPAREN          reduce using rule 4 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE .)
-    ELSE            shift and go to state 56
+    ELSE            shift and go to state 82
 
 
-state 54
+state 79
 
     (6) statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .
 
@@ -1363,34 +2017,77 @@ state 54
     WHILE           reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
     FOR             reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
     PRINT           reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
+    DEF             reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
+    RETURN          reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
     $end            reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
     SEMICOLON       reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
     RBRACE          reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
     RPAREN          reduce using rule 6 (statement -> WHILE LPAREN expression RPAREN LBRACE program RBRACE .)
 
 
-state 55
+state 80
 
     (7) statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement . RPAREN LBRACE program RBRACE
 
-    RPAREN          shift and go to state 57
+    RPAREN          shift and go to state 83
 
 
-state 56
+state 81
+
+    (9) statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program . RBRACE
+    (1) program -> program . statement
+    (3) statement -> . IDENTIFIER ASSIGN expression
+    (4) statement -> . IF LPAREN expression RPAREN LBRACE program RBRACE
+    (5) statement -> . IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE
+    (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
+    (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
+    (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
+
+    RBRACE          shift and go to state 84
+    IDENTIFIER      shift and go to state 3
+    IF              shift and go to state 4
+    WHILE           shift and go to state 5
+    FOR             shift and go to state 6
+    PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
+
+    statement                      shift and go to state 10
+
+state 82
 
     (5) statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE . LBRACE program RBRACE
 
-    LBRACE          shift and go to state 58
+    LBRACE          shift and go to state 85
 
 
-state 57
+state 83
 
     (7) statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN . LBRACE program RBRACE
 
-    LBRACE          shift and go to state 59
+    LBRACE          shift and go to state 86
 
 
-state 58
+state 84
+
+    (9) statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .
+
+    IDENTIFIER      reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    IF              reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    WHILE           reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    FOR             reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    PRINT           reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    DEF             reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    RETURN          reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    $end            reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    SEMICOLON       reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    RBRACE          reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+    RPAREN          reduce using rule 9 (statement -> DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE .)
+
+
+state 85
 
     (5) statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE . program RBRACE
     (1) program -> . program statement
@@ -1401,17 +2098,21 @@ state 58
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    program                        shift and go to state 60
+    program                        shift and go to state 87
     statement                      shift and go to state 2
 
-state 59
+state 86
 
     (7) statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE . program RBRACE
     (1) program -> . program statement
@@ -1422,17 +2123,21 @@ state 59
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
     statement                      shift and go to state 2
-    program                        shift and go to state 61
+    program                        shift and go to state 88
 
-state 60
+state 87
 
     (5) statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program . RBRACE
     (1) program -> program . statement
@@ -1442,17 +2147,21 @@ state 60
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
-    RBRACE          shift and go to state 62
+    RBRACE          shift and go to state 89
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    statement                      shift and go to state 8
+    statement                      shift and go to state 10
 
-state 61
+state 88
 
     (7) statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program . RBRACE
     (1) program -> program . statement
@@ -1462,17 +2171,21 @@ state 61
     (6) statement -> . WHILE LPAREN expression RPAREN LBRACE program RBRACE
     (7) statement -> . FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE
     (8) statement -> . PRINT LPAREN expression RPAREN
+    (9) statement -> . DEF IDENTIFIER LPAREN parameter_list RPAREN LBRACE program RBRACE
+    (13) statement -> . RETURN expression
 
-    RBRACE          shift and go to state 63
+    RBRACE          shift and go to state 90
     IDENTIFIER      shift and go to state 3
     IF              shift and go to state 4
     WHILE           shift and go to state 5
     FOR             shift and go to state 6
     PRINT           shift and go to state 7
+    DEF             shift and go to state 8
+    RETURN          shift and go to state 9
 
-    statement                      shift and go to state 8
+    statement                      shift and go to state 10
 
-state 62
+state 89
 
     (5) statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .
 
@@ -1481,13 +2194,15 @@ state 62
     WHILE           reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
     FOR             reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
     PRINT           reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
+    DEF             reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
+    RETURN          reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
     $end            reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
     SEMICOLON       reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
     RBRACE          reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
     RPAREN          reduce using rule 5 (statement -> IF LPAREN expression RPAREN LBRACE program RBRACE ELSE LBRACE program RBRACE .)
 
 
-state 63
+state 90
 
     (7) statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .
 
@@ -1496,6 +2211,8 @@ state 63
     WHILE           reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
     FOR             reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
     PRINT           reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
+    DEF             reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
+    RETURN          reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
     $end            reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
     SEMICOLON       reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
     RBRACE          reduce using rule 7 (statement -> FOR LPAREN statement SEMICOLON expression SEMICOLON statement RPAREN LBRACE program RBRACE .)
@@ -1504,35 +2221,43 @@ state 63
 WARNING: 
 WARNING: Conflicts:
 WARNING: 
-WARNING: shift/reduce conflict for PLUS in state 42 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 42 resolved as shift
-WARNING: shift/reduce conflict for MULTIPLY in state 42 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 42 resolved as shift
-WARNING: shift/reduce conflict for GT in state 42 resolved as shift
-WARNING: shift/reduce conflict for LT in state 42 resolved as shift
-WARNING: shift/reduce conflict for EQ in state 42 resolved as shift
-WARNING: shift/reduce conflict for NEQ in state 42 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 43 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 43 resolved as shift
-WARNING: shift/reduce conflict for MULTIPLY in state 43 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 43 resolved as shift
-WARNING: shift/reduce conflict for GT in state 43 resolved as shift
-WARNING: shift/reduce conflict for LT in state 43 resolved as shift
-WARNING: shift/reduce conflict for EQ in state 43 resolved as shift
-WARNING: shift/reduce conflict for NEQ in state 43 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 44 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 44 resolved as shift
-WARNING: shift/reduce conflict for MULTIPLY in state 44 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 44 resolved as shift
-WARNING: shift/reduce conflict for GT in state 44 resolved as shift
-WARNING: shift/reduce conflict for LT in state 44 resolved as shift
-WARNING: shift/reduce conflict for EQ in state 44 resolved as shift
-WARNING: shift/reduce conflict for NEQ in state 44 resolved as shift
-WARNING: shift/reduce conflict for PLUS in state 45 resolved as shift
-WARNING: shift/reduce conflict for MINUS in state 45 resolved as shift
-WARNING: shift/reduce conflict for MULTIPLY in state 45 resolved as shift
-WARNING: shift/reduce conflict for DIVIDE in state 45 resolved as shift
-WARNING: shift/reduce conflict for GT in state 45 resolved as shift
-WARNING: shift/reduce conflict for LT in state 45 resolved as shift
-WARNING: shift/reduce conflict for EQ in state 45 resolved as shift
-WARNING: shift/reduce conflict for NEQ in state 45 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 54 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 54 resolved as shift
+WARNING: shift/reduce conflict for MULTIPLY in state 54 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 54 resolved as shift
+WARNING: shift/reduce conflict for GT in state 54 resolved as shift
+WARNING: shift/reduce conflict for LT in state 54 resolved as shift
+WARNING: shift/reduce conflict for EQ in state 54 resolved as shift
+WARNING: shift/reduce conflict for NEQ in state 54 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 55 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 55 resolved as shift
+WARNING: shift/reduce conflict for MULTIPLY in state 55 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 55 resolved as shift
+WARNING: shift/reduce conflict for GT in state 55 resolved as shift
+WARNING: shift/reduce conflict for LT in state 55 resolved as shift
+WARNING: shift/reduce conflict for EQ in state 55 resolved as shift
+WARNING: shift/reduce conflict for NEQ in state 55 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 56 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 56 resolved as shift
+WARNING: shift/reduce conflict for MULTIPLY in state 56 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 56 resolved as shift
+WARNING: shift/reduce conflict for GT in state 56 resolved as shift
+WARNING: shift/reduce conflict for LT in state 56 resolved as shift
+WARNING: shift/reduce conflict for EQ in state 56 resolved as shift
+WARNING: shift/reduce conflict for NEQ in state 56 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 57 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 57 resolved as shift
+WARNING: shift/reduce conflict for MULTIPLY in state 57 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 57 resolved as shift
+WARNING: shift/reduce conflict for GT in state 57 resolved as shift
+WARNING: shift/reduce conflict for LT in state 57 resolved as shift
+WARNING: shift/reduce conflict for EQ in state 57 resolved as shift
+WARNING: shift/reduce conflict for NEQ in state 57 resolved as shift
+WARNING: shift/reduce conflict for PLUS in state 76 resolved as shift
+WARNING: shift/reduce conflict for MINUS in state 76 resolved as shift
+WARNING: shift/reduce conflict for MULTIPLY in state 76 resolved as shift
+WARNING: shift/reduce conflict for DIVIDE in state 76 resolved as shift
+WARNING: shift/reduce conflict for GT in state 76 resolved as shift
+WARNING: shift/reduce conflict for LT in state 76 resolved as shift
+WARNING: shift/reduce conflict for EQ in state 76 resolved as shift
+WARNING: shift/reduce conflict for NEQ in state 76 resolved as shift

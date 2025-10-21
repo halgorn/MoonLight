@@ -12,7 +12,7 @@ def main():
         sys.exit(1)
 
     try:
-        # Ler arquivo removendo espaços/quebras de linha à direita
+        # Ler o arquivo removendo espaços à direita
         with open(arquivo, 'r', encoding="utf-8") as f:
             linhas = [linha.rstrip() for linha in f]
             codigo = "\n".join(linhas)

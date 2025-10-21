@@ -75,3 +75,21 @@ resultado = quadrado(4)  # 16
 - [ ] **Compilação Just-In-Time (JIT)** para otimizar execuções repetidas
 - [ ] **Sistema de módulos e bibliotecas externas**
 - [ ] **Integração com IA para otimização automática de código**
+## 🚀 Funcionalidades Implementadas
+
+- **Análise Léxica e Sintática** usando PLY.
+- **Transpiler Moonlight → C++/CUDA**:
+  - Suporte a estruturas de controle: `if`, `else`, `while`, `for`.
+  - Suporte a funções: definição com `def`, chamadas, `return` e expressões lambda.
+  - Suporte inicial a tipos de dados: `int`, `float`, `complex`, `str`, `bool`, listas, tuplas, dicionários, sets e `None`.
+- **Backend de Compilação**: Transpila, compila (usando NVCC) e executa o código gerado.
+
+[...]
+
+## Próximas Etapas
+
+- Expansão da inferência de tipos e suporte a outros tipos nativos do Python.
+- Suporte a funções de ordem superior (como map, filter e reduce) com implementações otimizadas.
+- Implementação de classes, structs e POO.
+- Otimização de operações CUDA para processamento paralelo.
+- Criação de um compilador standalone, sem dependência do Python.
