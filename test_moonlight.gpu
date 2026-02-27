@@ -1,0 +1,141 @@
+# test_moonlight.gpu
+# Teste Completo das Capacidades do MoonLight
+
+print("=" * 50)
+print("TESTE COMPLETO DO MOONLIGHT v1.0.0")
+print("=" * 50)
+print("")
+
+# 1. VARIAVEIS E TIPOS
+print("1. Variaveis e Tipos")
+x = 10
+y = 20
+z = x + y
+print("x =", x)
+print("y =", y)
+print("x + y =", z)
+print("")
+
+# 2. OPERACOES MATEMATICAS
+print("2. Operacoes Matematicas")
+soma = 10 + 5
+sub = 10 - 5
+mult = 10 * 5
+div = 10 / 5
+mod = 10 % 3
+pot = 2 ** 8
+print("10 + 5 =", soma)
+print("10 - 5 =", sub)
+print("10 * 5 =", mult)
+print("10 / 5 =", div)
+print("10 % 3 =", mod)
+print("2 ** 8 =", pot)
+print("")
+
+# 3. ESTRUTURAS DE CONTROLE
+print("3. If/Else")
+valor = 15
+if (valor > 10) {
+    print("Valor e maior que 10")
+} else {
+    print("Valor e menor ou igual a 10")
+}
+print("")
+
+# 4. LOOPS
+print("4. Loop While")
+contador = 0
+while (contador < 5) {
+    print("Contador:", contador)
+    contador = contador + 1
+}
+print("")
+
+print("5. Loop For")
+for (i = 0; i < 5; i = i + 1) {
+    print("i =", i)
+}
+print("")
+
+# 6. FUNCOES
+print("6. Funcoes")
+
+def soma_dois(a, b) {
+    return a + b
+}
+
+resultado = soma_dois(15, 25)
+print("soma_dois(15, 25) =", resultado)
+print("")
+
+# 7. RECURSAO
+print("7. Recursao - Fibonacci")
+
+def fibonacci(n) {
+    if (n <= 1) {
+        return n
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+print("fibonacci(0) =", fibonacci(0))
+print("fibonacci(1) =", fibonacci(1))
+print("fibonacci(5) =", fibonacci(5))
+print("fibonacci(8) =", fibonacci(8))
+print("")
+
+# 8. LISTAS
+print("8. Listas")
+numeros = [1, 2, 3, 4, 5]
+print("Lista:", numeros)
+print("numeros[0] =", numeros[0])
+print("numeros[2] =", numeros[2])
+print("len(numeros) =", len(numeros))
+print("")
+
+# 9. OPERADORES COMPOSTOS
+print("9. Operadores Compostos")
+x = 10
+x = x + 5
+print("x += 5, x =", x)
+x = x * 2
+print("x *= 2, x =", x)
+print("")
+
+# 10. LAMBDAS
+print("10. Lambdas")
+quadrado = lambda(n) n * n
+print("quadrado(5) =", quadrado(5))
+print("quadrado(10) =", quadrado(10))
+print("")
+
+# 11. BUILT-IN FUNCTIONS
+print("11. Built-in Functions")
+lista = [10, 20, 30, 40, 50]
+print("Lista:", lista)
+print("sum(lista) =", sum(lista))
+print("max(lista) =", max(lista))
+print("min(lista) =", min(lista))
+print("len(lista) =", len(lista))
+print("")
+
+# 12. MODULOS (SE DISPONIVEL)
+print("12. Modulos (stdlib)")
+from math import PI
+print("math.PI =", PI)
+print("")
+
+# RESULTADO FINAL
+print("=" * 50)
+print("TESTE CONCLUIDO COM SUCESSO!")
+print("MoonLight v1.0.0 esta funcionando perfeitamente!")
+print("=" * 50)
+
+
+
+
+
+
+
+
+

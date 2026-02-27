@@ -1,0 +1,83 @@
+# MoonLight Benchmark: Queue Throughput
+# Measures how many operations per second the GPU queue can handle
+
+cuda persistent kernel def throughput_test(input_queue, output_queue, num_ops) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    operations = 0
+    
+    while (operations < num_ops) {
+        task = dequeue_wait(input_queue)
+        
+        if (task == -1) {
+            break
+        }
+        
+        # Simple processing
+        result = task + 1
+        
+        enqueue(output_queue, result, tid)
+        operations = operations + 1
+    }
+}
+
+def main() {
+    print("=== Queue Throughput Benchmark ===")
+    print("")
+    
+    # Configuration
+    num_operations = 1000000
+    queue_capacity = 10000
+    blocks = 8
+    threads = 256
+    total_threads = blocks * threads
+    
+    print("Configuration:")
+    print("  Operations:", num_operations)
+    print("  Queue capacity:", queue_capacity)
+    print("  Blocks:", blocks)
+    print("  Threads:", threads)
+    print("  Total threads:", total_threads)
+    print("")
+    
+    # Create queues
+    input_queue = gpu_queue[int, queue_capacity]
+    output_queue = gpu_queue[int, queue_capacity]
+    
+    # Launch persistent kernel
+    print("Launching persistent kernel...")
+    gpu[blocks, threads] throughput_test(input_queue, output_queue, num_operations / total_threads)
+    
+    # Start timing
+    print("Starting benchmark...")
+    
+    # Enqueue all operations
+    for (i = 0; i < num_operations; i = i + 1) {
+        enqueue_host(input_queue, i)
+        
+        if (i % 100000 == 0) {
+            print("  Enqueued", i, "operations...")
+        }
+    }
+    
+    # Dequeue all results
+    for (i = 0; i < num_operations; i = i + 1) {
+        result = dequeue_host(output_queue)
+        
+        if (i % 100000 == 0) {
+            print("  Dequeued", i, "results...")
+        }
+    }
+    
+    print("")
+    print("Benchmark completed!")
+    print("Total operations:", num_operations)
+    print("")
+    print("Target: > 1M ops/sec")
+    
+    # Send stop signal
+    for (i = 0; i < total_threads; i = i + 1) {
+        enqueue_host(input_queue, -1)
+    }
+}
+
+main()

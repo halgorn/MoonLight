@@ -1,0 +1,131 @@
+# MoonLight Standard Library - Math Module
+# Funções matemáticas básicas
+
+PI = 3.141592653589793
+E = 2.718281828459045
+TAU = 6.283185307179586
+
+def abs(x) {
+    if (x < 0) {
+        return -x
+    }
+    return x
+}
+
+def pow(base, exp) {
+    return base ** exp
+}
+
+def sqrt(x) {
+    if (x < 0) {
+        return 0
+    }
+    
+    guess = x / 2
+    precision = 0.00001
+    
+    while (abs(guess * guess - x) > precision) {
+        guess = (guess + x / guess) / 2
+    }
+    
+    return guess
+}
+
+def floor(x) {
+    result = int(x)
+    if (x < 0 and x != result) {
+        result = result - 1
+    }
+    return result
+}
+
+def ceil(x) {
+    result = int(x)
+    if (x > 0 and x != result) {
+        result = result + 1
+    }
+    return result
+}
+
+def round(x) {
+    if (x >= 0) {
+        return floor(x + 0.5)
+    }
+    return ceil(x - 0.5)
+}
+
+def gcd(a, b) {
+    a = abs(a)
+    b = abs(b)
+    
+    while (b != 0) {
+        temp = b
+        b = a % b
+        a = temp
+    }
+    
+    return a
+}
+
+def lcm(a, b) {
+    return abs(a * b) / gcd(a, b)
+}
+
+def factorial(n) {
+    if (n <= 1) {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+def is_prime(n) {
+    if (n <= 1) {
+        return False
+    }
+    if (n == 2) {
+        return True
+    }
+    if (n % 2 == 0) {
+        return False
+    }
+    
+    i = 3
+    while (i * i <= n) {
+        if (n % i == 0) {
+            return False
+        }
+        i = i + 2
+    }
+    
+    return True
+}
+
+def sign(x) {
+    if (x > 0) {
+        return 1
+    }
+    if (x < 0) {
+        return -1
+    }
+    return 0
+}
+
+def clamp(value, min_val, max_val) {
+    if (value < min_val) {
+        return min_val
+    }
+    if (value > max_val) {
+        return max_val
+    }
+    return value
+}
+
+
+
+
+
+
+
+
+
+

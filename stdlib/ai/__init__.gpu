@@ -1,0 +1,19 @@
+# MoonLight AI Library
+# High-level API for AI and Machine Learning
+
+from ai.tensor import Tensor, tensor, zeros, ones, randn
+from ai.nn import Linear, Conv2D, ReLU, Softmax, Sequential
+from ai.optim import SGD, Adam
+from ai.text import generate_text, tokenize, load_model
+
+print("MoonLight AI Library loaded successfully!")
+print("Available modules: tensor, nn, optim, text")
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,119 @@
+# MoonLight Example: Dynamic Work Generation
+# Demonstrates kernels generating new work dynamically
+# Perfect for algorithms with unpredictable work distribution
+
+# Worker kernel that generates new work
+cuda kernel def worker_kernel(work_queue, result_queue, processed_count) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    # Get work item
+    work_item = work_queue[tid]
+    
+    if (work_item > 0) {
+        # Process work item
+        result = work_item * work_item
+        
+        # Check if this work generates new work
+        if (work_item > 100) {
+            # Generate 2 new work items
+            new_work1 = work_item / 2
+            new_work2 = work_item / 2 + 1
+            
+            # Add new work to queue (in real app: proper queue)
+            # For demo: launch kernels to process new work
+            gpu[1, 256] worker_kernel(work_queue, result_queue, processed_count)
+            gpu[1, 256] worker_kernel(work_queue, result_queue, processed_count)
+        } else {
+            # No new work generated
+            result_queue[tid] = result
+            atomic_add(processed_count, 1)
+        }
+    }
+}
+
+# Initial work distributor
+cuda kernel def distribute_work_kernel(initial_work, work_queue, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Distribute initial work
+        work_queue[tid] = initial_work[tid]
+    }
+}
+
+def main() {
+    print("=== Dynamic Work Generation ===")
+    print("")
+    print("Demonstrates kernels generating new work dynamically")
+    print("Work distribution adapts to data characteristics")
+    print("")
+    
+    initial_work_size = 100
+    
+    print("Configuration:")
+    print("  Initial work items:", initial_work_size)
+    print("  Work generation: Dynamic (based on data)")
+    print("  Pattern: Recursive work splitting")
+    print("")
+    
+    # Allocate work queues
+    max_work = initial_work_size * 100  # Estimate max work
+    d_work_queue = device[max_work]
+    d_result_queue = device[max_work]
+    d_processed = device[1]
+    
+    # Initialize work (in real app: actual work items)
+    print("Initializing work...")
+    print("")
+    
+    # Distribute initial work
+    d_initial = device[initial_work_size]
+    
+    blocks = (initial_work_size + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] distribute_work_kernel(d_initial, d_work_queue, initial_work_size)
+    
+    # Process work (will generate new work dynamically)
+    print("Processing work (dynamic generation)...")
+    print("  Workers will generate new work as needed")
+    
+    gpu[blocks, threads] worker_kernel(d_work_queue, d_result_queue, d_processed)
+    
+    print("✓ Work processing completed")
+    print("  New work generated dynamically!")
+    print("")
+    
+    print("How It Works:")
+    print("  1. Initial work distributed")
+    print("  2. Workers process their work")
+    print("  3. Some work generates new work items")
+    print("  4. New work processed by new kernels")
+    print("  5. Process continues until no more work")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Adapts to work distribution")
+    print("  ✓ Handles irregular workloads")
+    print("  ✓ Efficient for divide-and-conquer")
+    print("  ✓ Perfect for: tree algorithms, graph traversal")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Divide-and-conquer algorithms")
+    print("  - Tree/graph traversal")
+    print("  - Recursive algorithms")
+    print("  - Adaptive algorithms")
+    print("  - Unpredictable work distribution")
+    print("")
+    
+    free(d_work_queue)
+    free(d_result_queue)
+    free(d_processed)
+    free(d_initial)
+    
+    print("Done!")
+}
+
+main()
+

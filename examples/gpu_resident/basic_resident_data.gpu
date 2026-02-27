@@ -1,0 +1,65 @@
+# MoonLight Example: Basic GPU-Resident Data
+# Demonstrates data that persists on GPU across function calls
+# No CPU↔GPU transfers needed after initial allocation!
+
+def initialize_model() {
+    # Allocate GPU-resident memory (persists forever!)
+    gpu_resident d_model_weights = device[1000000]
+    gpu_resident d_model_bias = device[1000]
+    
+    print("Model weights allocated on GPU (resident)")
+    print("Model bias allocated on GPU (resident)")
+    print("These arrays will persist across all function calls!")
+}
+
+def train_model() {
+    # Use the GPU-resident data directly - no transfer needed!
+    # d_model_weights and d_model_bias are already on GPU
+    
+    print("Training with GPU-resident model...")
+    print("No CPU↔GPU transfer needed!")
+    
+    # Simulate training (in real app, would update d_model_weights)
+    # The data stays on GPU throughout training
+}
+
+def inference_model() {
+    # Use same GPU-resident data for inference
+    # Still no transfer needed!
+    
+    print("Inference with GPU-resident model...")
+    print("Model data never left the GPU!")
+}
+
+def main() {
+    print("=== GPU-Resident Data Demo ===")
+    print("")
+    
+    # Initialize once - data stays on GPU forever
+    print("Step 1: Initialize GPU-resident data")
+    initialize_model()
+    print("")
+    
+    # Train - uses GPU-resident data directly
+    print("Step 2: Train model")
+    train_model()
+    print("")
+    
+    # Inference - uses same GPU-resident data
+    print("Step 3: Run inference")
+    inference_model()
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Data never leaves GPU")
+    print("  ✓ Zero transfer overhead")
+    print("  ✓ Persists across function calls")
+    print("  ✓ Perfect for ML models, caches, state")
+    print("")
+    
+    print("Note: GPU-resident data is automatically freed on program exit")
+    print("Done!")
+}
+
+main()
+

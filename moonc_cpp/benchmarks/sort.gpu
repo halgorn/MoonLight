@@ -1,0 +1,68 @@
+# Benchmark 5: Ordenacao Paralela (Bitonic Sort simplificado)
+# Testa coordenacao entre grupos de threads
+# Metrica: Tempo de Execucao (para N milhoes de elementos)
+
+cuda kernel def bitonic_sort_step(data, n, step, direction) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (i < n) {
+        # Bitonic sort step simplificado
+        # Implementacao completa requer multiplos passes
+        j = i ^ step
+        if (j > i) {
+            if ((i & step) == 0) {
+                # Comparar e trocar se necessario
+                if (data[i] > data[j]) {
+                    temp = data[i]
+                    data[i] = data[j]
+                    data[j] = temp
+                }
+            } else {
+                if (data[i] < data[j]) {
+                    temp = data[i]
+                    data[i] = data[j]
+                    data[j] = temp
+                }
+            }
+        }
+    }
+}
+
+def main() {
+    n = 1000000  # 1M elementos
+    
+    # Alocar memoria CPU
+    h_data = [0.0] * n
+    
+    # Inicializar com valores aleatorios
+    for (i = 0; i < n; i = i + 1) {
+        h_data[i] = float(n - i)  # Ordem reversa para testar
+    }
+    
+    # Alocar GPU
+    d_data = device[n]
+    
+    # Transfer H->D
+    d_data <- h_data
+    
+    # Launch kernel (simplificado - apenas um passo)
+    threads = 256
+    blocks = (n + threads - 1) / threads
+    step = 1
+    direction = 0
+    gpu[blocks, threads] bitonic_sort_step(d_data, n, step, direction)
+    
+    # Transfer D->H
+    h_data <- d_data
+    
+    print("Ordenacao concluida!")
+    print("Elementos:", n)
+    print("Primeiro elemento:", h_data[0])
+    print("Ultimo elemento:", h_data[n-1])
+    
+    # Cleanup
+    free(d_data)
+}
+
+main()
+

@@ -1,0 +1,76 @@
+# MoonLight AI Example: Simple Neural Network
+# Train a basic neural network for classification
+
+from ai.tensor import tensor, zeros, ones
+from ai.nn import Linear, ReLU, Sequential, cross_entropy
+from ai.optim import SGD
+
+def main() {
+    print("=== Simple Neural Network ===")
+    print("")
+    
+    # Hyperparameters
+    input_size = 10
+    hidden_size = 20
+    output_size = 2
+    learning_rate = 0.01
+    num_epochs = 100
+    
+    # Create model
+    print("Building model...")
+    model = Sequential([
+        Linear(input_size, hidden_size, True),
+        ReLU(),
+        Linear(hidden_size, output_size, True)
+    ])
+    
+    # Create optimizer
+    optimizer = SGD(model.parameters(), learning_rate, 0.9, 0.0001)
+    
+    # Training loop
+    print("Training...")
+    for (epoch = 0; epoch < num_epochs; epoch = epoch + 1) {
+        # Forward pass
+        # (Aqui seriam os dados reais)
+        x = ones([32, input_size], False)  # Batch of 32
+        y_true = zeros([32, output_size], False)
+        
+        # Predict
+        y_pred = model.forward(x)
+        
+        # Compute loss
+        loss = cross_entropy(y_pred, y_true)
+        
+        # Backward pass
+        optimizer.zero_grad()
+        loss.backward()
+        
+        # Update weights
+        optimizer.step()
+        
+        if (epoch % 10 == 0) {
+            print("Epoch", epoch, "- Loss:", loss.item())
+        }
+    }
+    
+    print("")
+    print("Training complete!")
+    
+    # Evaluate
+    print("Evaluating...")
+    model.eval()
+    x_test = ones([10, input_size], False)
+    y_pred = model.forward(x_test)
+    print("Predictions shape:", y_pred.shape)
+}
+
+main()
+
+
+
+
+
+
+
+
+

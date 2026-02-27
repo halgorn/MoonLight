@@ -1,0 +1,137 @@
+# MoonLight Example: GPU Debugging
+# Demonstrates GPU-side debugging capabilities
+# Shows gpu_printf and gpu_breakpoint usage
+
+# Kernel with debugging
+cuda kernel def debug_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Debug: Print thread information
+        if (tid == 0) {
+            gpu_printf("Debug: Thread 0, n = %d\n", n)
+        }
+        
+        # Debug: Print every 1000th thread
+        if (tid % 1000 == 0) {
+            gpu_printf("Debug: Thread %d, data[%d] = %f\n", tid, tid, data[tid])
+        }
+        
+        # Process data
+        data[tid] = data[tid] * 2.0
+        
+        # Debug: Breakpoint at specific condition
+        if (tid == 100 and data[tid] > 1000.0) {
+            gpu_breakpoint()  # Pause for debugger
+            gpu_printf("Breakpoint hit: tid=%d, value=%f\n", tid, data[tid])
+        }
+    }
+}
+
+# Kernel with conditional debugging
+cuda kernel def conditional_debug(data, n, debug_flag) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Conditional debug output
+        if (debug_flag > 0 and tid == 0) {
+            gpu_printf("Debug mode enabled\n")
+            gpu_printf("Processing %d elements\n", n)
+        }
+        
+        # Process data
+        val = data[tid]
+        val = val * 2.0
+        
+        # Debug: Check for anomalies
+        if (debug_flag > 0 and (val < 0 or val > 10000)) {
+            gpu_printf("Warning: Anomalous value at tid=%d: %f\n", tid, val)
+        }
+        
+        data[tid] = val
+    }
+}
+
+def debug_example() {
+    print("=== GPU Debugging Example ===")
+    print("")
+    print("Demonstrates GPU-side debugging capabilities")
+    print("Shows gpu_printf and gpu_breakpoint usage")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Debug mode: Enabled")
+    print("")
+    
+    d_data = device[n]
+    d_debug_flag = device[1]
+    d_debug_flag[0] = 1  # Enable debugging
+    
+    # Initialize data
+    print("Initializing data...")
+    print("  ✓ Data initialized")
+    print("")
+    
+    # Test 1: Basic debugging
+    print("Test 1: Basic Debugging")
+    print("  Using gpu_printf and gpu_breakpoint")
+    print("")
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] debug_kernel(d_data, n)
+    
+    print("  ✓ Debug kernel executed")
+    print("  → Check GPU output for printf messages")
+    print("  → Debugger will pause at breakpoint")
+    print("")
+    
+    # Test 2: Conditional debugging
+    print("Test 2: Conditional Debugging")
+    print("  Debug output based on flag")
+    print("")
+    
+    gpu[blocks, threads] conditional_debug(d_data, n, d_debug_flag[0])
+    
+    print("  ✓ Conditional debug completed")
+    print("")
+    
+    print("GPU Debugging Features:")
+    print("")
+    print("1. gpu_printf():")
+    print("   - Print from GPU threads")
+    print("   - Format strings like printf")
+    print("   - Output visible in debugger/logs")
+    print("")
+    
+    print("2. gpu_breakpoint():")
+    print("   - Pause execution at specific point")
+    print("   - Inspect variables in debugger")
+    print("   - Step through GPU code")
+    print("")
+    
+    print("Debugging Tools:")
+    print("  - cuda-gdb: GPU debugger")
+    print("  - Nsight Debugger: Visual debugging")
+    print("  - printf output: Console/logs")
+    print("")
+    
+    print("Best Practices:")
+    print("  ✓ Use conditional debugging flags")
+    print("  ✓ Limit printf frequency")
+    print("  ✓ Use breakpoints strategically")
+    print("  ✓ Check for anomalies")
+    print("")
+    
+    free(d_data)
+    free(d_debug_flag)
+    
+    print("Done!")
+}
+
+debug_example()
+

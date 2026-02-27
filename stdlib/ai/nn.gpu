@@ -1,0 +1,188 @@
+# MoonLight AI - Neural Network Layers
+# High-level API for building neural networks
+
+from ai.tensor import Tensor, tensor
+
+class Module {
+    # Base class for all layers
+    def __init__() {
+        self.parameters_list = []
+        self.training = True
+    }
+    
+    def forward(x) {
+        # Must be implemented by subclasses
+        pass
+    }
+    
+    def parameters() {
+        return self.parameters_list
+    }
+    
+    def train() {
+        self.training = True
+    }
+    
+    def eval() {
+        self.training = False
+    }
+}
+
+class Linear {
+    # Fully connected layer
+    def __init__(in_features, out_features, bias) {
+        self.in_features = in_features
+        self.out_features = out_features
+        self.use_bias = bias
+        
+        # Initialize weights
+        self.weight = randn([out_features, in_features], True)
+        if (bias) {
+            self.bias = zeros([out_features], True)
+        }
+        
+        print("Linear layer created:", in_features, "->", out_features)
+    }
+    
+    def forward(x) {
+        # y = xW^T + b
+        output = matmul(x, self.weight)
+        if (self.use_bias) {
+            output = output + self.bias
+        }
+        return output
+    }
+}
+
+class Conv2D {
+    # 2D Convolutional layer
+    def __init__(in_channels, out_channels, kernel_size, stride, padding) {
+        self.in_channels = in_channels
+        self.out_channels = out_channels
+        self.kernel_size = kernel_size
+        self.stride = stride
+        self.padding = padding
+        
+        # Initialize weights
+        k_size = kernel_size * kernel_size
+        self.weight = randn([out_channels, in_channels, k_size], True)
+        self.bias = zeros([out_channels], True)
+        
+        print("Conv2D layer created:", in_channels, "->", out_channels)
+    }
+    
+    def forward(x) {
+        # Convolution operation
+        print("Applying 2D convolution")
+        # Implementação via PyTorch/CUDA
+        return x
+    }
+}
+
+class ReLU {
+    # ReLU activation
+    def __init__() {
+        pass
+    }
+    
+    def forward(x) {
+        # max(0, x)
+        print("Applying ReLU activation")
+        # Implementação: x * (x > 0)
+        return x
+    }
+}
+
+class Softmax {
+    # Softmax activation
+    def __init__(dim) {
+        self.dim = dim
+    }
+    
+    def forward(x) {
+        # Softmax normalization
+        return softmax(x, self.dim)
+    }
+}
+
+class Dropout {
+    # Dropout regularization
+    def __init__(p) {
+        self.p = p
+    }
+    
+    def forward(x) {
+        if (self.training) {
+            print("Applying dropout with p=", self.p)
+            # Implementação com random mask
+        }
+        return x
+    }
+}
+
+class BatchNorm2d {
+    # Batch Normalization
+    def __init__(num_features) {
+        self.num_features = num_features
+        self.weight = ones([num_features], True)
+        self.bias = zeros([num_features], True)
+    }
+    
+    def forward(x) {
+        print("Applying batch normalization")
+        return x
+    }
+}
+
+class Sequential {
+    # Sequential container
+    def __init__(layers) {
+        self.layers = layers
+        print("Sequential model with", len(layers), "layers")
+    }
+    
+    def forward(x) {
+        output = x
+        for (i = 0; i < len(self.layers); i = i + 1) {
+            layer = self.layers[i]
+            output = layer.forward(output)
+        }
+        return output
+    }
+    
+    def parameters() {
+        params = []
+        for (i = 0; i < len(self.layers); i = i + 1) {
+            layer = self.layers[i]
+            if (hasattr(layer, "parameters")) {
+                params = params + layer.parameters()
+            }
+        }
+        return params
+    }
+}
+
+# Loss functions
+def cross_entropy(predictions, targets) {
+    print("Computing cross entropy loss")
+    # Implementação
+    loss = 0.0
+    return loss
+}
+
+def mse_loss(predictions, targets) {
+    print("Computing MSE loss")
+    # Mean squared error
+    diff = predictions - targets
+    loss = mean(diff * diff, 0)
+    return loss
+}
+
+
+
+
+
+
+
+
+

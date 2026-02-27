@@ -1,0 +1,115 @@
+# MoonLight Benchmark: Pipeline vs Batch Processing
+# Compares persistent kernel pipeline with traditional batch processing
+# Target: Persistent pipeline should have < 5% overhead compared to batch
+
+cuda persistent kernel def pipeline_worker(input_queue, output_queue, iterations) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    processed = 0
+    
+    while (processed < iterations) {
+        task = dequeue_wait(input_queue)
+        
+        if (task == -1) {
+            break
+        }
+        
+        # Simulate work: compute square
+        result = task * task
+        
+        enqueue(output_queue, result, tid)
+        processed = processed + 1
+    }
+}
+
+cuda kernel def batch_worker(input_data, output_data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Same work as pipeline
+        output_data[tid] = input_data[tid] * input_data[tid]
+    }
+}
+
+def test_pipeline(num_items) {
+    print("  Testing pipeline mode...")
+    
+    blocks = 8
+    threads = 256
+    
+    # Create queues
+    input_queue = gpu_queue[int, 10000]
+    output_queue = gpu_queue[int, 10000]
+    
+    # Launch persistent kernel
+    gpu[blocks, threads] pipeline_worker(input_queue, output_queue, num_items / (blocks * threads))
+    
+    # Send all tasks
+    for (i = 0; i < num_items; i = i + 1) {
+        enqueue_host(input_queue, i)
+    }
+    
+    # Receive all results
+    for (i = 0; i < num_items; i = i + 1) {
+        result = dequeue_host(output_queue)
+    }
+    
+    # Stop kernel
+    for (i = 0; i < blocks * threads; i = i + 1) {
+        enqueue_host(input_queue, -1)
+    }
+    
+    print("  Pipeline mode completed")
+}
+
+def test_batch(num_items) {
+    print("  Testing batch mode...")
+    
+    blocks = (num_items + 255) / 256
+    threads = 256
+    
+    # Allocate device memory
+    d_input = device[num_items]
+    d_output = device[num_items]
+    
+    # Copy data to device (would use actual data transfer in real code)
+    # For benchmark, we skip actual memcpy
+    
+    # Launch kernel
+    gpu[blocks, threads] batch_worker(d_input, d_output, num_items)
+    
+    # Copy results back (would use actual data transfer in real code)
+    
+    # Free memory
+    free(d_input)
+    free(d_output)
+    
+    print("  Batch mode completed")
+}
+
+def main() {
+    print("=== Pipeline vs Batch Benchmark ===")
+    print("")
+    
+    num_items = 100000
+    
+    print("Configuration:")
+    print("  Number of items:", num_items)
+    print("")
+    
+    print("Running Pipeline Mode:")
+    test_pipeline(num_items)
+    print("")
+    
+    print("Running Batch Mode:")
+    test_batch(num_items)
+    print("")
+    
+    print("Benchmark completed!")
+    print("")
+    print("Expected results:")
+    print("  - Pipeline overhead < 5% compared to batch")
+    print("  - Pipeline better for streaming/real-time workloads")
+    print("  - Batch better for one-shot computations")
+}
+
+main()

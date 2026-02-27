@@ -1,0 +1,38 @@
+# Operações Bitwise em MoonLight
+
+a = 5
+b = 3
+
+# AND bitwise
+c = a & b
+print("5 & 3 =", c)
+
+# OR bitwise
+d = a | b
+print("5 | 3 =", d)
+
+# XOR bitwise
+e = a ^ b
+print("5 ^ 3 =", e)
+
+# NOT bitwise
+f = ~a
+print("~5 =", f)
+
+# Left shift
+g = a << 2
+print("5 << 2 =", g)
+
+# Right shift
+h = a >> 1
+print("5 >> 1 =", h)
+
+
+
+
+
+
+
+
+
+

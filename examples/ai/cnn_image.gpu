@@ -1,0 +1,93 @@
+# MoonLight AI Example: CNN for Image Classification
+# Convolutional Neural Network example
+
+from ai.tensor import tensor, randn
+from ai.nn import Conv2D, ReLU, Linear, Sequential, BatchNorm2d, Dropout
+from ai.optim import Adam
+
+def main() {
+    print("=== CNN for Image Classification ===")
+    print("")
+    
+    # Hyperparameters
+    num_classes = 10
+    batch_size = 32
+    learning_rate = 0.001
+    num_epochs = 50
+    
+    # Build CNN
+    print("Building CNN...")
+    model = Sequential([
+        # Block 1
+        Conv2D(3, 32, 3, 1, 1),
+        BatchNorm2d(32),
+        ReLU(),
+        
+        # Block 2
+        Conv2D(32, 64, 3, 1, 1),
+        BatchNorm2d(64),
+        ReLU(),
+        Dropout(0.25),
+        
+        # Block 3
+        Conv2D(64, 128, 3, 1, 1),
+        BatchNorm2d(128),
+        ReLU(),
+        Dropout(0.25),
+        
+        # Classifier
+        Linear(128 * 8 * 8, 512, True),
+        ReLU(),
+        Dropout(0.5),
+        Linear(512, num_classes, True)
+    ])
+    
+    # Optimizer
+    optimizer = Adam(
+        model.parameters(),
+        lr=learning_rate,
+        betas=[0.9, 0.999],
+        eps=1e-8,
+        weight_decay=0.0001
+    )
+    
+    print("Model has", len(model.layers), "layers")
+    print("")
+    
+    # Training
+    print("Training CNN...")
+    for (epoch = 0; epoch < num_epochs; epoch = epoch + 1) {
+        # Simulated batch
+        # Real: images = load_batch(train_loader)
+        images = randn([batch_size, 3, 32, 32], False)
+        labels = randn([batch_size, num_classes], False)
+        
+        # Forward
+        predictions = model.forward(images)
+        loss = cross_entropy(predictions, labels)
+        
+        # Backward
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+        
+        if (epoch % 5 == 0) {
+            print("Epoch", epoch, "/", num_epochs, "- Loss:", loss.item())
+        }
+    }
+    
+    print("")
+    print("Training complete!")
+    print("Model ready for inference")
+}
+
+main()
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,111 @@
+# MoonLight Example: Conditional Kernel Launches
+# Demonstrates data-driven kernel launches from GPU
+# Kernels launch other kernels based on GPU-side conditions
+
+# Light processing kernel
+cuda kernel def light_processing(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * 1.5
+    }
+}
+
+# Heavy processing kernel
+cuda kernel def heavy_processing(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        # More intensive computation
+        val = data[tid]
+        val = val * val
+        val = sqrt(val)
+        val = val * 2.0
+        val = sin(val)
+        data[tid] = val
+    }
+}
+
+# Smart dispatcher kernel
+cuda kernel def smart_dispatch(data, flags, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid == 0) {
+        # GPU-side decision making
+        threshold = 100.0
+        
+        # Check condition on GPU
+        avg_value = 0.0
+        for (i = 0; i < n; i = i + 1) {
+            avg_value = avg_value + data[i]
+        }
+        avg_value = avg_value / n
+        
+        # Conditional launch based on GPU data
+        if (avg_value > threshold) {
+            # Heavy processing needed
+            print("GPU Decision: Using heavy processing")
+            gpu[256, 256] heavy_processing(data, n)
+        } else {
+            # Light processing sufficient
+            print("GPU Decision: Using light processing")
+            gpu[256, 256] light_processing(data, n)
+        }
+    }
+}
+
+def main() {
+    print("=== Conditional Kernel Launches ===")
+    print("")
+    print("Demonstrates data-driven kernel launches")
+    print("Kernels launch other kernels based on GPU-side conditions")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Decision: Based on average value")
+    print("  Threshold: 100.0")
+    print("")
+    
+    # Allocate data
+    d_data = device[n]
+    d_flags = device[1]
+    
+    # Initialize data (in real app: cudaMemcpy)
+    print("Initializing data...")
+    print("  ✓ Data initialized")
+    print("")
+    
+    # Launch smart dispatcher
+    print("Launching smart dispatcher...")
+    print("  → Kernel will analyze data and decide")
+    print("  → Will launch appropriate processing kernel")
+    print("")
+    
+    gpu[1, 256] smart_dispatch(d_data, d_flags, n)
+    
+    print("✓ Conditional launch completed")
+    print("")
+    
+    print("Benefits of Conditional Launches:")
+    print("  ✓ GPU-side decision making")
+    print("  ✓ No CPU round-trip needed")
+    print("  ✓ Adaptive processing")
+    print("  ✓ Lower latency")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Adaptive algorithms")
+    print("  - Data-dependent processing")
+    print("  - Dynamic work generation")
+    print("  - Real-time decision making")
+    print("")
+    
+    free(d_data)
+    free(d_flags)
+    
+    print("Done!")
+}
+
+main()
+

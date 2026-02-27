@@ -1,0 +1,33 @@
+# Teste do módulo array da stdlib
+
+from array import reverse
+from array import sort
+from array import unique
+
+# Teste reverse
+lista = [1, 2, 3, 4, 5]
+reversed = reverse(lista)
+print("Original:", lista)
+print("Reversed:", reversed)
+
+# Teste sort
+unsorted = [5, 2, 8, 1, 9]
+sorted = sort(unsorted)
+print("Unsorted:", unsorted)
+print("Sorted:", sorted)
+
+# Teste unique
+with_duplicates = [1, 2, 2, 3, 3, 3, 4]
+uniq = unique(with_duplicates)
+print("With duplicates:", with_duplicates)
+print("Unique:", uniq)
+
+
+
+
+
+
+
+
+
+

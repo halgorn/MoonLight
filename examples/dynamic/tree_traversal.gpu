@@ -1,0 +1,112 @@
+# MoonLight Example: Tree Traversal with Dynamic Parallelism
+# Demonstrates parallel tree traversal using nested kernel launches
+# Each node can spawn kernels to process its children
+
+# Tree node structure (simplified)
+# In real app: would be proper struct
+# node = {value, left_child_idx, right_child_idx}
+
+# Process single node
+cuda kernel def process_node_kernel(nodes, node_idx, results) {
+    tid = threadIdx_x
+    
+    if (tid == 0) {
+        # Process this node
+        node_value = nodes[node_idx * 3 + 0]  # value
+        left_idx = nodes[node_idx * 3 + 1]     # left child
+        right_idx = nodes[node_idx * 3 + 2]   # right child
+        
+        # Compute result for this node
+        results[node_idx] = node_value * node_value
+        
+        # Launch kernels for children (if they exist)
+        if (left_idx >= 0) {
+            # Launch kernel for left child
+            gpu[1, 256] process_node_kernel(nodes, left_idx, results)
+        }
+        
+        if (right_idx >= 0) {
+            # Launch kernel for right child
+            gpu[1, 256] process_node_kernel(nodes, right_idx, results)
+        }
+    }
+}
+
+# Parallel tree traversal
+cuda kernel def traverse_tree_kernel(nodes, root_idx, results, num_nodes) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    # Each thread processes one node
+    if (tid < num_nodes) {
+        # Launch kernel to process this node and its children
+        gpu[1, 256] process_node_kernel(nodes, tid, results)
+    }
+}
+
+def main() {
+    print("=== Tree Traversal with Dynamic Parallelism ===")
+    print("")
+    print("Demonstrates parallel tree traversal")
+    print("Each node spawns kernels for its children")
+    print("")
+    
+    num_nodes = 1000
+    
+    print("Configuration:")
+    print("  Tree nodes:", num_nodes)
+    print("  Structure: Binary tree")
+    print("  Traversal: Parallel with dynamic kernels")
+    print("")
+    
+    # Allocate tree data
+    # nodes[i*3+0] = value, nodes[i*3+1] = left, nodes[i*3+2] = right
+    d_nodes = device[num_nodes * 3]
+    d_results = device[num_nodes]
+    
+    # Initialize tree (in real app: build tree structure)
+    print("Initializing tree structure...")
+    print("")
+    
+    # Launch parallel traversal
+    print("Launching parallel tree traversal...")
+    print("  Each node will spawn kernels for its children")
+    
+    blocks = (num_nodes + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] traverse_tree_kernel(d_nodes, 0, d_results, num_nodes)
+    
+    print("✓ Tree traversal completed")
+    print("  Kernels spawned dynamically for each node!")
+    print("")
+    
+    print("How It Works:")
+    print("  1. Root kernel launches for all nodes")
+    print("  2. Each node processes itself")
+    print("  3. Node launches child kernels for its children")
+    print("  4. Recursion continues down the tree")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Parallel tree traversal")
+    print("  ✓ Dynamic work generation")
+    print("  ✓ Adapts to tree structure")
+    print("  ✓ Perfect for: tree algorithms, graph traversal, AMR")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Tree search algorithms")
+    print("  - Graph traversal")
+    print("  - Adaptive mesh refinement")
+    print("  - Hierarchical data structures")
+    print("  - Recursive algorithms")
+    print("")
+    
+    free(d_nodes)
+    free(d_results)
+    
+    print("Done!")
+}
+
+main()
+

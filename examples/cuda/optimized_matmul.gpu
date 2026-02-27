@@ -1,0 +1,114 @@
+# MoonLight CUDA Example: Optimized Matrix Multiplication
+# Multiplicação de matrizes com shared memory e tiling
+
+cuda kernel def matmul_shared(A, B, C, N, TILE_SIZE) {
+    # Shared memory para tiles
+    tile_A = shared[TILE_SIZE * TILE_SIZE]
+    tile_B = shared[TILE_SIZE * TILE_SIZE]
+    
+    # Identificadores de thread
+    tx = threadIdx_x
+    ty = threadIdx_y
+    row = blockIdx_y * TILE_SIZE + ty
+    col = blockIdx_x * TILE_SIZE + tx
+    
+    sum = 0.0
+    
+    # Loop sobre tiles
+    num_tiles = (N + TILE_SIZE - 1) / TILE_SIZE
+    
+    for (tile = 0; tile < num_tiles; tile = tile + 1) {
+        # Carregar tile de A
+        if (row < N and (tile * TILE_SIZE + tx) < N) {
+            tile_A[ty * TILE_SIZE + tx] = A[row * N + tile * TILE_SIZE + tx]
+        } else {
+            tile_A[ty * TILE_SIZE + tx] = 0.0
+        }
+        
+        # Carregar tile de B
+        if ((tile * TILE_SIZE + ty) < N and col < N) {
+            tile_B[ty * TILE_SIZE + tx] = B[(tile * TILE_SIZE + ty) * N + col]
+        } else {
+            tile_B[ty * TILE_SIZE + tx] = 0.0
+        }
+        
+        # Sincronizar para garantir que tiles estão carregados
+        syncthreads()
+        
+        # Computar produto parcial
+        for (k = 0; k < TILE_SIZE; k = k + 1) {
+            sum = sum + tile_A[ty * TILE_SIZE + k] * tile_B[k * TILE_SIZE + tx]
+        }
+        
+        # Sincronizar antes de carregar próximo tile
+        syncthreads()
+    }
+    
+    # Escrever resultado
+    if (row < N and col < N) {
+        C[row * N + col] = sum
+    }
+}
+
+def main() {
+    N = 1024  # Matriz 1024x1024
+    TILE_SIZE = 32
+    
+    size = N * N
+    
+    # Alocar e inicializar host
+    h_A = [float(i % 100) for i in range(size)]
+    h_B = [float(i % 100) for i in range(size)]
+    h_C = [0.0] * size
+    
+    # Alocar device
+    d_A = device[size]
+    d_B = device[size]
+    d_C = device[size]
+    
+    # Copiar dados
+    print("Copiando dados para GPU...")
+    d_A <- h_A
+    d_B <- h_B
+    
+    # Configurar grid
+    grid_dim = (N + TILE_SIZE - 1) / TILE_SIZE
+    
+    print("Executando multiplicação otimizada...")
+    print("Grid:", grid_dim, "x", grid_dim)
+    print("Block:", TILE_SIZE, "x", TILE_SIZE)
+    
+    # Lançar kernel otimizado
+    gpu[(grid_dim, grid_dim), (TILE_SIZE, TILE_SIZE)] matmul_shared(d_A, d_B, d_C, N, TILE_SIZE)
+    
+    # Copiar resultado
+    print("Copiando resultado...")
+    h_C <- d_C
+    
+    # Verificar resultado (primeiros elementos)
+    print("Primeiros elementos de C:")
+    for (i = 0; i < 4; i = i + 1) {
+        for (j = 0; j < 4; j = j + 1) {
+            print(h_C[i * N + j], end=" ")
+        }
+        print("")
+    }
+    
+    # Cleanup
+    free(d_A)
+    free(d_B)
+    free(d_C)
+    
+    print("Concluído!")
+}
+
+main()
+
+
+
+
+
+
+
+
+

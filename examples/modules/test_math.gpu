@@ -1,0 +1,27 @@
+# Teste do módulo math da stdlib
+
+from math import PI
+from math import sqrt
+from math import abs
+
+print("PI =", PI)
+print("sqrt(16) =", sqrt(16))
+print("abs(-5) =", abs(-5))
+
+# Testando outras funções
+from math import factorial
+from math import is_prime
+
+print("factorial(5) =", factorial(5))
+print("is_prime(7) =", is_prime(7))
+print("is_prime(10) =", is_prime(10))
+
+
+
+
+
+
+
+
+
+

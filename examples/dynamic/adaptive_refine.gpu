@@ -1,0 +1,138 @@
+# MoonLight Example: Adaptive Mesh Refinement (AMR)
+# Demonstrates dynamic work generation based on error estimates
+# Cells with high error are subdivided, generating new work dynamically
+
+# Error calculation kernel
+cuda kernel def calculate_error_kernel(mesh, error_threshold, error_results, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Calculate error for this cell
+        # In real app: would compute actual error metric
+        cell_value = mesh[tid]
+        error = cell_value * 0.1  # Simplified error calculation
+        
+        error_results[tid] = error
+        
+        # If error exceeds threshold, mark for refinement
+        if (error > error_threshold) {
+            error_results[tid] = -1  # Mark for refinement
+        }
+    }
+}
+
+# Refinement kernel (subdivides cells)
+cuda kernel def refine_cell_kernel(mesh, cell_idx, new_cells, n) {
+    tid = threadIdx_x
+    
+    if (tid == 0) {
+        # Subdivide cell into 4 children (2D) or 8 children (3D)
+        # In real app: would create actual child cells
+        
+        # For demonstration: create 4 child cells
+        parent_value = mesh[cell_idx]
+        
+        for (child = 0; child < 4; child = child + 1) {
+            new_cells[cell_idx * 4 + child] = parent_value / 4.0
+        }
+    }
+}
+
+# Adaptive refinement kernel (main AMR kernel)
+cuda kernel def adaptive_refine_kernel(mesh, error_threshold, n, max_depth) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Calculate error for this cell
+        cell_value = mesh[tid]
+        error = cell_value * 0.1
+        
+        # Check if refinement needed
+        if (error > error_threshold) {
+            # Subdivide this cell
+            # Launch kernel to create child cells
+            gpu[1, 256] refine_cell_kernel(mesh, tid, mesh, n * 4)
+            
+            # Recursively refine children if needed
+            # (In real app: would check depth and error)
+            if (max_depth > 0) {
+                # Launch kernels for child cells
+                for (child = 0; child < 4; child = child + 1) {
+                    child_idx = tid * 4 + child
+                    gpu[1, 256] adaptive_refine_kernel(mesh, error_threshold, n * 4, max_depth - 1)
+                }
+            }
+        }
+    }
+}
+
+def main() {
+    print("=== Adaptive Mesh Refinement (AMR) ===")
+    print("")
+    print("Demonstrates dynamic work generation based on error")
+    print("Cells with high error are subdivided adaptively")
+    print("")
+    
+    initial_cells = 1000
+    error_threshold = 0.5
+    max_depth = 3
+    
+    print("Configuration:")
+    print("  Initial cells:", initial_cells)
+    print("  Error threshold:", error_threshold)
+    print("  Max refinement depth:", max_depth)
+    print("")
+    
+    # Allocate mesh
+    # In real app: would be proper mesh structure
+    max_cells = initial_cells * (4 ^ max_depth)  # Worst case: all cells refined
+    d_mesh = device[max_cells]
+    
+    # Initialize mesh (in real app: initial mesh data)
+    print("Initializing mesh...")
+    print("")
+    
+    # Run adaptive refinement
+    print("Running adaptive mesh refinement...")
+    print("  Cells with high error will be subdivided")
+    print("  New work generated dynamically")
+    
+    blocks = (initial_cells + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] adaptive_refine_kernel(d_mesh, error_threshold, initial_cells, max_depth)
+    
+    print("✓ Adaptive refinement completed")
+    print("  Work generated dynamically based on error!")
+    print("")
+    
+    print("How AMR Works:")
+    print("  1. Calculate error for each cell")
+    print("  2. If error > threshold: subdivide cell")
+    print("  3. Launch kernels for child cells")
+    print("  4. Recursively refine children if needed")
+    print("  5. Work adapts to solution complexity")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Adaptive to solution complexity")
+    print("  ✓ More cells where needed (high error)")
+    print("  ✓ Fewer cells where not needed (low error)")
+    print("  ✓ Efficient use of computational resources")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Computational fluid dynamics")
+    print("  - Finite element methods")
+    print("  - Physics simulations")
+    print("  - Image processing")
+    print("  - Any adaptive algorithm")
+    print("")
+    
+    free(d_mesh)
+    
+    print("Done!")
+}
+
+main()
+

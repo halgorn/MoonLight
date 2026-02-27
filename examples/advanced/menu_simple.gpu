@@ -1,0 +1,54 @@
+# examples/advanced/menu_simple.gpu
+# Sistema de menu simplificado
+
+print("=== Sistema de Menu ===")
+
+def calculadora() {
+    a = 10
+    b = 5
+    print("Soma:", a + b)
+    print("Multiplicacao:", a * b)
+}
+
+def fibonacci(n) {
+    if (n <= 1) {
+        return n
+    }
+    a = fibonacci(n - 1)
+    b = fibonacci(n - 2)
+    return a + b
+}
+
+def mostrar_fibonacci() {
+    print("=== Fibonacci ===")
+    print("F(0) =", fibonacci(0))
+    print("F(1) =", fibonacci(1))
+    print("F(5) =", fibonacci(5))
+    print("F(8) =", fibonacci(8))
+}
+
+# Menu principal
+print("--- Menu ---")
+print("1. Calculadora")
+print("2. Fibonacci")
+print("------------")
+
+print("")
+print("Executando opcao 1:")
+calculadora()
+
+print("")
+print("Executando opcao 2:")
+mostrar_fibonacci()
+
+print("")
+print("=== Fim ===")
+
+
+
+
+
+
+
+
+

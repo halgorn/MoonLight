@@ -1,0 +1,118 @@
+# Benchmark 2: Multiplicacao de Matrizes (GEMM)
+# Compute-bound: C = A * B
+# Metrica: GFLOPs (Giga Floating Point Operations per Second)
+
+cuda kernel def gemm(A, B, C, N) {
+    # Tiling com shared memory
+    tile_size = 16
+    shared_A = shared[tile_size * tile_size]
+    shared_B = shared[tile_size * tile_size]
+    
+    row = blockIdx_y * blockDim_y + threadIdx_y
+    col = blockIdx_x * blockDim_x + threadIdx_x
+    tid_y = threadIdx_y
+    tid_x = threadIdx_x
+    
+    sum = 0.0
+    
+    # Loop sobre tiles
+    for (tile = 0; tile < (N + tile_size - 1) / tile_size; tile = tile + 1) {
+        # Carregar tile de A em shared memory
+        a_row = row
+        a_col = tile * tile_size + tid_x
+        if (a_row < N && a_col < N) {
+            shared_A[tid_y * tile_size + tid_x] = A[a_row * N + a_col]
+        } else {
+            shared_A[tid_y * tile_size + tid_x] = 0.0
+        }
+        
+        # Carregar tile de B em shared memory
+        b_row = tile * tile_size + tid_y
+        b_col = col
+        if (b_row < N && b_col < N) {
+            shared_B[tid_y * tile_size + tid_x] = B[b_row * N + b_col]
+        } else {
+            shared_B[tid_y * tile_size + tid_x] = 0.0
+        }
+        
+        syncthreads()
+        
+        # Computar produto interno usando shared memory
+        for (k = 0; k < tile_size; k = k + 1) {
+            sum = sum + shared_A[tid_y * tile_size + k] * shared_B[k * tile_size + tid_x]
+        }
+        
+        syncthreads()
+    }
+    
+    # Escrever resultado
+    if (row < N && col < N) {
+        C[row * N + col] = sum
+    }
+}
+
+def main() {
+    N = 2048  # Matriz NxN (aumentado para saturar GPU)
+    size = N * N
+    
+    # Alocar memoria CPU
+    h_A = [0.0] * size
+    h_B = [0.0] * size
+    h_C = [0.0] * size
+    
+    # Inicializar
+    for (i = 0; i < size; i = i + 1) {
+        h_A[i] = float(i) * 0.001
+        h_B[i] = float(i) * 0.001
+    }
+    
+    # Alocar GPU
+    d_A = device[size]
+    d_B = device[size]
+    d_C = device[size]
+    
+    # Transfer H->D
+    d_A <- h_A
+    d_B <- h_B
+    
+    # Launch kernel
+    block_size = 16
+    grid_x = (N + block_size - 1) / block_size
+    grid_y = (N + block_size - 1) / block_size
+    threads_x = block_size
+    threads_y = block_size
+    
+    # Start GPU timer
+    gpu_start_timer()
+    
+    # GEMM: 2*N^3 operacoes (N^3 multiplicacoes + N^3 somas)
+    gpu[grid_x * grid_y, threads_x * threads_y] gemm(d_A, d_B, d_C, N)
+    
+    # Stop GPU timer
+    gpu_stop_timer()
+    
+    # Transfer D->H
+    h_C <- d_C
+    
+    # Get elapsed time
+    elapsed_ms = gpu_elapsed_time()
+    
+    # Calculate GFLOPs
+    operations = 2 * N * N * N  # 2*N^3 (mult + add)
+    elapsed_s = elapsed_ms / 1000.0
+    gflops = float(operations) / elapsed_s / 1e9
+    
+    print("GEMM concluido!")
+    print("Matriz:", N, "x", N)
+    print("Operacoes: 2 *", N, "^3 =", operations)
+    print("Tempo GPU (ms):", elapsed_ms)
+    print("GFLOPs:", gflops)
+    
+    # Cleanup
+    free(d_A)
+    free(d_B)
+    free(d_C)
+}
+
+main()
+

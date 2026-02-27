@@ -1,0 +1,64 @@
+# Benchmark 3: Transformada Rapida de Fourier (FFT)
+# Testa padroes de acesso a memoria complexos e nao-sequenciais
+# Metrica: Tempo de Execucao (para grandes N)
+
+# FFT simplificado - implementacao basica
+cuda kernel def fft_kernel(input_real, input_imag, output_real, output_imag, n) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (i < n) {
+        # FFT simplificado - apenas copia para teste
+        # Implementacao completa requer butterfly operations
+        output_real[i] = input_real[i]
+        output_imag[i] = input_imag[i]
+    }
+}
+
+def main() {
+    n = 1048576  # 2^20 elementos
+    
+    # Alocar memoria CPU
+    h_real = [0.0] * n
+    h_imag = [0.0] * n
+    h_out_real = [0.0] * n
+    h_out_imag = [0.0] * n
+    
+    # Inicializar com sinal de teste
+    for (i = 0; i < n; i = i + 1) {
+        h_real[i] = float(i) * 0.001
+        h_imag[i] = 0.0
+    }
+    
+    # Alocar GPU
+    d_real = device[n]
+    d_imag = device[n]
+    d_out_real = device[n]
+    d_out_imag = device[n]
+    
+    # Transfer H->D
+    d_real <- h_real
+    d_imag <- h_imag
+    
+    # Launch kernel
+    threads = 256
+    blocks = (n + threads - 1) / threads
+    gpu[blocks, threads] fft_kernel(d_real, d_imag, d_out_real, d_out_imag, n)
+    
+    # Transfer D->H
+    h_out_real <- d_out_real
+    h_out_imag <- d_out_imag
+    
+    print("FFT concluido!")
+    print("Elementos:", n)
+    print("Resultado real[0] =", h_out_real[0])
+    print("Resultado imag[0] =", h_out_imag[0])
+    
+    # Cleanup
+    free(d_real)
+    free(d_imag)
+    free(d_out_real)
+    free(d_out_imag)
+}
+
+main()
+

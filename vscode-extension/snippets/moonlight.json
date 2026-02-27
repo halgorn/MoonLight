@@ -1,0 +1,110 @@
+{
+  "Function Definition": {
+    "prefix": "def",
+    "body": [
+      "def ${1:function_name}(${2:params}) {",
+      "\t${3:# function body}",
+      "\treturn ${4:result}",
+      "}"
+    ],
+    "description": "Define a function"
+  },
+  "Class Definition": {
+    "prefix": "class",
+    "body": [
+      "class ${1:ClassName} {",
+      "\tdef __init__(${2:params}) {",
+      "\t\t${3:# constructor}",
+      "\t}",
+      "\t",
+      "\tdef ${4:method_name}(${5:params}) {",
+      "\t\t${6:# method body}",
+      "\t}",
+      "}"
+    ],
+    "description": "Define a class"
+  },
+  "For Loop": {
+    "prefix": "for",
+    "body": [
+      "for ${1:item} in ${2:iterable} {",
+      "\t${3:# loop body}",
+      "}"
+    ],
+    "description": "For loop"
+  },
+  "While Loop": {
+    "prefix": "while",
+    "body": [
+      "while (${1:condition}) {",
+      "\t${2:# loop body}",
+      "}"
+    ],
+    "description": "While loop"
+  },
+  "If Statement": {
+    "prefix": "if",
+    "body": [
+      "if (${1:condition}) {",
+      "\t${2:# if body}",
+      "} else {",
+      "\t${3:# else body}",
+      "}"
+    ],
+    "description": "If-else statement"
+  },
+  "CUDA Kernel": {
+    "prefix": "cuda",
+    "body": [
+      "cuda kernel def ${1:kernel_name}(${2:params}) {",
+      "\tidx = threadIdx_x + blockIdx_x * blockDim_x",
+      "\t",
+      "\tif (idx < ${3:n}) {",
+      "\t\t${4:# kernel body}",
+      "\t}",
+      "}"
+    ],
+    "description": "CUDA kernel definition"
+  },
+  "JIT Decorator": {
+    "prefix": "jit",
+    "body": [
+      "@jit",
+      "def ${1:function_name}(${2:params}) {",
+      "\t${3:# function body}",
+      "\treturn ${4:result}",
+      "}"
+    ],
+    "description": "JIT-compiled function"
+  },
+  "Lambda": {
+    "prefix": "lambda",
+    "body": [
+      "lambda(${1:params}) ${2:expression}"
+    ],
+    "description": "Lambda expression"
+  },
+  "Import": {
+    "prefix": "import",
+    "body": [
+      "import ${1:module}"
+    ],
+    "description": "Import module"
+  },
+  "From Import": {
+    "prefix": "from",
+    "body": [
+      "from ${1:module} import ${2:item}"
+    ],
+    "description": "Import from module"
+  }
+}
+
+
+
+
+
+
+
+
+

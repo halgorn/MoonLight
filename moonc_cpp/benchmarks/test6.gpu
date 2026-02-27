@@ -1,0 +1,12 @@
+cuda kernel def test(x, n) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    if (i < n) {
+        x[i] = 1.0
+    }
+}
+
+def main() {
+    print("kernel test")
+}
+main()
+

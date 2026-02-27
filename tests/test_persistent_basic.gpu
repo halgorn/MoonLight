@@ -1,0 +1,62 @@
+# Basic Persistent Kernel Test
+# Tests MoonLight syntax for GPU work queues
+
+# Simple task structure
+class Task {
+    def __init__(id, value) {
+        self.id = id
+        self.value = value
+    }
+}
+
+# Persistent worker kernel
+cuda persistent kernel def worker(input_queue, output_queue, n_tasks) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    count = 0
+    while (count < n_tasks) {
+        # Wait for work
+        task = dequeue_wait(input_queue)
+        
+        # Process: double the value
+        result = task.value * 2.0
+        
+        # Create output task
+        output_task = Task(task.id, result)
+        
+        # Send result
+        enqueue(output_queue, output_task)
+        
+        count = count + 1
+    }
+}
+
+def main() {
+    n = 100
+    
+    print("Creating queues...")
+    input_q = gpu_queue[Task, 256]
+    output_q = gpu_queue[Task, 256]
+    
+    print("Launching persistent worker...")
+    gpu[1, 32] worker(input_q, output_q, n)
+    
+    print("Sending", n, "tasks...")
+    for (i = 0; i < n; i = i + 1) {
+        task = Task(i, float(i))
+        enqueue_host(input_q, task)
+    }
+    
+    print("Receiving results...")
+    for (i = 0; i < n; i = i + 1) {
+        result = dequeue_host(output_q)
+        if (i < 5) {
+            print("Task", result.id, ":", result.value)
+        }
+    }
+    
+    print("Test complete!")
+}
+
+main()
+

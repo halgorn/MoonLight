@@ -1,0 +1,19 @@
+# MoonLight Benchmark: Fibonacci Recursivo
+# Teste de performance para recursão intensiva
+
+def fibonacci(n) {
+    if (n <= 1) {
+        return n
+    }
+    return fibonacci(n - 1) + fibonacci(n - 2)
+}
+
+def main() {
+    n = 35
+    print("Calculando fibonacci(", n, ")...")
+    result = fibonacci(n)
+    print("Resultado:", result)
+}
+
+main()
+

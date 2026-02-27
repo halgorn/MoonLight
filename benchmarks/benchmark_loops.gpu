@@ -1,0 +1,35 @@
+# MoonLight Benchmark: Loops e Operações Matemáticas
+# Teste intensivo de loops e cálculos
+
+def sum_of_squares(n) {
+    total = 0
+    for (i = 0; i < n; i = i + 1) {
+        total = total + i * i
+    }
+    return total
+}
+
+def nested_loops(n) {
+    sum = 0
+    for (i = 0; i < n; i = i + 1) {
+        for (j = 0; j < n; j = j + 1) {
+            sum = sum + i * j
+        }
+    }
+    return sum
+}
+
+def main() {
+    n = 10000
+    
+    print("Teste 1: Sum of Squares")
+    result1 = sum_of_squares(n)
+    print("Resultado:", result1)
+    
+    print("Teste 2: Nested Loops (1000x1000)")
+    result2 = nested_loops(1000)
+    print("Resultado:", result2)
+}
+
+main()
+

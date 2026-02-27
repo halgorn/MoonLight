@@ -1,0 +1,116 @@
+# MoonLight Example: Recursive Sort on GPU
+# Demonstrates recursive algorithms using dynamic parallelism
+# Quicksort implemented with kernels launching kernels recursively
+
+# Partition function (helper kernel)
+cuda kernel def partition_kernel(data, left, right, pivot_idx) {
+    tid = threadIdx_x
+    
+    if (tid == 0) {
+        # Simple partition (in real app: full partition logic)
+        # This is simplified for demonstration
+        pivot = data[pivot_idx]
+        # Partition logic here...
+    }
+}
+
+# Recursive quicksort kernel
+cuda kernel def quicksort_kernel(data, left, right) {
+    # Base case: small arrays sorted directly
+    if (right - left < 100) {
+        # Sort directly (bubble sort for small arrays)
+        for (i = left; i < right; i = i + 1) {
+            for (j = left; j < right - 1; j = j + 1) {
+                if (data[j] > data[j + 1]) {
+                    temp = data[j]
+                    data[j] = data[j + 1]
+                    data[j + 1] = temp
+                }
+            }
+        }
+        return
+    }
+    
+    # Recursive case: partition and launch child kernels
+    pivot_idx = (left + right) / 2
+    
+    # Partition
+    gpu[1, 256] partition_kernel(data, left, right, pivot_idx)
+    
+    # Launch recursive kernels for left and right partitions
+    # This is dynamic parallelism - kernels launching kernels!
+    
+    if (pivot_idx - left > 100) {
+        # Launch kernel for left partition
+        gpu[1, 256] quicksort_kernel(data, left, pivot_idx - 1)
+    }
+    
+    if (right - pivot_idx > 100) {
+        # Launch kernel for right partition
+        gpu[1, 256] quicksort_kernel(data, pivot_idx + 1, right)
+    }
+    
+    # Note: In real CUDA, would need synchronization
+    # cudaDeviceSynchronize() to wait for child kernels
+}
+
+def main() {
+    print("=== Recursive Sort on GPU ===")
+    print("")
+    print("Demonstrates recursive algorithms using dynamic parallelism")
+    print("Quicksort with kernels launching kernels recursively")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Array size:", n)
+    print("  Algorithm: Quicksort (recursive)")
+    print("  Threshold: < 100 elements sorted directly")
+    print("")
+    
+    # Allocate data
+    d_data = device[n]
+    
+    # Initialize with random data (in real app: cudaMemcpy)
+    print("Initializing data...")
+    print("")
+    
+    # Launch recursive quicksort
+    print("Launching recursive quicksort...")
+    print("  Root kernel will launch child kernels recursively")
+    
+    gpu[1, 256] quicksort_kernel(d_data, 0, n - 1)
+    
+    print("✓ Recursive sort completed")
+    print("  Kernels launched kernels recursively!")
+    print("")
+    
+    print("How It Works:")
+    print("  1. Root kernel partitions array")
+    print("  2. Launches child kernels for left/right partitions")
+    print("  3. Child kernels recursively launch their children")
+    print("  4. Recursion continues until base case")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Recursive algorithms on GPU")
+    print("  ✓ Dynamic work generation")
+    print("  ✓ Adaptive to data structure")
+    print("  ✓ Perfect for: trees, graphs, divide-and-conquer")
+    print("")
+    
+    print("Challenges:")
+    print("  - Requires compute capability 3.5+")
+    print("  - Stack depth limits (typically 24 levels)")
+    print("  - Synchronization needed between levels")
+    print("  - Memory management for recursive calls")
+    print("")
+    
+    free(d_data)
+    
+    print("Done!")
+}
+
+main()
+

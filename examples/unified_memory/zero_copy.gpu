@@ -1,0 +1,80 @@
+# MoonLight Example: Zero-Copy Memory
+# Demonstrates unified memory for zero-copy access
+# CPU and GPU can access same memory without explicit transfers
+
+cuda kernel def process_unified_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Access unified memory directly
+        # No explicit transfer needed!
+        data[tid] = data[tid] * 2.0
+    }
+}
+
+def main() {
+    print("=== Zero-Copy Memory (Unified Memory) ===")
+    print("")
+    print("Demonstrates unified memory for zero-copy access")
+    print("CPU and GPU access same memory automatically")
+    print("")
+    
+    n = 1000000
+    
+    # Allocate unified memory
+    # Accessible from both CPU and GPU!
+    unified_data = unified memory[n]
+    
+    print("Configuration:")
+    print("  Size:", n, "elements")
+    print("  Type: Unified memory (zero-copy)")
+    print("")
+    
+    # CPU can write directly
+    print("Step 1: CPU writes to unified memory")
+    for (i = 0; i < 10; i = i + 1) {
+        unified_data[i] = i * 1.5
+    }
+    print("  ✓ CPU wrote to unified memory")
+    print("")
+    
+    # GPU can access same memory (automatic!)
+    print("Step 2: GPU processes unified memory")
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] process_unified_kernel(unified_data, n)
+    
+    print("  ✓ GPU accessed unified memory directly")
+    print("  ✓ No explicit transfer needed!")
+    print("")
+    
+    # CPU can read results directly
+    print("Step 3: CPU reads from unified memory")
+    for (i = 0; i < 10; i = i + 1) {
+        print("  unified_data[", i, "] =", unified_data[i])
+    }
+    print("  ✓ CPU read from unified memory")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Zero-copy: no explicit transfers")
+    print("  ✓ Automatic page migration")
+    print("  ✓ Simplified memory management")
+    print("  ✓ Perfect for: shared data, small transfers")
+    print("")
+    
+    print("Performance:")
+    print("  - First access: page fault + migration (slower)")
+    print("  - Subsequent accesses: fast (data in right place)")
+    print("  - Best for: irregular access patterns")
+    print("")
+    
+    # Cleanup
+    free(unified_data)
+    
+    print("Done!")
+}
+
+main()
+

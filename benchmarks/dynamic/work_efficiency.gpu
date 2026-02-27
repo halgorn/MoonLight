@@ -1,0 +1,132 @@
+# MoonLight Benchmark: Work Generation Efficiency
+# Measures efficiency of dynamic work generation
+# Compares dynamic vs static work distribution
+
+# Static work distribution (baseline)
+cuda kernel def static_work_kernel(work_items, results, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Process work item
+        results[tid] = work_items[tid] * work_items[tid]
+    }
+}
+
+# Dynamic work generation
+cuda kernel def dynamic_work_kernel(work_item, result, threshold) {
+    tid = threadIdx_x
+    
+    if (tid == 0) {
+        # Process work
+        *result = work_item * work_item
+        
+        # Generate new work if needed
+        if (work_item > threshold) {
+            # Split work
+            half = work_item / 2
+            
+            # Launch kernels for split work
+            gpu[1, 256] dynamic_work_kernel(half, result, threshold)
+            gpu[1, 256] dynamic_work_kernel(half, result, threshold)
+        }
+    }
+}
+
+def test_static_work(n) {
+    print("Testing static work distribution...")
+    
+    d_work = device[n]
+    d_results = device[n]
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] static_work_kernel(d_work, d_results, n)
+    
+    print("  ✓ Static work completed")
+    
+    free(d_work)
+    free(d_results)
+}
+
+def test_dynamic_work(n, threshold) {
+    print("Testing dynamic work generation...")
+    
+    d_work = device[n]
+    d_results = device[n]
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Launch initial work
+    for (i = 0; i < n; i = i + 1) {
+        gpu[1, 256] dynamic_work_kernel(d_work[i], d_results + i, threshold)
+    }
+    
+    print("  ✓ Dynamic work completed")
+    
+    free(d_work)
+    free(d_results)
+}
+
+def main() {
+    print("=== Work Generation Efficiency Benchmark ===")
+    print("")
+    print("Comparing static vs dynamic work distribution")
+    print("Measures efficiency of dynamic work generation")
+    print("")
+    
+    test_sizes = [100, 1000, 10000]
+    threshold = 100
+    
+    print("Configuration:")
+    print("  Test sizes:", test_sizes)
+    print("  Dynamic threshold:", threshold)
+    print("")
+    
+    for (i = 0; i < len(test_sizes); i = i + 1) {
+        n = test_sizes[i]
+        
+        print("Testing size:", n)
+        print("")
+        
+        test_static_work(n)
+        print("")
+        
+        test_dynamic_work(n, threshold)
+        print("")
+        
+        print("---")
+        print("")
+    }
+    
+    print("Analysis:")
+    print("  Static work:")
+    print("    - Predictable performance")
+    print("    - Simple implementation")
+    print("    - Good for: regular workloads")
+    print("")
+    
+    print("  Dynamic work:")
+    print("    - Adapts to workload")
+    print("    - More complex")
+    print("    - Good for: irregular workloads")
+    print("")
+    
+    print("Efficiency Metrics:")
+    print("  - Work utilization: % of GPU used")
+    print("  - Load balance: distribution of work")
+    print("  - Overhead: cost of dynamic generation")
+    print("")
+    
+    print("Recommendations:")
+    print("  ✓ Use static for: regular, predictable workloads")
+    print("  ✓ Use dynamic for: irregular, adaptive workloads")
+    print("  ✓ Monitor overhead vs benefit")
+    print("")
+    
+    print("Done!")
+}
+
+main()
+

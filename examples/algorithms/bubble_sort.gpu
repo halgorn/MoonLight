@@ -1,0 +1,32 @@
+# Bubble Sort em MoonLight
+
+def bubble_sort(lista) {
+    n = len(lista)
+    for (i = 0; i < n; i = i + 1) {
+        for (j = 0; j < n - 1; j = j + 1) {
+            if (lista[j] > lista[j + 1]) {
+                # Swap
+                temp = lista[j]
+                lista[j] = lista[j + 1]
+                lista[j + 1] = temp
+            }
+        }
+    }
+}
+
+# Teste
+numeros = [64, 34, 25, 12, 22, 11, 90]
+print("Lista original:", numeros)
+
+bubble_sort(numeros)
+print("Lista ordenada:", numeros)
+
+
+
+
+
+
+
+
+
+

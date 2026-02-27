@@ -1,0 +1,118 @@
+# MoonLight Example: Async Pipeline with Streams
+# Demonstrates asynchronous pipeline execution
+# Overlaps computation and memory transfers
+
+# Stage 1: Preprocessing
+cuda kernel def preprocess(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * 0.5
+    }
+}
+
+# Stage 2: Main processing
+cuda kernel def main_process(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * data[tid]
+    }
+}
+
+# Stage 3: Post-processing
+cuda kernel def postprocess(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] + 10.0
+    }
+}
+
+def async_pipeline() {
+    print("=== Async Pipeline with Streams ===")
+    print("")
+    print("Demonstrates asynchronous pipeline execution")
+    print("Overlaps computation stages")
+    print("")
+    
+    n = 10000
+    num_batches = 5
+    
+    print("Configuration:")
+    print("  Elements per batch:", n)
+    print("  Number of batches:", num_batches)
+    print("  Pipeline stages: 3")
+    print("")
+    
+    # Create streams for each stage
+    stream1 = cuda_stream()  # Preprocessing
+    stream2 = cuda_stream()  # Main processing
+    stream3 = cuda_stream()  # Post-processing
+    
+    print("Created pipeline streams:")
+    print("  ✓ Stream 1: Preprocessing")
+    print("  ✓ Stream 2: Main processing")
+    print("  ✓ Stream 3: Post-processing")
+    print("")
+    
+    # Allocate data for each batch
+    d_batch1 = device[n]
+    d_batch2 = device[n]
+    d_batch3 = device[n]
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    print("Executing async pipeline...")
+    print("")
+    
+    # Pipeline execution: overlap stages
+    for (i = 0; i < num_batches; i = i + 1) {
+        print("Batch", i + 1, ":")
+        
+        # Stage 1: Preprocess batch 1
+        gpu[blocks, threads, stream=stream1] preprocess(d_batch1, n)
+        print("  → Stage 1: Preprocessing (stream 1)")
+        
+        # Stage 2: Process batch 0 (if exists) while stage 1 runs
+        if (i > 0) {
+            gpu[blocks, threads, stream=stream2] main_process(d_batch2, n)
+            print("  → Stage 2: Main processing (stream 2)")
+        }
+        
+        # Stage 3: Post-process batch -1 (if exists) while others run
+        if (i > 1) {
+            gpu[blocks, threads, stream=stream3] postprocess(d_batch3, n)
+            print("  → Stage 3: Post-processing (stream 3)")
+        }
+        
+        # Rotate batches
+        temp = d_batch1
+        d_batch1 = d_batch2
+        d_batch2 = d_batch3
+        d_batch3 = temp
+    }
+    
+    # Synchronize all streams
+    print("")
+    print("Synchronizing all streams...")
+    sync_stream(stream1)
+    sync_stream(stream2)
+    sync_stream(stream3)
+    print("  ✓ All streams synchronized")
+    print("")
+    
+    print("Pipeline Benefits:")
+    print("  ✓ Overlapped execution")
+    print("  ✓ Better GPU utilization")
+    print("  ✓ Reduced total latency")
+    print("  ✓ Higher throughput")
+    print("")
+    
+    free(d_batch1)
+    free(d_batch2)
+    free(d_batch3)
+    
+    print("Done!")
+}
+
+async_pipeline()
+

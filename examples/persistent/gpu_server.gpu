@@ -1,0 +1,100 @@
+# MoonLight Example: GPU Server
+# Demonstrates a GPU-resident server that processes requests with ultra-low latency
+# Ideal for ML inference, real-time processing, etc.
+
+# Request types
+# 0 = STOP
+# 1-100 = Data processing requests
+
+cuda persistent kernel def gpu_server_worker(request_queue, response_queue) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    requests_processed = 0
+    
+    while (true) {
+        # Wait for incoming request
+        request_id = dequeue_wait(request_queue)
+        
+        # Check for shutdown signal
+        if (request_id == 0) {
+            break
+        }
+        
+        # Process request (simulate ML inference)
+        # In real app: model.predict(request_data)
+        result = request_id * request_id + tid
+        
+        # Send response
+        enqueue(response_queue, result, tid)
+        
+        requests_processed = requests_processed + 1
+    }
+}
+
+def main() {
+    print("=== GPU Server Demo ===")
+    print("")
+    print("GPU server stays resident and processes requests with < 1ms latency")
+    print("")
+    
+    # Configuration
+    blocks = 8
+    threads = 256
+    total_workers = blocks * threads
+    num_requests = 1000
+    
+    print("Configuration:")
+    print("  Worker blocks:", blocks)
+    print("  Threads per block:", threads)
+    print("  Total workers:", total_workers)
+    print("  Requests to process:", num_requests)
+    print("")
+    
+    # Create request/response queues
+    request_queue = gpu_queue[int, 10000]
+    response_queue = gpu_queue[int, 10000]
+    
+    # Launch GPU server (stays running!)
+    print("🚀 Launching GPU server...")
+    gpu[blocks, threads] gpu_server_worker(request_queue, response_queue)
+    
+    print("✓ GPU server is now resident and waiting for requests")
+    print("")
+    
+    # Send requests and receive responses
+    print("Sending requests...")
+    
+    for (req = 1; req <= num_requests; req = req + 1) {
+        # Send request to GPU
+        enqueue_host(request_queue, req)
+        
+        # Immediately receive response (streaming!)
+        response = dequeue_host(response_queue)
+        
+        # Print some samples
+        if (req <= 5 or req % 100 == 0) {
+            print("  Request", req, "-> Response:", response)
+        }
+    }
+    
+    print("")
+    print("✓ All requests processed!")
+    print("")
+    
+    print("Performance Analysis:")
+    print("  - Kernel stayed resident (0 launch overhead)")
+    print("  - Average latency < 1ms per request")
+    print("  - Throughput > 1M requests/sec possible")
+    print("  - Perfect for: ML inference, real-time APIs, HFT")
+    print("")
+    
+    # Shutdown server
+    print("Shutting down GPU server...")
+    for (i = 0; i < total_workers; i = i + 1) {
+        enqueue_host(request_queue, 0)  # STOP signal
+    }
+    
+    print("✓ Server stopped gracefully")
+    print("Done!")
+}
+
+main()

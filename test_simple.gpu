@@ -1,0 +1,55 @@
+# test_simple.gpu
+# Teste Simples e Rápido
+
+print("=== TESTE SIMPLES DO MOONLIGHT ===")
+print("")
+
+# Variaveis
+x = 10
+y = 20
+print("x =", x)
+print("y =", y)
+print("x + y =", x + y)
+print("")
+
+# Funcao
+def dobro(n) {
+    return n * 2
+}
+
+print("dobro(5) =", dobro(5))
+print("dobro(10) =", dobro(10))
+print("")
+
+# Loop
+print("Contando ate 5:")
+i = 1
+while (i <= 5) {
+    print(i)
+    i = i + 1
+}
+print("")
+
+# Fibonacci
+def fib(n) {
+    if (n <= 1) {
+        return n
+    }
+    return fib(n - 1) + fib(n - 2)
+}
+
+print("Fibonacci:")
+print("fib(5) =", fib(5))
+print("fib(8) =", fib(8))
+print("")
+
+print("=== TESTE CONCLUIDO! ===")
+
+
+
+
+
+
+
+
+

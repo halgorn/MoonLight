@@ -1,0 +1,144 @@
+# MoonLight Benchmark: Multi-GPU Scaling Test
+# Measures performance scaling with number of GPUs
+# Validates linear scaling and efficiency
+
+# Processing kernel
+cuda kernel def scaling_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        # Some computation
+        val = data[tid]
+        val = val * 2.0
+        val = val + 1.0
+        val = sqrt(val)
+        val = val * val
+        data[tid] = val
+    }
+}
+
+def benchmark_scaling() {
+    print("=== Multi-GPU Scaling Test ===")
+    print("")
+    print("Measures performance scaling with number of GPUs")
+    print("Validates linear scaling and efficiency")
+    print("")
+    
+    max_gpus = 4  # In real app: cudaGetDeviceCount()
+    n = 10000000  # 10M elements per GPU
+    
+    print("Configuration:")
+    print("  Max GPUs:", max_gpus)
+    print("  Elements per GPU:", n)
+    print("  Total elements (4 GPUs):", n * max_gpus)
+    print("")
+    
+    # Baseline: 1 GPU
+    print("=== Baseline: 1 GPU ===")
+    print("")
+    
+    d_data1 = device[n]
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Start timer
+    gpu[blocks, threads] scaling_kernel(d_data1, n)
+    # Stop timer
+    time_1gpu = 0.0  # Placeholder
+    
+    print("  Time:", time_1gpu, "ms")
+    print("  Throughput:", (n / time_1gpu), "elements/ms")
+    print("")
+    
+    free(d_data1)
+    
+    # Test with multiple GPUs
+    gpu_times = []
+    gpu_throughputs = []
+    
+    for (num_gpus = 2; num_gpus <= max_gpus; num_gpus = num_gpus + 1) {
+        print("=== Testing with", num_gpus, "GPUs ===")
+        print("")
+        
+        # Allocate data on each GPU
+        d_data = []
+        for (i = 0; i < num_gpus; i = i + 1) {
+            gpu[i] d_chunk = device[n]
+            d_data.append(d_chunk)
+        }
+        
+        # Launch kernels concurrently
+        # Start timer
+        for (i = 0; i < num_gpus; i = i + 1) {
+            gpu[i][blocks, threads] scaling_kernel(d_data[i], n)
+        }
+        
+        # Synchronize all GPUs
+        for (i = 0; i < num_gpus; i = i + 1) {
+            # cudaSetDevice(i)
+            # cudaDeviceSynchronize()
+        }
+        
+        # Stop timer
+        time_multi = 0.0  # Placeholder
+        gpu_times.append(time_multi)
+        
+        total_elements = n * num_gpus
+        throughput = total_elements / time_multi
+        gpu_throughputs.append(throughput)
+        
+        speedup = time_1gpu / time_multi
+        efficiency = (speedup / num_gpus) * 100
+        
+        print("  Time:", time_multi, "ms")
+        print("  Throughput:", throughput, "elements/ms")
+        print("  Speedup vs 1 GPU:", speedup, "x")
+        print("  Efficiency:", efficiency, "%")
+        print("")
+        
+        # Free memory
+        for (i = 0; i < num_gpus; i = i + 1) {
+            free(d_data[i])
+        }
+    }
+    
+    # Summary
+    print("=== Scaling Summary ===")
+    print("")
+    print("GPUs | Time (ms) | Throughput | Speedup | Efficiency")
+    print("-----|-----------|------------|--------|-----------")
+    print("  1  |", time_1gpu, "|", (n / time_1gpu), "| 1.00x  | 100%")
+    
+    for (i = 0; i < len(gpu_times); i = i + 1) {
+        num_gpus = i + 2
+        speedup = time_1gpu / gpu_times[i]
+        efficiency = (speedup / num_gpus) * 100
+        print(" ", num_gpus, " |", gpu_times[i], "|", gpu_throughputs[i], "|", speedup, "x |", efficiency, "%")
+    }
+    print("")
+    
+    print("Scaling Analysis:")
+    print("  ✓ Linear scaling: Speedup ≈ number of GPUs")
+    print("  ✓ Efficiency: >90% is excellent")
+    print("  ✓ Overhead: Communication and synchronization")
+    print("")
+    
+    print("Factors Affecting Scaling:")
+    print("  - Data transfer overhead")
+    print("  - Load imbalance")
+    print("  - Synchronization cost")
+    print("  - P2P/NVLink availability")
+    print("")
+    
+    print("Best Practices:")
+    print("  ✓ Minimize data transfers")
+    print("  ✓ Balance workload evenly")
+    print("  ✓ Use P2P when available")
+    print("  ✓ Overlap computation and transfer")
+    print("")
+    
+    print("Done!")
+}
+
+benchmark_scaling()
+

@@ -1,0 +1,40 @@
+# Exemplo de Classe Pessoa em MoonLight
+
+class Pessoa {
+    def __init__(nome, idade) {
+        self.nome = nome
+        self.idade = idade
+    }
+    
+    def apresentar() {
+        print("Olá! Meu nome é", self.nome)
+        print("Tenho", self.idade, "anos")
+    }
+    
+    def aniversario() {
+        self.idade = self.idade + 1
+        print("Feliz aniversário!", self.nome)
+        print("Agora você tem", self.idade, "anos")
+    }
+}
+
+# Criando instâncias
+p1 = Pessoa("João", 25)
+p2 = Pessoa("Maria", 30)
+
+# Usando métodos
+p1.apresentar()
+print("")
+p1.aniversario()
+print("")
+p2.apresentar()
+
+
+
+
+
+
+
+
+
+

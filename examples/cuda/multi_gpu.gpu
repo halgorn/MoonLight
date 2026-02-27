@@ -1,0 +1,85 @@
+# MoonLight CUDA Example: Multi-GPU Processing
+# Distribuir trabalho entre múltiplas GPUs
+
+cuda kernel def compute_intensive(data, output, n) {
+    i = blockIdx_x * blockDim_x + threadIdx_x
+    
+    if (i < n) {
+        # Computação intensiva
+        result = 0.0
+        for (j = 0; j < 1000; j = j + 1) {
+            result = result + data[i] * float(j)
+        }
+        output[i] = result
+    }
+}
+
+def main() {
+    # Descobrir número de GPUs
+    gpu_count = cuda_device_count()
+    print("GPUs disponíveis:", gpu_count)
+    
+    if (gpu_count < 2) {
+        print("Este exemplo requer 2+ GPUs")
+        return
+    }
+    
+    n_total = 10000000  # 10M elementos
+    n_per_gpu = n_total / gpu_count
+    
+    # Alocar host
+    h_data = [float(i) for i in range(n_total)]
+    h_output = [0.0] * n_total
+    
+    # Processar em cada GPU
+    for (gpu_id = 0; gpu_id < gpu_count; gpu_id = gpu_id + 1) {
+        # Selecionar GPU
+        cuda_set_device(gpu_id)
+        
+        # Calcular chunk para esta GPU
+        start = gpu_id * n_per_gpu
+        end = start + n_per_gpu
+        chunk = h_data[start:end]
+        
+        # Alocar nesta GPU
+        d_data = device[n_per_gpu]
+        d_output = device[n_per_gpu]
+        
+        # Copiar dados
+        d_data <- chunk
+        
+        # Lançar kernel
+        threads = 256
+        blocks = (n_per_gpu + threads - 1) / threads
+        gpu[blocks, threads] compute_intensive(d_data, d_output, n_per_gpu)
+        
+        # Copiar resultado
+        result_chunk = [0.0] * n_per_gpu
+        result_chunk <- d_output
+        
+        # Copiar para array final
+        for (i = 0; i < n_per_gpu; i = i + 1) {
+            h_output[start + i] = result_chunk[i]
+        }
+        
+        # Cleanup desta GPU
+        free(d_data)
+        free(d_output)
+        
+        print("GPU", gpu_id, "processou", n_per_gpu, "elementos")
+    }
+    
+    print("Processamento multi-GPU completo!")
+    print("Primeiros 10 resultados:", h_output[0:10])
+}
+
+main()
+
+
+
+
+
+
+
+
+

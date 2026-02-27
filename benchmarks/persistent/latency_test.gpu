@@ -1,0 +1,77 @@
+# MoonLight Benchmark: Queue Latency Test
+# Measures end-to-end latency for GPU queue operations
+# Target: < 1ms latency
+
+cuda persistent kernel def latency_worker(input_queue, output_queue) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    while (true) {
+        task = dequeue_wait(input_queue)
+        
+        if (task == -1) {
+            break
+        }
+        
+        # Immediate response - no processing
+        enqueue(output_queue, task, tid)
+    }
+}
+
+def main() {
+    print("=== Queue Latency Benchmark ===")
+    print("")
+    print("Target latency: < 1ms")
+    print("Measuring time from enqueue_host to dequeue_host")
+    print("")
+    
+    # Configuration
+    num_tests = 100
+    blocks = 1
+    threads = 256
+    
+    # Create queues
+    input_queue = gpu_queue[int, 1000]
+    output_queue = gpu_queue[int, 1000]
+    
+    # Launch persistent kernel
+    print("Launching persistent kernel...")
+    gpu[blocks, threads] latency_worker(input_queue, output_queue)
+    
+    # Warm-up
+    print("Warming up...")
+    for (i = 0; i < 10; i = i + 1) {
+        enqueue_host(input_queue, i)
+        result = dequeue_host(output_queue)
+    }
+    
+    print("")
+    print("Running latency tests...")
+    print("")
+    
+    # Run latency tests
+    for (test = 0; test < num_tests; test = test + 1) {
+        # Send one task
+        enqueue_host(input_queue, test)
+        
+        # Immediately wait for result
+        result = dequeue_host(output_queue)
+        
+        if (test < 10 or test % 10 == 0) {
+            print("Test", test, "- Task:", test, "Result:", result)
+        }
+    }
+    
+    print("")
+    print("Latency test completed!")
+    print("Tests run:", num_tests)
+    print("")
+    print("If average latency < 1ms: ✓ PASS")
+    print("If average latency > 1ms: ✗ FAIL (need optimization)")
+    
+    # Stop kernel
+    for (i = 0; i < blocks * threads; i = i + 1) {
+        enqueue_host(input_queue, -1)
+    }
+}
+
+main()

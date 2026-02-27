@@ -1,0 +1,80 @@
+# MoonLight CUDA Example: Matrix Multiplication
+# Multiplicação de matrizes em CUDA
+
+# Kernel para multiplicação de matrizes
+cuda kernel def matmul(A, B, C, N) {
+    # Índices do thread
+    row = blockIdx_y * blockDim_y + threadIdx_y
+    col = blockIdx_x * blockDim_x + threadIdx_x
+    
+    if (row < N and col < N) {
+        sum = 0.0
+        for (k = 0; k < N; k = k + 1) {
+            sum = sum + A[row * N + k] * B[k * N + col]
+        }
+        C[row * N + col] = sum
+    }
+}
+
+def main() {
+    N = 64  # Tamanho da matriz (64x64)
+    
+    # Alocar arrays no host
+    size = N * N
+    h_A = [0.0] * size
+    h_B = [0.0] * size
+    h_C = [0.0] * size
+    
+    # Inicializar matrizes
+    for (i = 0; i < N; i = i + 1) {
+        for (j = 0; j < N; j = j + 1) {
+            h_A[i * N + j] = float(i + j)
+            h_B[i * N + j] = float(i - j)
+        }
+    }
+    
+    # Alocar memória na GPU
+    d_A = device[size]
+    d_B = device[size]
+    d_C = device[size]
+    
+    # Copiar dados para GPU
+    d_A <- h_A
+    d_B <- h_B
+    
+    # Configurar grid 2D
+    block_size = 16
+    grid_size = (N + block_size - 1) / block_size
+    
+    # Lançar kernel com grid 2D
+    gpu[(grid_size, grid_size), (block_size, block_size)] matmul(d_A, d_B, d_C, N)
+    
+    # Copiar resultado
+    h_C <- d_C
+    
+    # Imprimir resultado (primeiros elementos)
+    print("Matrix C (primeiros elementos):")
+    for (i = 0; i < 4; i = i + 1) {
+        for (j = 0; j < 4; j = j + 1) {
+            print(h_C[i * N + j], end=" ")
+        }
+        print("")
+    }
+    
+    # Cleanup
+    free(d_A)
+    free(d_B)
+    free(d_C)
+}
+
+main()
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,67 @@
+# Benchmark 1: Adicao de Vetores (SAXPY/AXPY)
+# Memory-bound: y = a * x + y
+# Metrica: Throughput (GB/s)
+
+cuda kernel def saxpy(x, y, a, n) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    if (i < n) {
+        y[i] = a * x[i] + y[i]
+    }
+}
+
+def main() {
+    n = 10000000  # 10M elementos
+    a = 2.5
+    
+    # Alocar memoria CPU
+    h_x = [0.0] * n
+    h_y = [0.0] * n
+    
+    # Inicializar
+    for (i = 0; i < n; i = i + 1) {
+        h_x[i] = float(i) * 0.001
+        h_y[i] = float(i) * 0.002
+    }
+    
+    # Alocar GPU
+    d_x = device[n]
+    d_y = device[n]
+    
+    # Transfer H->D
+    d_x <- h_x
+    d_y <- h_y
+    
+    # Start GPU timer
+    gpu_start_timer()
+    
+    # Launch kernel
+    threads = 256
+    blocks = (n + threads - 1) / threads
+    gpu[blocks, threads] saxpy(d_x, d_y, a, n)
+    
+    # Stop GPU timer
+    gpu_stop_timer()
+    
+    # Transfer D->H
+    h_y <- d_y
+    
+    # Get elapsed time
+    elapsed_ms = gpu_elapsed_time()
+    
+    # Calculate throughput
+    # 3 arrays (x, y input, y output) * n elements * 4 bytes per float
+    bytes_transferred = 3 * n * 4
+    throughput_gbs = float(bytes_transferred) / (elapsed_ms / 1000.0) / 1e9
+    
+    print("SAXPY concluido!")
+    print("Elementos:", n)
+    print("Tempo GPU (ms):", elapsed_ms)
+    print("Throughput (GB/s):", throughput_gbs)
+    
+    # Cleanup
+    free(d_x)
+    free(d_y)
+}
+
+main()
+

@@ -1,0 +1,22 @@
+# Exemplo de Potenciação em MoonLight
+
+# Potência com **
+x = 2 ** 3
+print("2 ** 3 =", x)
+
+y = 5 ** 2
+print("5 ** 2 =", y)
+
+# Potência em expressão
+z = (2 + 3) ** 2
+print("(2 + 3) ** 2 =", z)
+
+
+
+
+
+
+
+
+
+

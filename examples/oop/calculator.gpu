@@ -1,0 +1,65 @@
+# Calculadora Orientada a Objetos em MoonLight
+
+class Calculator {
+    def __init__() {
+        self.result = 0
+    }
+    
+    def add(value) {
+        self.result = self.result + value
+        return self.result
+    }
+    
+    def subtract(value) {
+        self.result = self.result - value
+        return self.result
+    }
+    
+    def multiply(value) {
+        self.result = self.result * value
+        return self.result
+    }
+    
+    def divide(value) {
+        if (value != 0) {
+            self.result = self.result / value
+        }
+        return self.result
+    }
+    
+    def clear() {
+        self.result = 0
+    }
+    
+    def show() {
+        print("Resultado atual:", self.result)
+    }
+}
+
+# Usando a calculadora
+calc = Calculator()
+
+calc.add(10)
+calc.show()
+
+calc.multiply(5)
+calc.show()
+
+calc.subtract(3)
+calc.show()
+
+calc.divide(2)
+calc.show()
+
+calc.clear()
+calc.show()
+
+
+
+
+
+
+
+
+
+

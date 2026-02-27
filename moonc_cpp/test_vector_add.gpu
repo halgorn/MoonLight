@@ -1,0 +1,54 @@
+# Teste de Performance - Vector Addition
+# MoonLight 100% Independente
+
+cuda kernel def add_vectors(a, b, c, n) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    if (i < n) {
+        c[i] = a[i] + b[i]
+    }
+}
+
+def main() {
+    n = 1000000  # 1M elementos
+    
+    # Alocar memória CPU
+    h_a = [0.0] * n
+    h_b = [0.0] * n
+    h_c = [0.0] * n
+    
+    # Inicializar
+    for (i = 0; i < n; i = i + 1) {
+        h_a[i] = float(i)
+        h_b[i] = float(i * 2)
+    }
+    
+    # Alocar GPU
+    d_a = device[n]
+    d_b = device[n]
+    d_c = device[n]
+    
+    # Transfer H->D
+    d_a <- h_a
+    d_b <- h_b
+    
+    # Launch kernel
+    threads = 256
+    blocks = (n + threads - 1) / threads
+    gpu[blocks, threads] add_vectors(d_a, d_b, d_c, n)
+    
+    # Transfer D->H
+    h_c <- d_c
+    
+    # Verificar
+    print("Teste concluído!")
+    print("h_c[0] =", h_c[0])
+    print("h_c[", n-1, "] =", h_c[n-1])
+    
+    # Cleanup
+    free(d_a)
+    free(d_b)
+    free(d_c)
+}
+
+main()
+

@@ -1,0 +1,162 @@
+# MoonLight Benchmark: Concurrent vs Sequential Execution
+# Compares performance of concurrent streams vs sequential execution
+# Demonstrates the benefits of multi-stream execution
+
+# Simple processing kernel
+cuda kernel def benchmark_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        # Some computation
+        data[tid] = data[tid] * 2.0 + 1.0
+        data[tid] = sqrt(data[tid])
+        data[tid] = data[tid] * data[tid]
+    }
+}
+
+def benchmark_sequential() {
+    print("=== Sequential Execution Benchmark ===")
+    print("")
+    
+    n = 10000
+    num_kernels = 10
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Kernels:", num_kernels)
+    print("  Execution: Sequential")
+    print("")
+    
+    # Allocate data
+    d_data = device[n]
+    
+    # Initialize (in real app: cudaMemcpy)
+    print("Initializing data...")
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Sequential execution
+    print("Executing kernels sequentially...")
+    # Start timer (in real: cudaEventRecord)
+    
+    for (i = 0; i < num_kernels; i = i + 1) {
+        gpu[blocks, threads] benchmark_kernel(d_data, n)
+        # Synchronize after each kernel
+        # cudaDeviceSynchronize()
+    }
+    
+    # Stop timer
+    sequential_time = 0.0  # Placeholder
+    print("  Time:", sequential_time, "ms")
+    print("")
+    
+    free(d_data)
+    
+    return sequential_time
+}
+
+def benchmark_concurrent() {
+    print("=== Concurrent Execution Benchmark ===")
+    print("")
+    
+    n = 10000
+    num_streams = 4
+    kernels_per_stream = 3
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Streams:", num_streams)
+    print("  Kernels per stream:", kernels_per_stream)
+    print("  Execution: Concurrent")
+    print("")
+    
+    # Create streams
+    streams = []
+    for (i = 0; i < num_streams; i = i + 1) {
+        streams.append(cuda_stream())
+    }
+    
+    print("Created", num_streams, "streams")
+    print("")
+    
+    # Allocate data per stream
+    d_data = []
+    for (i = 0; i < num_streams; i = i + 1) {
+        d_data.append(device[n])
+    }
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Concurrent execution
+    print("Executing kernels concurrently...")
+    # Start timer
+    
+    for (k = 0; k < kernels_per_stream; k = k + 1) {
+        for (s = 0; s < num_streams; s = s + 1) {
+            gpu[blocks, threads, stream=streams[s]] benchmark_kernel(d_data[s], n)
+        }
+    }
+    
+    # Synchronize all streams
+    for (s = 0; s < num_streams; s = s + 1) {
+        sync_stream(streams[s])
+    }
+    
+    # Stop timer
+    concurrent_time = 0.0  # Placeholder
+    print("  Time:", concurrent_time, "ms")
+    print("")
+    
+    for (i = 0; i < num_streams; i = i + 1) {
+        free(d_data[i])
+    }
+    
+    return concurrent_time
+}
+
+def main() {
+    print("=== Concurrent vs Sequential Execution ===")
+    print("")
+    print("Comparing performance of concurrent streams vs sequential")
+    print("")
+    
+    # Benchmark sequential
+    sequential_time = benchmark_sequential()
+    
+    # Benchmark concurrent
+    concurrent_time = benchmark_concurrent()
+    
+    # Compare results
+    print("=== Results Comparison ===")
+    print("")
+    print("Sequential execution:")
+    print("  Time:", sequential_time, "ms")
+    print("")
+    print("Concurrent execution:")
+    print("  Time:", concurrent_time, "ms")
+    print("")
+    
+    if (sequential_time > 0 and concurrent_time > 0) {
+        speedup = sequential_time / concurrent_time
+        print("Speedup:", speedup, "x")
+        print("")
+    }
+    
+    print("Benefits of Concurrent Streams:")
+    print("  ✓ Overlapped kernel execution")
+    print("  ✓ Better GPU utilization")
+    print("  ✓ Reduced total execution time")
+    print("  ✓ Higher throughput")
+    print("")
+    print("Typical Speedup:")
+    print("  - 2-4 streams: 1.5-2.5x")
+    print("  - 4-8 streams: 2.0-3.5x")
+    print("  - Depends on kernel characteristics")
+    print("")
+    
+    print("Done!")
+}
+
+main()
+

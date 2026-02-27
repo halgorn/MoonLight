@@ -1,0 +1,64 @@
+# MoonLight Example: Basic Persistent Kernel
+# Demonstrates a kernel that stays resident on the GPU and processes work from a queue
+
+# Define task structure
+# In a real implementation, this would be a struct, but we'll use int for simplicity
+
+cuda persistent kernel def worker(input_queue, output_queue, stop_flag) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    while (true) {
+        # Wait for a task from the queue (blocks until available)
+        task = dequeue_wait(input_queue)
+        
+        # Check for stop signal
+        if (task == -1) {
+            break
+        }
+        
+        # Process the task (example: square the number)
+        result = task * task
+        
+        # Enqueue result
+        enqueue(output_queue, result, tid)
+    }
+}
+
+def main() {
+    # Create queues for communication
+    input_queue = gpu_queue[int, 10000]
+    output_queue = gpu_queue[int, 10000]
+    
+    # Launch persistent kernel (stays running on GPU)
+    blocks = 4
+    threads = 256
+    
+    print("Launching persistent kernel...")
+    gpu[blocks, threads] worker(input_queue, output_queue, 0)
+    
+    # Send tasks to the GPU
+    print("Sending tasks to GPU...")
+    for (i = 0; i < 100; i = i + 1) {
+        enqueue_host(input_queue, i)
+    }
+    
+    # Receive results
+    print("Receiving results from GPU...")
+    for (i = 0; i < 100; i = i + 1) {
+        result = dequeue_host(output_queue)
+        if (i < 10) {
+            print("Task", i, "-> Result:", result)
+        }
+    }
+    
+    # Send stop signal
+    print("Stopping kernel...")
+    for (i = 0; i < blocks * threads; i = i + 1) {
+        enqueue_host(input_queue, -1)
+    }
+    
+    print("Done!")
+}
+
+main()
+

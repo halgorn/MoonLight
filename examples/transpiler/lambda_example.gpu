@@ -1,0 +1,24 @@
+# Exemplo de Lambda em MoonLight
+
+# Lambda simples
+dobro = lambda(x) x * 2
+print("Dobro de 5:", dobro(5))
+
+# Lambda com múltiplos parâmetros
+soma = lambda(a, b) a + b
+print("Soma de 3 e 7:", soma(3, 7))
+
+# Lambda em expressão
+quadrado = lambda(n) n * n
+resultado = quadrado(4)
+print("Quadrado de 4:", resultado)
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,161 @@
+# MoonLight Example: Branch Optimization
+# Demonstrates branch prediction hints for GPU performance
+# Optimizes control flow for better warp efficiency
+
+# Kernel with branch prediction hint
+# @predict_taken would be a decorator hint
+cuda kernel def optimized_branch(data, flags, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Branch prediction hint: most likely path
+        # In real CUDA: compiler optimizations based on hints
+        
+        if (flags[tid] > 0.5) {
+            # Likely path (hint: predict taken)
+            data[tid] = data[tid] * 2.0
+        } else {
+            # Less likely path
+            data[tid] = data[tid] * 0.5
+        }
+    }
+}
+
+# Kernel with optimized branching pattern
+cuda kernel def warp_aligned_branch(data, n, threshold) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    lane = lane_id()
+    
+    if (tid < n) {
+        # Optimize for warp-aligned branching
+        # All threads in warp take same path when possible
+        
+        val = data[tid]
+        
+        # Coalesce branches within warp
+        if (val > threshold) {
+            # All threads in warp likely take this path
+            val = val * 2.0
+        } else {
+            # Divergent path (minimize divergence)
+            val = val * 0.5
+        }
+        
+        data[tid] = val
+    }
+}
+
+# Kernel demonstrating branch reduction
+cuda kernel def reduced_branching(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        val = data[tid]
+        
+        # Reduce branching by using arithmetic instead
+        # Instead of: if (val > 0) val = val * 2 else val = val * 0.5
+        # Use: val = val * (1.5 + 0.5 * sign(val))
+        
+        sign = (val > 0) ? 1.0 : -1.0
+        multiplier = 1.5 + 0.5 * sign
+        val = val * multiplier
+        
+        data[tid] = val
+    }
+}
+
+def main() {
+    print("=== Branch Optimization ===")
+    print("")
+    print("Demonstrates branch prediction hints and optimization")
+    print("Optimizes control flow for better GPU performance")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Warp size: 32 threads")
+    print("  Branch patterns: Various")
+    print("")
+    
+    # Test 1: Branch prediction hints
+    print("Test 1: Branch Prediction Hints")
+    print("")
+    
+    d_data1 = device[n]
+    d_flags1 = device[n]
+    
+    # Initialize flags (most > 0.5 for predict taken)
+    print("  Initializing data (80% predict taken)...")
+    
+    gpu[256, 256] optimized_branch(d_data1, d_flags1, n)
+    print("  ✓ Completed with branch hints")
+    print("")
+    
+    # Test 2: Warp-aligned branching
+    print("Test 2: Warp-Aligned Branching")
+    print("")
+    
+    d_data2 = device[n]
+    threshold = 50.0
+    
+    print("  Optimizing for warp alignment...")
+    gpu[256, 256] warp_aligned_branch(d_data2, n, threshold)
+    print("  ✓ Completed with warp alignment")
+    print("")
+    
+    # Test 3: Reduced branching
+    print("Test 3: Reduced Branching")
+    print("")
+    
+    d_data3 = device[n]
+    
+    print("  Using arithmetic instead of branches...")
+    gpu[256, 256] reduced_branching(d_data3, n)
+    print("  ✓ Completed with reduced branching")
+    print("")
+    
+    print("Branch Optimization Techniques:")
+    print("")
+    print("1. Branch Prediction Hints:")
+    print("   - @predict_taken decorator")
+    print("   - Compiler optimizations")
+    print("   - Better instruction scheduling")
+    print("")
+    
+    print("2. Warp-Aligned Branching:")
+    print("   - Minimize divergence within warp")
+    print("   - Coalesce branches")
+    print("   - Better warp efficiency")
+    print("")
+    
+    print("3. Branch Reduction:")
+    print("   - Use arithmetic instead of branches")
+    print("   - Eliminate control flow")
+    print("   - Better performance for small branches")
+    print("")
+    
+    print("Performance Impact:")
+    print("  - Divergent branches: 2-32x slower")
+    print("  - Aligned branches: Minimal overhead")
+    print("  - Branch reduction: Often faster")
+    print("")
+    
+    print("Best Practices:")
+    print("  ✓ Minimize branching in kernels")
+    print("  ✓ Use warp-aligned patterns")
+    print("  ✓ Consider arithmetic alternatives")
+    print("  ✓ Profile to measure impact")
+    print("")
+    
+    free(d_data1)
+    free(d_flags1)
+    free(d_data2)
+    free(d_data3)
+    
+    print("Done!")
+}
+
+main()
+

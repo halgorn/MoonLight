@@ -1,0 +1,62 @@
+# Benchmark 7: Histograma
+# Testa operacoes atomicas na memoria global
+# Metrica: Tempo de Execucao
+
+cuda kernel def histogram(input, hist, n, bins) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (i < n) {
+        # Calcular bin
+        value = input[i]
+        bin = int(value * float(bins))
+        if (bin < 0) { bin = 0 }
+        if (bin >= bins) { bin = bins - 1 }
+        
+        # Incrementar histograma usando operacao atomica
+        if (bin < bins) {
+            atomicAdd(hist[bin], 1)
+        }
+    }
+}
+
+def main() {
+    n = 1000000  # 1M elementos
+    bins = 256
+    
+    # Alocar memoria CPU
+    h_input = [0.0] * n
+    h_hist = [0.0] * bins
+    
+    # Inicializar com valores aleatorios (0.0 a 1.0)
+    for (i = 0; i < n; i = i + 1) {
+        h_input[i] = float(i % 1000) / 1000.0
+    }
+    
+    # Alocar GPU
+    d_input = device[n]
+    d_hist = device[bins]
+    
+    # Transfer H->D
+    d_input <- h_input
+    
+    # Launch kernel
+    threads = 256
+    blocks = (n + threads - 1) / threads
+    gpu[blocks, threads] histogram(d_input, d_hist, n, bins)
+    
+    # Transfer D->H
+    h_hist <- d_hist
+    
+    print("Histograma concluido!")
+    print("Elementos:", n)
+    print("Bins:", bins)
+    print("Hist[0] =", h_hist[0])
+    print("Hist[", bins-1, "] =", h_hist[bins-1])
+    
+    # Cleanup
+    free(d_input)
+    free(d_hist)
+}
+
+main()
+

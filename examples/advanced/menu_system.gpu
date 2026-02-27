@@ -1,0 +1,122 @@
+# examples/advanced/menu_system.gpu
+# Exemplo de sistema de menu interativo em MoonLight
+
+print("=== Sistema de Menu Interativo ===")
+print("")
+
+def mostrar_menu() {
+    print("--- Menu Principal ---")
+    print("1. Calculadora")
+    print("2. Fibonacci")
+    print("3. Lista de Tarefas")
+    print("4. Jogo de Adivinhação")
+    print("0. Sair")
+    print("----------------------")
+}
+
+def calculadora() {
+    print("=== Calculadora ===")
+    a = 10
+    b = 5
+    print("Soma:", a + b)
+    print("Subtração:", a - b)
+    print("Multiplicação:", a * b)
+    print("Divisão:", a / b)
+}
+
+def fibonacci_n(n) {
+    if (n <= 1) {
+        return n
+    }
+    return fibonacci_n(n - 1) + fibonacci_n(n - 2)
+}
+
+def fibonacci() {
+    print("=== Fibonacci ===")
+    i = 0
+    while (i < 10) {
+        resultado = fibonacci_n(i)
+        print("F(", i, ") =", resultado)
+        i = i + 1
+    }
+}
+
+def lista_tarefas() {
+    print("=== Lista de Tarefas ===")
+    tarefas = ["Estudar Python", "Fazer exercícios", "Revisar código"]
+    
+    i = 0
+    while (i < len(tarefas)) {
+        print(i + 1, ".", tarefas[i])
+        i = i + 1
+    }
+}
+
+def jogo_adivinhacao() {
+    print("=== Jogo de Adivinhação ===")
+    numero_secreto = 42
+    tentativas = [30, 50, 42]
+    
+    i = 0
+    while (i < len(tentativas)) {
+        tentativa = tentativas[i]
+        print("Tentativa", i + 1, ":", tentativa)
+        
+        if (tentativa == numero_secreto) {
+            print("Parabéns! Você acertou!")
+            return True
+        } else if (tentativa < numero_secreto) {
+            print("Muito baixo!")
+        } else {
+            print("Muito alto!")
+        }
+        
+        i = i + 1
+    }
+    
+    return False
+}
+
+# Simulação de menu (sem input real)
+# Em um sistema com input, usaríamos input() do Python
+opcoes = [1, 2, 3, 4, 0]
+
+i = 0
+while (i < len(opcoes)) {
+    opcao = opcoes[i]
+    
+    mostrar_menu()
+    print("Opção escolhida:", opcao)
+    print("")
+    
+    if (opcao == 1) {
+        calculadora()
+    } else if (opcao == 2) {
+        fibonacci()
+    } else if (opcao == 3) {
+        lista_tarefas()
+    } else if (opcao == 4) {
+        jogo_adivinhacao()
+    } else if (opcao == 0) {
+        print("Saindo do sistema...")
+        i = len(opcoes)  # Força saída do loop
+    } else {
+        print("Opção inválida!")
+    }
+    
+    print("")
+    print("=" * 40)
+    print("")
+    i = i + 1
+}
+
+print("=== Programa Encerrado ===")
+
+
+
+
+
+
+
+
+

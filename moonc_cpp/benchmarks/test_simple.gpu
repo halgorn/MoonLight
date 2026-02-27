@@ -1,0 +1,7 @@
+def main() {
+    print("Teste simples")
+    print("Funcionando!")
+}
+
+main()
+

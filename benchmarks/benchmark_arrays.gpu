@@ -1,0 +1,46 @@
+# MoonLight Benchmark: Manipulação de Arrays
+# Teste de performance com listas
+
+def bubble_sort(arr) {
+    n = len(arr)
+    for (i = 0; i < n; i = i + 1) {
+        for (j = 0; j < n - i - 1; j = j + 1) {
+            if (arr[j] > arr[j + 1]) {
+                temp = arr[j]
+                arr[j] = arr[j + 1]
+                arr[j + 1] = temp
+            }
+        }
+    }
+    return arr
+}
+
+def array_operations(n) {
+    # Criar array
+    arr = []
+    for (i = 0; i < n; i = i + 1) {
+        arr = arr + [i]
+    }
+    
+    # Somar elementos
+    total = 0
+    for (i = 0; i < len(arr); i = i + 1) {
+        total = total + arr[i]
+    }
+    
+    return total
+}
+
+def main() {
+    print("Teste 1: Array Operations (10000 elementos)")
+    result1 = array_operations(10000)
+    print("Soma total:", result1)
+    
+    print("Teste 2: Bubble Sort (1000 elementos)")
+    arr = [1000, 999, 998, 997, 996, 995, 994, 993, 992, 991]
+    sorted_arr = bubble_sort(arr)
+    print("Primeiros 10:", sorted_arr)
+}
+
+main()
+

@@ -1,0 +1,141 @@
+# MoonLight Benchmark: Zero-Copy Latency
+# Measures latency of zero-copy memory operations
+# Target: Low latency for small transfers
+
+cuda kernel def latency_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Minimal processing
+        data[tid] = data[tid] + 1.0
+    }
+}
+
+def test_unified_latency(n, num_tests) {
+    print("Testing Unified Memory Latency...")
+    
+    unified_data = unified memory[n]
+    
+    # Initialize
+    for (i = 0; i < n; i = i + 1) {
+        unified_data[i] = i * 0.1
+    }
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Run multiple tests
+    for (test = 0; test < num_tests; test = test + 1) {
+        # CPU write
+        unified_data[0] = test * 1.0
+        
+        # GPU process
+        gpu[blocks, threads] latency_kernel(unified_data, n)
+        
+        # CPU read
+        result = unified_data[0]
+        
+        if (test < 5) {
+            print("  Test", test, "- Result:", result)
+        }
+    }
+    
+    free(unified_data)
+    print("  ✓ Unified memory latency test complete")
+}
+
+def test_pinned_latency(n, num_tests) {
+    print("Testing Pinned Memory Latency...")
+    
+    pinned_data = pinned memory[n]
+    
+    # Initialize
+    for (i = 0; i < n; i = i + 1) {
+        pinned_data[i] = i * 0.1
+    }
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Run multiple tests
+    for (test = 0; test < num_tests; test = test + 1) {
+        # CPU write
+        pinned_data[0] = test * 1.0
+        
+        # Transfer and process
+        d_pinned = device[n]
+        d_pinned <- pinned_data
+        
+        gpu[blocks, threads] latency_kernel(d_pinned, n)
+        
+        pinned_data <- d_pinned
+        
+        # CPU read
+        result = pinned_data[0]
+        
+        if (test < 5) {
+            print("  Test", test, "- Result:", result)
+        }
+        
+        free(d_pinned)
+    }
+    
+    free(pinned_data)
+    print("  ✓ Pinned memory latency test complete")
+}
+
+def main() {
+    print("=== Zero-Copy Latency Benchmark ===")
+    print("")
+    print("Measuring latency of zero-copy memory operations")
+    print("Target: Low latency for small transfers")
+    print("")
+    
+    test_sizes = [100, 1000, 10000]
+    num_tests = 100
+    
+    print("Configuration:")
+    print("  Tests per size:", num_tests)
+    print("  Test sizes:", test_sizes)
+    print("")
+    
+    for (size_idx = 0; size_idx < len(test_sizes); size_idx = size_idx + 1) {
+        n = test_sizes[size_idx]
+        
+        print("Testing size:", n, "elements")
+        print("")
+        
+        test_unified_latency(n, num_tests)
+        print("")
+        
+        test_pinned_latency(n, num_tests)
+        print("")
+        
+        print("---")
+        print("")
+    }
+    
+    print("Results Analysis:")
+    print("  Unified memory:")
+    print("    - First access: page fault overhead")
+    print("    - Subsequent: fast (data in right place)")
+    print("    - Best for: small-medium data")
+    print("")
+    
+    print("  Pinned memory:")
+    print("    - Fast DMA transfers")
+    print("    - Lower latency for large data")
+    print("    - Best for: streaming, large transfers")
+    print("")
+    
+    print("Recommendations:")
+    print("  ✓ Small data (< 1K): Unified memory")
+    print("  ✓ Medium data (1K-10K): Unified or pinned")
+    print("  ✓ Large data (> 10K): Pinned memory")
+    print("")
+    
+    print("Done!")
+}
+
+main()
+

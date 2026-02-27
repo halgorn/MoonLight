@@ -9,12 +9,6 @@ reserved = {
     'True': 'TRUE', 'False': 'FALSE', 'None': 'NONE',
     'and': 'AND', 'or': 'OR', 'not': 'NOT',
     'in': 'IN', 'is': 'IS',
-    # FUNÇÕES BUILT-IN
-    'len': 'LEN', 'range': 'RANGE', 'sum': 'SUM',
-    'max': 'MAX', 'min': 'MIN', 'type': 'TYPE',
-    'str': 'STR', 'int': 'INT', 'float': 'FLOAT',
-    'list': 'LIST', 'dict': 'DICT', 'set': 'SET',
-    'tuple': 'TUPLE', 'bool': 'BOOL',
     # CONTROLE DE LOOP
     'break': 'BREAK', 'continue': 'CONTINUE',
     # POO E METACLASSES
@@ -32,13 +26,53 @@ reserved = {
     'generator': 'GENERATOR',
     # CONTEXT MANAGERS
     'with': 'WITH', 'enter': 'ENTER', 'exit': 'EXIT',
+    # CUDA/GPU
+    'cuda': 'CUDA', 'kernel': 'KERNEL', 'device': 'DEVICE', 
+    'gpu': 'GPU', 'host': 'HOST', 'shared': 'SHARED',
+    'global': 'GLOBAL', 'free': 'FREE',
+    'persistent': 'PERSISTENT', 'gpu_resident': 'GPU_RESIDENT',
+    'syncthreads': 'SYNCTHREADS', 'syncwarp': 'SYNCWARP',
+    # Warp primitives
+    'warp_reduce_sum': 'WARP_REDUCE_SUM', 'warp_reduce_max': 'WARP_REDUCE_MAX',
+    'warp_reduce_min': 'WARP_REDUCE_MIN', 'warp_shuffle': 'WARP_SHUFFLE',
+    'lane_id': 'LANE_ID', 'warp_id': 'WARP_ID',
+    # CUDA Built-in Variables
+    'threadIdx_x': 'THREADIDX_X', 'threadIdx_y': 'THREADIDX_Y', 'threadIdx_z': 'THREADIDX_Z',
+    'blockIdx_x': 'BLOCKIDX_X', 'blockIdx_y': 'BLOCKIDX_Y', 'blockIdx_z': 'BLOCKIDX_Z',
+    'blockDim_x': 'BLOCKDIM_X', 'blockDim_y': 'BLOCKDIM_Y', 'blockDim_z': 'BLOCKDIM_Z',
+    'gridDim_x': 'GRIDDIM_X', 'gridDim_y': 'GRIDDIM_Y', 'gridDim_z': 'GRIDDIM_Z',
+    # Atomic operations
+    'atomic_add': 'ATOMIC_ADD', 'atomic_sub': 'ATOMIC_SUB',
+    'atomic_min': 'ATOMIC_MIN', 'atomic_max': 'ATOMIC_MAX',
+    'atomic_cas': 'ATOMIC_CAS', 'atomic_exch': 'ATOMIC_EXCH',
+    # Work Queue
+    'gpu_queue': 'GPU_QUEUE', 'enqueue_host': 'ENQUEUE_HOST',
+    'dequeue_host': 'DEQUEUE_HOST', 'dequeue_wait': 'DEQUEUE_WAIT',
+    'enqueue': 'ENQUEUE',
+    # Device-side allocation
+    'device_malloc': 'DEVICE_MALLOC', 'device_free': 'DEVICE_FREE',
+    # Unified and pinned memory
+    'unified': 'UNIFIED', 'pinned': 'PINNED', 'memory': 'MEMORY',
+    # Pipeline
+    'pipeline': 'PIPELINE', 'stage': 'STAGE', 'connect': 'CONNECT',
+    # CUDA Streams
+    'cuda_stream': 'CUDA_STREAM', 'sync_stream': 'SYNC_STREAM',
+    'cuda_graph_begin': 'CUDA_GRAPH_BEGIN', 'cuda_graph_end': 'CUDA_GRAPH_END',
+    'cuda_graph_launch': 'CUDA_GRAPH_LAUNCH',
+    # Multi-GPU
+    'enable_p2p': 'ENABLE_P2P', 'p2p_copy': 'P2P_COPY',
+    # Profiling & Debugging
+    'gpu_printf': 'GPU_PRINTF', 'gpu_breakpoint': 'GPU_BREAKPOINT', 'profile': 'PROFILE',
+    # Control Flow
+    'predict_taken': 'PREDICT_TAKEN',
+    # Optimization
+    'optimize': 'OPTIMIZE', 'hints': 'HINTS',
+    # JIT Compilation
+    'jit': 'JIT',
     # THREADING
     'thread': 'THREAD', 'lock': 'LOCK', 'sync': 'SYNC',
-    # CUDA/GPU
-    'cuda': 'CUDA', 'kernel': 'KERNEL', 'gpu': 'GPU',
-    'device': 'DEVICE', 'global': 'GLOBAL', 'shared': 'SHARED',
     # JIT/PERFORMANCE
-    'jit': 'JIT', 'numba': 'NUMBA', 'compile': 'COMPILE',
+    'jit': 'JIT', 'compile': 'COMPILE',
     'inline': 'INLINE', 'optimize': 'OPTIMIZE'
 }
 
@@ -51,11 +85,13 @@ tokens = (
     # OPERADORES AVANÇADOS
     'PLUSEQ', 'MINUSEQ', 'MULTEQ', 'DIVEQ', 'MODEQ', 'POWEQ',
     'PLUSPLUS', 'MINUSMINUS', 'LE', 'GE',
-    'QUESTION', 'NEWLINE',
+    'QUESTION',
     # ESPECIAIS
     'AT', 'ARROW', 'DOUBLESTAR', 'ELLIPSIS',
     'BITWISEAND', 'BITWISEOR', 'BITWISEXOR', 'BITWISENOT',
-    'LEFTSHIFT', 'RIGHTSHIFT'
+    'LEFTSHIFT', 'RIGHTSHIFT',
+    # CUDA ESPECÍFICOS
+    'LARROW'  # <- for memory transfers
 ) + tuple(reserved.values())
 
 # OPERADORES COMPOSTOS PRIMEIRO (ordem importante para evitar conflitos)
@@ -123,6 +159,10 @@ def t_ARROW(t):
     r'->'
     return t
 
+def t_LARROW(t):
+    r'<-'
+    return t
+
 def t_ELLIPSIS(t):
     r'\.\.\.'
     return t
@@ -136,12 +176,12 @@ t_DIVIDE = r'/'
 t_MODULO = r'%'
 t_GT = r'>'
 t_LT = r'<'
-t_LPAREN = r'$'
-t_RPAREN = r'$'
+t_LPAREN = r'\('
+t_RPAREN = r'\)'
 t_LBRACE = r'\{'
 t_RBRACE = r'\}'
-t_LBRACKET = r'$$'
-t_RBRACKET = r'$$'
+t_LBRACKET = r'\['
+t_RBRACKET = r'\]'
 t_DOT = r'\.'
 t_COMMA = r','
 t_SEMICOLON = r';'
@@ -155,7 +195,7 @@ t_BITWISEOR = r'\|'
 t_BITWISEXOR = r'\^'
 t_BITWISENOT = r'~'
 
-t_ignore = ' \t'
+t_ignore = ' \t\n'
 
 def t_COMMENT(t):
     r'\#.*'
@@ -187,10 +227,10 @@ def t_IDENTIFIER(t):
     t.type = reserved.get(t.value, 'IDENTIFIER')
     return t
 
-def t_NEWLINE(t):
+def t_newline(t):
     r'\n+'
     t.lexer.lineno += len(t.value)
-    return t
+    # Não retorna token, apenas atualiza número de linha
 
 def t_error(t):
     print(f"Erro léxico: Caractere inválido '{t.value[0]}' na linha {t.lineno}")

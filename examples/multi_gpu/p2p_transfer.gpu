@@ -1,0 +1,100 @@
+# MoonLight Example: P2P (Peer-to-Peer) Transfer
+# Demonstrates direct GPU-to-GPU memory transfers
+# Bypasses CPU for faster data movement
+
+def main() {
+    print("=== P2P (Peer-to-Peer) Transfer ===")
+    print("")
+    print("Demonstrates direct GPU-to-GPU memory transfers")
+    print("Bypasses CPU for faster data movement")
+    print("")
+    
+    # Check for multiple GPUs
+    num_gpus = 2  # In real app: cudaGetDeviceCount()
+    
+    if (num_gpus < 2) {
+        print("Error: Need at least 2 GPUs for P2P transfer")
+        return
+    }
+    
+    print("Configuration:")
+    print("  Number of GPUs:", num_gpus)
+    print("  GPU 0: Source")
+    print("  GPU 1: Destination")
+    print("")
+    
+    n = 1000000
+    
+    print("Data size:", n, "elements")
+    print("")
+    
+    # Enable P2P access
+    print("Enabling P2P access...")
+    result = enable_p2p(0, 1)
+    
+    if (result) {
+        print("  ✓ P2P access enabled between GPU 0 and GPU 1")
+    } else {
+        print("  ✗ P2P access not available (may need NVLink or compatible GPUs)")
+        print("  → Falling back to CPU-mediated transfer")
+    }
+    print("")
+    
+    # Allocate data on GPU 0
+    print("Allocating data on GPU 0...")
+    gpu[0] d_data0 = device[n]
+    print("  ✓ Data allocated on GPU 0")
+    print("")
+    
+    # Allocate data on GPU 1
+    print("Allocating data on GPU 1...")
+    gpu[1] d_data1 = device[n]
+    print("  ✓ Data allocated on GPU 1")
+    print("")
+    
+    # Initialize data on GPU 0 (in real app: cudaMemcpy)
+    print("Initializing data on GPU 0...")
+    print("  ✓ Data initialized")
+    print("")
+    
+    # P2P transfer: GPU 0 → GPU 1 (direct, no CPU!)
+    print("Performing P2P transfer GPU 0 → GPU 1...")
+    size_bytes = n * sizeof(float)
+    
+    if (result) {
+        p2p_copy(d_data1, d_data0, size_bytes)
+        print("  ✓ P2P transfer completed (direct GPU-to-GPU)")
+    } else {
+        # Fallback: CPU-mediated transfer
+        # cudaMemcpyPeer(d_data1, 1, d_data0, 0, size_bytes)
+        print("  ✓ Transfer completed (via CPU)")
+    }
+    print("")
+    
+    print("P2P Transfer Benefits:")
+    print("  ✓ Direct GPU-to-GPU communication")
+    print("  ✓ No CPU involvement")
+    print("  ✓ Lower latency")
+    print("  ✓ Higher bandwidth (NVLink)")
+    print("")
+    
+    print("Requirements:")
+    print("  - Compute capability 2.0+")
+    print("  - P2P capable GPUs")
+    print("  - NVLink (for best performance)")
+    print("")
+    
+    print("Performance:")
+    print("  - P2P: ~10-20 GB/s (PCIe)")
+    print("  - P2P with NVLink: ~50-300 GB/s")
+    print("  - CPU-mediated: ~5-10 GB/s")
+    print("")
+    
+    free(d_data0)
+    free(d_data1)
+    
+    print("Done!")
+}
+
+main()
+

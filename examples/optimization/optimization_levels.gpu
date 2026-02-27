@@ -1,0 +1,149 @@
+# MoonLight Example: Optimization Levels
+# Demonstrates different optimization levels
+# Shows how @optimize(level=N) affects code generation
+
+# Kernel with optimization hints
+# @optimize(level=1) - Basic optimizations
+cuda kernel def level1_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * 2.0
+    }
+}
+
+# @optimize(level=2) - Aggressive optimizations
+cuda kernel def level2_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        # Compiler optimizes: loop unrolling, constant propagation
+        data[tid] = data[tid] * 2.0
+    }
+}
+
+# @optimize(level=3) - Maximum optimizations
+cuda kernel def level3_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        # Compiler optimizes: fusion, register optimization, memory coalescing
+        data[tid] = data[tid] * 2.0
+    }
+}
+
+# Kernel with performance hints
+# @hints(occupancy=100, registers=32, shared_memory=48KB, threads_per_block=256)
+cuda kernel def hinted_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        # Compiler uses hints for optimization
+        val = data[tid]
+        val = val * 2.0
+        val = val + 1.0
+        data[tid] = val
+    }
+}
+
+def optimization_levels_example() {
+    print("=== Optimization Levels Example ===")
+    print("")
+    print("Demonstrates different optimization levels")
+    print("Shows how @optimize(level=N) affects code generation")
+    print("")
+    
+    n = 1000000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Optimization levels: 1, 2, 3")
+    print("")
+    
+    d_data1 = device[n]
+    d_data2 = device[n]
+    d_data3 = device[n]
+    d_data4 = device[n]
+    
+    # Initialize
+    print("Initializing data...")
+    print("  ✓ Data initialized")
+    print("")
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Test different optimization levels
+    print("Testing Optimization Levels:")
+    print("")
+    
+    print("Level 1: Basic Optimizations")
+    print("  - Dead code elimination")
+    print("  - Constant folding")
+    print("  - Basic register allocation")
+    print("")
+    gpu[blocks, threads] level1_kernel(d_data1, n)
+    print("  ✓ Completed")
+    print("")
+    
+    print("Level 2: Aggressive Optimizations")
+    print("  - Loop unrolling")
+    print("  - Constant propagation")
+    print("  - Instruction scheduling")
+    print("")
+    gpu[blocks, threads] level2_kernel(d_data2, n)
+    print("  ✓ Completed")
+    print("")
+    
+    print("Level 3: Maximum Optimizations")
+    print("  - Kernel fusion")
+    print("  - Register optimization")
+    print("  - Memory coalescing")
+    print("  - Advanced scheduling")
+    print("")
+    gpu[blocks, threads] level3_kernel(d_data3, n)
+    print("  ✓ Completed")
+    print("")
+    
+    print("Performance Hints:")
+    print("  - Occupancy: 100%")
+    print("  - Registers: 32 per thread")
+    print("  - Shared memory: 48KB")
+    print("  - Threads per block: 256")
+    print("")
+    gpu[blocks, threads] hinted_kernel(d_data4, n)
+    print("  ✓ Completed")
+    print("")
+    
+    print("Optimization Levels Summary:")
+    print("")
+    print("Level 1 (Basic):")
+    print("  - Fast compilation")
+    print("  - Good for development")
+    print("  - Minimal optimizations")
+    print("")
+    
+    print("Level 2 (Aggressive):")
+    print("  - Balanced compilation time")
+    print("  - Good for most cases")
+    print("  - Significant optimizations")
+    print("")
+    
+    print("Level 3 (Maximum):")
+    print("  - Slower compilation")
+    print("  - Best performance")
+    print("  - All optimizations enabled")
+    print("")
+    
+    print("Performance Hints:")
+    print("  - Guide compiler decisions")
+    print("  - Optimize for specific targets")
+    print("  - Fine-tune resource usage")
+    print("")
+    
+    free(d_data1)
+    free(d_data2)
+    free(d_data3)
+    free(d_data4)
+    
+    print("Done!")
+}
+
+optimization_levels_example()
+

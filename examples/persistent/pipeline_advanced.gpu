@@ -1,0 +1,173 @@
+# Advanced Pipeline with Multiple Parallel Stages
+# Demonstrates fork-join pattern and parallel processing
+
+class Task {
+    def __init__(id, value, type) {
+        self.id = id
+        self.value = value
+        self.type = type  # 0=fast, 1=slow
+    }
+}
+
+class Result {
+    def __init__(id, result, path) {
+        self.id = id
+        self.result = result
+        self.path = path  # Which path processed it
+    }
+}
+
+# Splitter: Route tasks to different paths
+cuda persistent kernel def splitter(input_q, fast_q, slow_q) {
+    while (true) {
+        task = dequeue_wait(input_q)
+        if (task.id == -1) { break }
+        
+        # Route based on type
+        if (task.type == 0) {
+            enqueue(fast_q, task)
+        } else {
+            enqueue(slow_q, task)
+        }
+    }
+}
+
+# Fast path processor
+cuda persistent kernel def fast_processor(input_q, output_q) {
+    while (true) {
+        task = dequeue_wait(input_q)
+        if (task.id == -1) { break }
+        
+        # Quick computation
+        value = task.value * 2.0
+        result = Result(task.id, value, 0)
+        enqueue(output_q, result)
+    }
+}
+
+# Slow path processor (more threads)
+cuda persistent kernel def slow_processor(input_q, output_q) {
+    while (true) {
+        task = dequeue_wait(input_q)
+        if (task.id == -1) { break }
+        
+        # Complex computation
+        value = task.value
+        for (i = 0; i < 10; i = i + 1) {
+            value = value * 1.1 + 0.5
+        }
+        result = Result(task.id, value, 1)
+        enqueue(output_q, result)
+    }
+}
+
+# Merger: Combine results from both paths
+cuda persistent kernel def merger(fast_q, slow_q, output_q) {
+    fast_count = 0
+    slow_count = 0
+    total_needed = 1000
+    
+    while ((fast_count + slow_count) < total_needed) {
+        # Try to get from fast path
+        result_fast = Result(0, 0.0, 0)
+        if (dequeue(fast_q, result_fast)) {
+            enqueue(output_q, result_fast)
+            fast_count = fast_count + 1
+        }
+        
+        # Try to get from slow path
+        result_slow = Result(0, 0.0, 0)
+        if (dequeue(slow_q, result_slow)) {
+            enqueue(output_q, result_slow)
+            slow_count = slow_count + 1
+        }
+    }
+}
+
+def main() {
+    print("=== Advanced Fork-Join Pipeline ===")
+    print("Demonstrates parallel paths with different speeds")
+    print("")
+    
+    n_tasks = 1000
+    
+    # Create queues for fork-join
+    print("Setting up fork-join pipeline...")
+    input_q = gpu_queue[Task, 512]
+    fast_path_q = gpu_queue[Task, 256]
+    slow_path_q = gpu_queue[Task, 256]
+    fast_results_q = gpu_queue[Result, 256]
+    slow_results_q = gpu_queue[Result, 256]
+    output_q = gpu_queue[Result, 512]
+    
+    # Launch pipeline
+    print("Launching pipeline stages...")
+    gpu[2, 32] splitter(input_q, fast_path_q, slow_path_q)
+    gpu[4, 32] fast_processor(fast_path_q, fast_results_q)
+    gpu[8, 32] slow_processor(slow_path_q, slow_results_q)  # More threads!
+    gpu[2, 32] merger(fast_results_q, slow_results_q, output_q)
+    
+    print("  Splitter:       64 threads")
+    print("  Fast path:     128 threads")
+    print("  Slow path:     256 threads (needs more!)")
+    print("  Merger:         64 threads")
+    print("  Total:         512 threads")
+    print("")
+    
+    # Send mixed tasks
+    print("Sending", n_tasks, "tasks (50% fast, 50% slow)...")
+    for (i = 0; i < n_tasks; i = i + 1) {
+        task_type = i % 2  # Alternate fast/slow
+        task = Task(i, float(i), task_type)
+        enqueue_host(input_q, task)
+        
+        if (i % 200 == 0) {
+            print("  Sent", i, "tasks...")
+        }
+    }
+    
+    # Collect results
+    print("")
+    print("Collecting results...")
+    fast_results = 0
+    slow_results = 0
+    
+    for (i = 0; i < n_tasks; i = i + 1) {
+        result = dequeue_host(output_q)
+        
+        if (result.path == 0) {
+            fast_results = fast_results + 1
+        } else {
+            slow_results = slow_results + 1
+        }
+        
+        if (i < 10) {
+            path_name = "fast"
+            if (result.path == 1) {
+                path_name = "slow"
+            }
+            print("  Result", result.id, ":", result.result, "(", path_name, ")")
+        }
+        
+        if (i % 200 == 199) {
+            print("  Collected", i + 1, "results...")
+        }
+    }
+    
+    # Summary
+    print("")
+    print("=== Pipeline Statistics ===")
+    print("Total tasks:", n_tasks)
+    print("Fast path:", fast_results)
+    print("Slow path:", slow_results)
+    print("Utilization:")
+    print("  Fast threads: 128 (for", fast_results, "tasks)")
+    print("  Slow threads: 256 (for", slow_results, "tasks)")
+    print("")
+    print("✓ Fork-join pipeline complete!")
+    print("  Parallel paths with different compute requirements")
+    print("  Automatic load balancing via queues!")
+}
+
+main()
+

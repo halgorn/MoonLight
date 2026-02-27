@@ -1,0 +1,148 @@
+# MoonLight Example: Distributed Pipeline
+# Demonstrates multi-GPU pipeline execution
+# Stages distributed across different GPUs
+
+# Stage 1: Preprocessing
+cuda kernel def preprocess_stage(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * 0.5
+    }
+}
+
+# Stage 2: Main processing
+cuda kernel def main_stage(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * data[tid]
+    }
+}
+
+# Stage 3: Post-processing
+cuda kernel def postprocess_stage(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = sqrt(data[tid])
+    }
+}
+
+def distributed_pipeline() {
+    print("=== Distributed Pipeline ===")
+    print("")
+    print("Demonstrates multi-GPU pipeline execution")
+    print("Stages distributed across different GPUs")
+    print("")
+    
+    num_gpus = 3
+    
+    print("Configuration:")
+    print("  Number of GPUs:", num_gpus)
+    print("  Pipeline stages: 3")
+    print("  GPU 0: Preprocessing")
+    print("  GPU 1: Main processing")
+    print("  GPU 2: Post-processing")
+    print("")
+    
+    n = 1000000
+    
+    print("Data size:", n, "elements per stage")
+    print("")
+    
+    # Enable P2P if available
+    print("Enabling P2P access...")
+    if (num_gpus >= 2) {
+        enable_p2p(0, 1)
+        print("  ✓ P2P enabled: GPU 0 ↔ GPU 1")
+    }
+    if (num_gpus >= 3) {
+        enable_p2p(1, 2)
+        print("  ✓ P2P enabled: GPU 1 ↔ GPU 2")
+    }
+    print("")
+    
+    # Allocate data on each GPU
+    print("Allocating data on each GPU...")
+    gpu[0] d_stage0 = device[n]
+    gpu[1] d_stage1 = device[n]
+    gpu[2] d_stage2 = device[n]
+    
+    print("  ✓ GPU 0: Preprocessing buffer")
+    print("  ✓ GPU 1: Main processing buffer")
+    print("  ✓ GPU 2: Post-processing buffer")
+    print("")
+    
+    # Initialize input data
+    print("Initializing input data...")
+    print("  ✓ Data initialized on GPU 0")
+    print("")
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Pipeline execution
+    print("Executing distributed pipeline...")
+    print("")
+    
+    # Stage 1: Preprocessing on GPU 0
+    print("Stage 1: Preprocessing (GPU 0)...")
+    gpu[0][blocks, threads] preprocess_stage(d_stage0, n)
+    print("  ✓ Stage 1 completed")
+    print("")
+    
+    # Transfer: GPU 0 → GPU 1
+    print("Transfer: GPU 0 → GPU 1...")
+    size_bytes = n * sizeof(float)
+    p2p_copy(d_stage1, d_stage0, size_bytes)
+    print("  ✓ Transfer completed")
+    print("")
+    
+    # Stage 2: Main processing on GPU 1
+    print("Stage 2: Main processing (GPU 1)...")
+    gpu[1][blocks, threads] main_stage(d_stage1, n)
+    print("  ✓ Stage 2 completed")
+    print("")
+    
+    # Transfer: GPU 1 → GPU 2
+    print("Transfer: GPU 1 → GPU 2...")
+    p2p_copy(d_stage2, d_stage1, size_bytes)
+    print("  ✓ Transfer completed")
+    print("")
+    
+    # Stage 3: Post-processing on GPU 2
+    print("Stage 3: Post-processing (GPU 2)...")
+    gpu[2][blocks, threads] postprocess_stage(d_stage2, n)
+    print("  ✓ Stage 3 completed")
+    print("")
+    
+    # Synchronize all GPUs
+    print("Synchronizing all GPUs...")
+    for (i = 0; i < num_gpus; i = i + 1) {
+        # cudaSetDevice(i)
+        # cudaDeviceSynchronize()
+        print("  ✓ GPU", i, "synchronized")
+    }
+    print("")
+    
+    print("Distributed Pipeline Benefits:")
+    print("  ✓ Parallel stage execution")
+    print("  ✓ Overlapped computation and transfer")
+    print("  ✓ Better GPU utilization")
+    print("  ✓ Higher throughput")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Multi-stage processing")
+    print("  - Data transformation pipelines")
+    print("  - Real-time processing")
+    print("  - Large-scale computations")
+    print("")
+    
+    free(d_stage0)
+    free(d_stage1)
+    free(d_stage2)
+    
+    print("Done!")
+}
+
+distributed_pipeline()
+

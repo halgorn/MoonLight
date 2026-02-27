@@ -1,0 +1,87 @@
+# MoonLight CUDA Example: Parallel Reduction
+# Redução paralela otimizada com shared memory
+
+# Kernel de redução otimizado
+cuda kernel def reduce_sum(input, output, n) {
+    # Shared memory para redução
+    shared_data = shared[256]
+    
+    # Índices
+    tid = threadIdx_x
+    i = blockIdx_x * blockDim_x + threadIdx_x
+    
+    # Carregar dados para shared memory
+    if (i < n) {
+        shared_data[tid] = input[i]
+    } else {
+        shared_data[tid] = 0.0
+    }
+    
+    # Sincronizar threads
+    syncthreads()
+    
+    # Redução em árvore
+    s = blockDim_x / 2
+    while (s > 0) {
+        if (tid < s) {
+            shared_data[tid] = shared_data[tid] + shared_data[tid + s]
+        }
+        syncthreads()
+        s = s / 2
+    }
+    
+    # Thread 0 escreve resultado do bloco
+    if (tid == 0) {
+        output[blockIdx_x] = shared_data[0]
+    }
+}
+
+def main() {
+    n = 1048576  # 1M elementos
+    
+    # Alocar host
+    h_input = [float(i) for i in range(n)]
+    
+    # Alocar device
+    d_input = device[n]
+    
+    # Calcular configuração do grid
+    threads_per_block = 256
+    blocks = (n + threads_per_block - 1) / threads_per_block
+    
+    # Alocar array de saída (um elemento por bloco)
+    d_output = device[blocks]
+    h_output = [0.0] * blocks
+    
+    # Copiar dados
+    d_input <- h_input
+    
+    # Lançar kernel de redução
+    gpu[blocks, threads_per_block] reduce_sum(d_input, d_output, n)
+    
+    # Copiar resultado parcial
+    h_output <- d_output
+    
+    # Redução final na CPU
+    total = 0.0
+    for (i = 0; i < blocks; i = i + 1) {
+        total = total + h_output[i]
+    }
+    
+    print("Soma total:", total)
+    
+    # Cleanup
+    free(d_input)
+    free(d_output)
+}
+
+main()
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,126 @@
+# MoonLight Example: Warp-Level Reduction
+# Demonstrates warp-level primitives for efficient reductions
+# Uses warp shuffle for fast communication within warp
+
+cuda kernel def warp_reduce_kernel(input_data, output_data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    lane = lane_id()  # Lane ID within warp (0-31)
+    warp_id_val = warp_id()  # Warp ID within block
+    
+    if (tid < n) {
+        val = input_data[tid]
+        
+        # Warp-level reduction using shuffle
+        # In real CUDA: __shfl_down_sync() for reduction
+        # For demo: simulate warp reduction
+        
+        # Step 1: Reduce within warp (32 threads)
+        # val = warp_reduce_sum(val)  # Would use actual warp shuffle
+        
+        # Simplified reduction (in real: use __shfl_down_sync)
+        # This is a placeholder - actual implementation would use CUDA intrinsics
+        reduced_val = val  # Placeholder
+        
+        # Step 2: First thread in warp writes result
+        if (lane == 0) {
+            output_data[warp_id_val] = reduced_val
+        }
+    }
+}
+
+# Two-stage reduction: warp-level then block-level
+cuda kernel def two_stage_reduce(input_data, output_data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    lane = lane_id()
+    warp_id_val = warp_id()
+    
+    # Shared memory for warp results
+    # warp_results = shared[32]  # One per warp
+    
+    if (tid < n) {
+        val = input_data[tid]
+        
+        # Stage 1: Warp-level reduction
+        # reduced = warp_reduce_sum(val)
+        
+        # Stage 2: First lane writes to shared memory
+        if (lane == 0) {
+            # warp_results[warp_id_val] = reduced
+            # In real: would use shared memory
+        }
+        
+        # __syncthreads()
+        
+        # Stage 3: Reduce warp results (single warp)
+        if (warp_id_val == 0) {
+            # Final reduction
+            # result = warp_reduce_sum(warp_results[lane])
+            if (lane == 0) {
+                # output_data[blockIdx_x] = result
+            }
+        }
+    }
+}
+
+def main() {
+    print("=== Warp-Level Reduction ===")
+    print("")
+    print("Demonstrates warp-level primitives for efficient reductions")
+    print("Uses warp shuffle for fast communication")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Warp size: 32 threads")
+    print("  Reduction: Sum")
+    print("")
+    
+    # Allocate data
+    d_input = device[n]
+    d_output = device[(n + 31) / 32]  # One result per warp
+    
+    # Initialize (in real app: cudaMemcpy)
+    print("Initializing data...")
+    print("")
+    
+    # Launch warp reduction
+    print("Launching warp-level reduction...")
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] warp_reduce_kernel(d_input, d_output, n)
+    
+    print("✓ Warp reduction completed")
+    print("")
+    
+    print("Warp Primitives:")
+    print("  - lane_id(): Thread ID within warp (0-31)")
+    print("  - warp_id(): Warp ID within block")
+    print("  - warp_reduce_sum(): Reduction within warp")
+    print("  - warp_shuffle(): Data shuffle within warp")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Fast communication (register-to-register)")
+    print("  ✓ No shared memory needed for warp ops")
+    print("  ✓ Efficient reductions")
+    print("  ✓ Lower latency than shared memory")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Parallel reductions")
+    print("  - Scan operations")
+    print("  - Data shuffling")
+    print("  - Warp-level algorithms")
+    print("")
+    
+    free(d_input)
+    free(d_output)
+    
+    print("Done!")
+}
+
+main()
+

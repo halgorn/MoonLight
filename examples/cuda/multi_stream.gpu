@@ -1,0 +1,78 @@
+# MoonLight CUDA Example: Multiple Streams
+# Operações assíncronas paralelas com streams
+
+cuda kernel def process_chunk(data, output, n, offset) {
+    i = blockIdx_x * blockDim_x + threadIdx_x
+    idx = i + offset
+    
+    if (i < n) {
+        # Processamento complexo
+        output[idx] = data[idx] * 2.0 + 1.0
+    }
+}
+
+def main() {
+    n = 1000000
+    num_streams = 4
+    chunk_size = n / num_streams
+    
+    # Alocar host (pinned memory para melhor performance)
+    h_data = [float(i) for i in range(n)]
+    h_output = [0.0] * n
+    
+    # Alocar device
+    d_data = device[n]
+    d_output = device[n]
+    
+    # Criar streams
+    streams = []
+    for (i = 0; i < num_streams; i = i + 1) {
+        stream = cuda_stream()
+        streams = streams + [stream]
+    }
+    
+    # Processar em chunks com streams paralelos
+    threads = 256
+    blocks = (chunk_size + threads - 1) / threads
+    
+    for (i = 0; i < num_streams; i = i + 1) {
+        offset = i * chunk_size
+        stream = streams[i]
+        
+        # Copiar chunk assíncrono
+        d_data[offset:offset+chunk_size] <-async[stream] h_data[offset:offset+chunk_size]
+        
+        # Processar chunk
+        gpu[blocks, threads, stream] process_chunk(d_data, d_output, chunk_size, offset)
+        
+        # Copiar resultado assíncrono
+        h_output[offset:offset+chunk_size] <-async[stream] d_output[offset:offset+chunk_size]
+    }
+    
+    # Sincronizar todos os streams
+    for (i = 0; i < num_streams; i = i + 1) {
+        cuda_stream_sync(streams[i])
+    }
+    
+    print("Processamento paralelo completo!")
+    print("Primeiros 10 resultados:", h_output[0:10])
+    
+    # Cleanup
+    for (i = 0; i < num_streams; i = i + 1) {
+        cuda_stream_destroy(streams[i])
+    }
+    
+    free(d_data)
+    free(d_output)
+}
+
+main()
+
+
+
+
+
+
+
+
+

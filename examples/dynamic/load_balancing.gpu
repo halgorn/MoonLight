@@ -1,0 +1,112 @@
+# MoonLight Example: Dynamic Load Balancing
+# Demonstrates load balancing with dynamic work generation
+# Work is redistributed based on load
+
+# Work item processor
+cuda kernel def process_work_item(work_item, result) {
+    tid = threadIdx_x
+    
+    if (tid == 0) {
+        # Process work item
+        # In real app: actual processing
+        *result = work_item * work_item
+    }
+}
+
+# Load balancer kernel
+cuda kernel def load_balancer_kernel(work_queue, result_queue, load_info, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        work_item = work_queue[tid]
+        
+        if (work_item > 0) {
+            # Check local load
+            local_load = load_info[tid]
+            
+            # If overloaded, spawn new kernel to help
+            if (local_load > 100) {
+                # Split work and launch helper kernel
+                half_work = work_item / 2
+                
+                # Launch helper kernel for half the work
+                gpu[1, 256] process_work_item(half_work, result_queue + tid)
+                
+                # Process other half locally
+                result_queue[tid] = half_work * half_work
+            } else {
+                # Process normally
+                result_queue[tid] = work_item * work_item
+            }
+        }
+    }
+}
+
+def main() {
+    print("=== Dynamic Load Balancing ===")
+    print("")
+    print("Demonstrates load balancing with dynamic work generation")
+    print("Work redistributed based on current load")
+    print("")
+    
+    n = 1000
+    
+    print("Configuration:")
+    print("  Work items:", n)
+    print("  Load threshold: 100")
+    print("  Strategy: Dynamic work splitting")
+    print("")
+    
+    # Allocate work and result queues
+    d_work_queue = device[n]
+    d_result_queue = device[n]
+    d_load_info = device[n]
+    
+    # Initialize work and load (in real app: actual data)
+    print("Initializing work and load information...")
+    print("")
+    
+    # Run load balancer
+    print("Running load balancer...")
+    print("  Overloaded workers will spawn helper kernels")
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] load_balancer_kernel(d_work_queue, d_result_queue, d_load_info, n)
+    
+    print("✓ Load balancing completed")
+    print("  Work redistributed dynamically!")
+    print("")
+    
+    print("How It Works:")
+    print("  1. Monitor load for each worker")
+    print("  2. If overloaded: split work")
+    print("  3. Launch helper kernels for split work")
+    print("  4. Balance load across all workers")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Automatic load balancing")
+    print("  ✓ Adapts to workload changes")
+    print("  ✓ Maximizes GPU utilization")
+    print("  ✓ Handles irregular workloads")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Irregular workloads")
+    print("  - Variable processing times")
+    print("  - Dynamic work distribution")
+    print("  - Adaptive algorithms")
+    print("  - Multi-tenant systems")
+    print("")
+    
+    free(d_work_queue)
+    free(d_result_queue)
+    free(d_load_info)
+    
+    print("Done!")
+}
+
+main()
+

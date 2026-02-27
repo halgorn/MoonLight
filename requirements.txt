@@ -1,0 +1,24 @@
+# MoonLight Dependencies
+
+# Core parsing
+ply>=3.11
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Future dependencies (commented until needed)
+# llvmlite>=0.40.0  # For LLVM backend (Entrega 8)
+# numpy>=1.24.0  # For numerical operations
+# torch>=2.0.0  # For PyTorch bindings (Entrega 9)
+# transformers>=4.30.0  # For HuggingFace integration (Entrega 9)
+
+
+
+
+
+
+
+
+
+

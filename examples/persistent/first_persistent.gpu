@@ -1,0 +1,107 @@
+# First Persistent Kernel Example
+# Demonstrates GPU-resident kernels with work queues
+# This kernel stays on the GPU and processes work continuously!
+
+class Task {
+    def __init__(id, value) {
+        self.id = id
+        self.value = value
+    }
+}
+
+# Persistent kernel that runs forever until stopped
+cuda persistent kernel def gpu_worker(input_queue, output_queue) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    while (true) {
+        # Wait for work (blocks until available)
+        task = dequeue_wait(input_queue)
+        
+        # Stop signal (id = -1)
+        if (task.id == -1) {
+            break
+        }
+        
+        # Process: complex computation
+        result = task.value * task.value + task.value * 2.0
+        
+        # Create output
+        output_task = Task(task.id, result)
+        
+        # Send result back
+        enqueue(output_queue, output_task)
+    }
+}
+
+def main() {
+    print("=== MoonLight Persistent Kernel Demo ===")
+    print("This demonstrates GPU-first programming!")
+    print("")
+    
+    n_tasks = 1000
+    
+    # Create GPU queues
+    print("Creating GPU work queues...")
+    input_q = gpu_queue[Task, 2048]
+    output_q = gpu_queue[Task, 2048]
+    
+    # Launch persistent worker (stays on GPU!)
+    print("Launching persistent worker on GPU...")
+    print("  Workers: 32 threads × 8 blocks = 256 total")
+    gpu[8, 32] gpu_worker(input_q, output_q)
+    
+    # Send work continuously
+    print("")
+    print("Sending", n_tasks, "tasks to GPU...")
+    for (i = 0; i < n_tasks; i = i + 1) {
+        task = Task(i, float(i))
+        enqueue_host(input_q, task)
+        
+        if (i % 100 == 0) {
+            print("  Sent", i, "tasks...")
+        }
+    }
+    
+    # Receive results
+    print("")
+    print("Receiving results from GPU...")
+    correct = 0
+    for (i = 0; i < n_tasks; i = i + 1) {
+        result = dequeue_host(output_q)
+        
+        # Verify result
+        expected = float(i) * float(i) + float(i) * 2.0
+        if (result.value == expected) {
+            correct = correct + 1
+        }
+        
+        # Show first few
+        if (i < 5) {
+            print("  Task", result.id, ":", result.value)
+        }
+        
+        if (i % 100 == 99) {
+            print("  Received", i + 1, "results...")
+        }
+    }
+    
+    # Stop worker
+    print("")
+    print("Stopping worker...")
+    stop_task = Task(-1, 0.0)
+    enqueue_host(input_q, stop_task)
+    
+    # Summary
+    print("")
+    print("=== Summary ===")
+    print("Total tasks:", n_tasks)
+    print("Correct results:", correct)
+    print("Accuracy:", float(correct) / float(n_tasks) * 100.0, "%")
+    print("")
+    print("✓ Persistent kernel demo complete!")
+    print("  The kernel stayed on GPU processing work continuously!")
+    print("  Zero overhead for each task (no kernel launches!)")
+}
+
+main()
+

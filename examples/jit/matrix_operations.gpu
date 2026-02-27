@@ -1,0 +1,104 @@
+# MoonLight JIT - Matrix Operations
+# Operações com matrizes usando JIT para performance
+
+@jit(optimize=True)
+def matrix_multiply(A, B, n) {
+    # C = A * B (n x n)
+    C = [[0.0 for j in range(n)] for i in range(n)]
+    
+    for (i = 0; i < n; i = i + 1) {
+        for (j = 0; j < n; j = j + 1) {
+            sum = 0.0
+            for (k = 0; k < n; k = k + 1) {
+                sum = sum + A[i][k] * B[k][j]
+            }
+            C[i][j] = sum
+        }
+    }
+    
+    return C
+}
+
+@jit
+def matrix_transpose(M, n) {
+    T = [[0.0 for j in range(n)] for i in range(n)]
+    
+    for (i = 0; i < n; i = i + 1) {
+        for (j = 0; j < n; j = j + 1) {
+            T[j][i] = M[i][j]
+        }
+    }
+    
+    return T
+}
+
+@jit
+def matrix_add(A, B, n) {
+    C = [[0.0 for j in range(n)] for i in range(n)]
+    
+    for (i = 0; i < n; i = i + 1) {
+        for (j = 0; j < n; j = j + 1) {
+            C[i][j] = A[i][j] + B[i][j]
+        }
+    }
+    
+    return C
+}
+
+def print_matrix(M, n, name) {
+    print(name, ":")
+    for (i = 0; i < min(n, 4); i = i + 1) {
+        for (j = 0; j < min(n, 4); j = j + 1) {
+            print(M[i][j], end=" ")
+        }
+        print("...")
+    }
+    print("")
+}
+
+def main() {
+    n = 100
+    
+    print("Criando matrizes", n, "x", n)
+    
+    # Criar matrizes
+    A = [[float(i + j) for j in range(n)] for i in range(n)]
+    B = [[float(i * j) for j in range(n)] for i in range(n)]
+    
+    print("Multiplicando matrizes...")
+    from time import time
+    start = time()
+    C = matrix_multiply(A, B, n)
+    elapsed = time() - start
+    print("Tempo:", elapsed, "s")
+    
+    print_matrix(C, n, "Resultado (primeiros 4x4)")
+    
+    print("")
+    print("Transpondo matriz...")
+    start = time()
+    T = matrix_transpose(A, n)
+    elapsed = time() - start
+    print("Tempo:", elapsed, "s")
+    
+    print("")
+    print("Somando matrizes...")
+    start = time()
+    S = matrix_add(A, B, n)
+    elapsed = time() - start
+    print("Tempo:", elapsed, "s")
+    
+    print("")
+    print_jit_stats()
+}
+
+main()
+
+
+
+
+
+
+
+
+

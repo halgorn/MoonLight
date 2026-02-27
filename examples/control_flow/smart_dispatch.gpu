@@ -1,0 +1,142 @@
+# MoonLight Example: Smart Dispatch
+# Demonstrates adaptive kernel dispatch based on workload characteristics
+# Automatically selects optimal kernel based on data properties
+
+# Fast kernel for small/simple data
+cuda kernel def fast_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * 2.0
+    }
+}
+
+# Optimized kernel for medium data
+cuda kernel def optimized_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        val = data[tid]
+        val = val * 2.0
+        val = val + 1.0
+        data[tid] = val
+    }
+}
+
+# Complex kernel for large/complex data
+cuda kernel def complex_kernel(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        val = data[tid]
+        # Multiple operations
+        val = val * val
+        val = sqrt(val)
+        val = sin(val)
+        val = val * 2.0
+        val = val + 1.0
+        data[tid] = val
+    }
+}
+
+# Adaptive dispatcher
+cuda kernel def adaptive_dispatch(data, n, metadata) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid == 0) {
+        # Analyze workload characteristics on GPU
+        size = n
+        complexity = metadata[0]  # Complexity metric
+        
+        # Decision logic
+        if (size < 1000) {
+            # Small data: use fast kernel
+            print("Dispatch: Fast kernel (small data)")
+            gpu[64, 256] fast_kernel(data, n)
+        } else if (size < 100000 and complexity < 5.0) {
+            # Medium data, low complexity: optimized kernel
+            print("Dispatch: Optimized kernel (medium data)")
+            gpu[256, 256] optimized_kernel(data, n)
+        } else {
+            # Large/complex data: complex kernel
+            print("Dispatch: Complex kernel (large/complex data)")
+            gpu[512, 256] complex_kernel(data, n)
+        }
+    }
+}
+
+def main() {
+    print("=== Smart Dispatch ===")
+    print("")
+    print("Demonstrates adaptive kernel dispatch")
+    print("Automatically selects optimal kernel based on workload")
+    print("")
+    
+    # Test case 1: Small data
+    print("Test Case 1: Small Data")
+    print("  Size: 500 elements")
+    print("  Expected: Fast kernel")
+    print("")
+    
+    n1 = 500
+    d_data1 = device[n1]
+    d_metadata1 = device[1]
+    d_metadata1[0] = 2.0  # Low complexity
+    
+    gpu[1, 256] adaptive_dispatch(d_data1, n1, d_metadata1)
+    print("  ✓ Completed")
+    print("")
+    
+    # Test case 2: Medium data
+    print("Test Case 2: Medium Data")
+    print("  Size: 50,000 elements")
+    print("  Expected: Optimized kernel")
+    print("")
+    
+    n2 = 50000
+    d_data2 = device[n2]
+    d_metadata2 = device[1]
+    d_metadata2[0] = 3.0  # Medium complexity
+    
+    gpu[1, 256] adaptive_dispatch(d_data2, n2, d_metadata2)
+    print("  ✓ Completed")
+    print("")
+    
+    # Test case 3: Large/complex data
+    print("Test Case 3: Large/Complex Data")
+    print("  Size: 1,000,000 elements")
+    print("  Expected: Complex kernel")
+    print("")
+    
+    n3 = 1000000
+    d_data3 = device[n3]
+    d_metadata3 = device[1]
+    d_metadata3[0] = 8.0  # High complexity
+    
+    gpu[1, 256] adaptive_dispatch(d_data3, n3, d_metadata3)
+    print("  ✓ Completed")
+    print("")
+    
+    print("Smart Dispatch Benefits:")
+    print("  ✓ Automatic kernel selection")
+    print("  ✓ Optimal performance for each case")
+    print("  ✓ GPU-side decision making")
+    print("  ✓ No CPU intervention needed")
+    print("")
+    
+    print("Decision Factors:")
+    print("  - Data size")
+    print("  - Complexity metrics")
+    print("  - Workload characteristics")
+    print("  - GPU resources available")
+    print("")
+    
+    free(d_data1)
+    free(d_metadata1)
+    free(d_data2)
+    free(d_metadata2)
+    free(d_data3)
+    free(d_metadata3)
+    
+    print("Done!")
+}
+
+main()
+

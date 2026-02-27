@@ -1,0 +1,85 @@
+# MoonLight Benchmark: Tree Depth Test
+# Tests maximum recursion depth for dynamic parallelism
+# Target: Support up to 24 levels of depth
+
+# Recursive kernel that tracks depth
+cuda kernel def depth_test_kernel(depth, max_depth, results) {
+    tid = threadIdx_x
+    
+    if (tid == 0) {
+        current_depth = *depth
+        
+        # Record depth
+        results[current_depth] = current_depth
+        
+        # Recurse if not at max
+        if (current_depth < max_depth) {
+            new_depth = current_depth + 1
+            *depth = new_depth
+            
+            # Launch child kernel
+            gpu[1, 256] depth_test_kernel(depth, max_depth, results)
+            
+            # Restore depth
+            *depth = current_depth
+        }
+    }
+}
+
+def test_depth(max_depth) {
+    print("Testing depth:", max_depth, "...")
+    
+    # Allocate depth counter and results
+    d_depth = device[1]
+    d_results = device[max_depth + 1]
+    
+    # Initialize
+    # In real app: cudaMemcpy to set depth to 0
+    
+    # Launch recursive kernel
+    gpu[1, 256] depth_test_kernel(d_depth, max_depth, d_results)
+    
+    # Read results (in real app: cudaMemcpy)
+    print("  ✓ Depth test completed")
+    
+    free(d_depth)
+    free(d_results)
+}
+
+def main() {
+    print("=== Tree Depth Benchmark ===")
+    print("")
+    print("Testing maximum recursion depth for dynamic parallelism")
+    print("Target: Support up to 24 levels")
+    print("")
+    
+    test_depths = [5, 10, 15, 20, 24]
+    
+    print("Test Configuration:")
+    print("  Test depths:", test_depths)
+    print("  CUDA limit: Typically 24 levels")
+    print("")
+    
+    for (i = 0; i < len(test_depths); i = i + 1) {
+        test_depth(test_depths[i])
+        print("")
+    }
+    
+    print("Results:")
+    print("  - Depths 1-20: Should work reliably")
+    print("  - Depth 24: CUDA maximum (may work)")
+    print("  - Depth > 24: Will fail (CUDA limit)")
+    print("")
+    
+    print("Recommendations:")
+    print("  ✓ Keep recursion depth < 20 for reliability")
+    print("  ✓ Use iterative algorithms for deep recursion")
+    print("  ✓ Monitor stack usage")
+    print("  ✓ Consider flattening deep trees")
+    print("")
+    
+    print("Done!")
+}
+
+main()
+

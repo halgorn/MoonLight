@@ -1,0 +1,127 @@
+# MoonLight Example: Multi-Stream Execution
+# Demonstrates concurrent kernel execution using CUDA streams
+# Enables overlapping computation and memory transfers
+
+# Create streams
+def create_streams() {
+    stream1 = cuda_stream()
+    stream2 = cuda_stream()
+    stream3 = cuda_stream()
+    return [stream1, stream2, stream3]
+}
+
+# Kernel 1: Process data
+cuda kernel def process_kernel1(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * 2.0
+    }
+}
+
+# Kernel 2: Transform data
+cuda kernel def process_kernel2(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] + 1.0
+    }
+}
+
+# Kernel 3: Final processing
+cuda kernel def process_kernel3(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = sqrt(data[tid])
+    }
+}
+
+def main() {
+    print("=== Multi-Stream Execution ===")
+    print("")
+    print("Demonstrates concurrent kernel execution")
+    print("Enables overlapping computation")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Streams: 3")
+    print("  Kernels per stream: 1")
+    print("")
+    
+    # Create streams
+    print("Creating CUDA streams...")
+    streams = create_streams()
+    stream1 = streams[0]
+    stream2 = streams[1]
+    stream3 = streams[2]
+    
+    print("  ✓ Stream 1 created")
+    print("  ✓ Stream 2 created")
+    print("  ✓ Stream 3 created")
+    print("")
+    
+    # Allocate data for each stream
+    d_data1 = device[n]
+    d_data2 = device[n]
+    d_data3 = device[n]
+    
+    print("Allocating device memory...")
+    print("  ✓ Data 1 allocated")
+    print("  ✓ Data 2 allocated")
+    print("  ✓ Data 3 allocated")
+    print("")
+    
+    # Launch kernels concurrently on different streams
+    print("Launching kernels concurrently...")
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Launch on stream 1
+    gpu[blocks, threads, stream=stream1] process_kernel1(d_data1, n)
+    print("  ✓ Kernel 1 launched on stream 1")
+    
+    # Launch on stream 2
+    gpu[blocks, threads, stream=stream2] process_kernel2(d_data2, n)
+    print("  ✓ Kernel 2 launched on stream 2")
+    
+    # Launch on stream 3
+    gpu[blocks, threads, stream=stream3] process_kernel3(d_data3, n)
+    print("  ✓ Kernel 3 launched on stream 3")
+    print("")
+    
+    # Synchronize specific stream
+    print("Synchronizing streams...")
+    sync_stream(stream1)
+    print("  ✓ Stream 1 synchronized")
+    
+    sync_stream(stream2)
+    print("  ✓ Stream 2 synchronized")
+    
+    sync_stream(stream3)
+    print("  ✓ Stream 3 synchronized")
+    print("")
+    
+    print("Benefits of Multi-Stream:")
+    print("  ✓ Concurrent kernel execution")
+    print("  ✓ Overlapped computation")
+    print("  ✓ Better GPU utilization")
+    print("  ✓ Reduced total execution time")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Independent data processing")
+    print("  - Pipeline stages")
+    print("  - Overlapping compute and memory")
+    print("  - Multi-GPU coordination")
+    print("")
+    
+    free(d_data1)
+    free(d_data2)
+    free(d_data3)
+    
+    print("Done!")
+}
+
+main()
+

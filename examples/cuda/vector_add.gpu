@@ -1,0 +1,71 @@
+# MoonLight CUDA Example: Vector Addition
+# Este exemplo demonstra a sintaxe proposta para CUDA
+
+# Definir kernel CUDA
+cuda kernel def add_vectors(a, b, c, n) {
+    # Índice global do thread
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    
+    # Verificar limites
+    if (i < n) {
+        c[i] = a[i] + b[i]
+    }
+}
+
+# Main program
+def main() {
+    n = 1024
+    
+    # Alocar memória na CPU
+    h_a = [0.0] * n
+    h_b = [0.0] * n
+    h_c = [0.0] * n
+    
+    # Inicializar arrays
+    for (i = 0; i < n; i = i + 1) {
+        h_a[i] = float(i)
+        h_b[i] = float(i * 2)
+    }
+    
+    # Alocar memória na GPU
+    d_a = device[n]
+    d_b = device[n]
+    d_c = device[n]
+    
+    # Copiar dados para GPU
+    d_a <- h_a
+    d_b <- h_b
+    
+    # Configurar grid e blocos
+    threads_per_block = 256
+    blocks = (n + threads_per_block - 1) / threads_per_block
+    
+    # Lançar kernel
+    gpu[blocks, threads_per_block] add_vectors(d_a, d_b, d_c, n)
+    
+    # Copiar resultado de volta
+    h_c <- d_c
+    
+    # Verificar resultado
+    print("Resultado:")
+    for (i = 0; i < 10; i = i + 1) {
+        print("h_c[", i, "] =", h_c[i])
+    }
+    
+    # Liberar memória GPU
+    free(d_a)
+    free(d_b)
+    free(d_c)
+}
+
+main()
+
+
+
+
+
+
+
+
+
+

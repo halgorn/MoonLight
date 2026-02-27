@@ -1,0 +1,84 @@
+# MoonLight JIT Benchmark
+# Compara performance interpretado vs JIT
+
+from time import time
+
+# Função intensiva sem JIT
+def fibonacci_interpreted(n) {
+    if (n <= 1) {
+        return n
+    }
+    return fibonacci_interpreted(n - 1) + fibonacci_interpreted(n - 2)
+}
+
+# Função intensiva com JIT
+@jit
+def fibonacci_jit(n) {
+    if (n <= 1) {
+        return n
+    }
+    return fibonacci_jit(n - 1) + fibonacci_jit(n - 2)
+}
+
+# Função com loop intensivo
+@jit
+def sum_squares(n) {
+    total = 0
+    for (i = 0; i < n; i = i + 1) {
+        total = total + i * i
+    }
+    return total
+}
+
+def main() {
+    print("=== MoonLight JIT Benchmark ===")
+    print("")
+    
+    # Teste 1: Fibonacci
+    print("Teste 1: Fibonacci(30)")
+    print("-" * 40)
+    
+    # Interpretado
+    start = time()
+    result_interp = fibonacci_interpreted(30)
+    time_interp = time() - start
+    print("Interpretado:", result_interp, "em", time_interp, "s")
+    
+    # JIT
+    start = time()
+    result_jit = fibonacci_jit(30)
+    time_jit = time() - start
+    print("JIT:", result_jit, "em", time_jit, "s")
+    
+    if (time_interp > time_jit) {
+        speedup = time_interp / time_jit
+        print("Speedup:", speedup, "x")
+    }
+    
+    print("")
+    
+    # Teste 2: Sum of squares
+    print("Teste 2: Sum of squares(1000000)")
+    print("-" * 40)
+    
+    start = time()
+    result = sum_squares(1000000)
+    elapsed = time() - start
+    print("Resultado:", result)
+    print("Tempo:", elapsed, "s")
+    
+    print("")
+    print("=== Estatísticas JIT ===")
+    print_jit_stats()
+}
+
+main()
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,107 @@
+# MoonLight AI - Tensor Operations
+# Wrapper para PyTorch tensors com sintaxe simplificada
+
+class Tensor {
+    def __init__(data, requires_grad) {
+        self.data = data
+        self.requires_grad = requires_grad
+        self.grad = None
+        self.shape = self._get_shape()
+    }
+    
+    def _get_shape() {
+        # Placeholder - seria implementado com binding PyTorch
+        return [len(self.data)]
+    }
+    
+    def backward() {
+        # Backpropagation
+        if (not self.requires_grad) {
+            print("Error: This tensor doesn't require grad")
+            return
+        }
+        # Implementação via PyTorch
+        pass
+    }
+    
+    def item() {
+        # Retorna valor escalar
+        return self.data
+    }
+    
+    def numpy() {
+        # Converte para numpy array
+        return self.data
+    }
+    
+    def cuda() {
+        # Move tensor para GPU
+        print("Moving tensor to CUDA device")
+        return self
+    }
+    
+    def cpu() {
+        # Move tensor para CPU
+        print("Moving tensor to CPU")
+        return self
+    }
+}
+
+# Factory functions
+def tensor(data, requires_grad) {
+    return Tensor(data, requires_grad)
+}
+
+def zeros(shape, requires_grad) {
+    # Cria tensor de zeros
+    data = [0.0 for i in range(shape)]
+    return Tensor(data, requires_grad)
+}
+
+def ones(shape, requires_grad) {
+    # Cria tensor de ones
+    data = [1.0 for i in range(shape)]
+    return Tensor(data, requires_grad)
+}
+
+def randn(shape, requires_grad) {
+    # Cria tensor com valores aleatórios
+    # Placeholder - seria implementado com random
+    data = [float(i) for i in range(shape)]
+    return Tensor(data, requires_grad)
+}
+
+# Operações
+def matmul(a, b) {
+    # Multiplicação de matrizes
+    print("Matrix multiplication:", a.shape, "x", b.shape)
+    # Implementação via PyTorch/CUDA
+    return a
+}
+
+def sum(tensor, dim) {
+    # Soma ao longo de dimensão
+    print("Summing tensor along dim", dim)
+    return tensor
+}
+
+def mean(tensor, dim) {
+    # Média ao longo de dimensão
+    print("Computing mean along dim", dim)
+    return tensor
+}
+
+def softmax(tensor, dim) {
+    # Softmax
+    print("Applying softmax on dim", dim)
+    return tensor
+}
+
+
+
+
+
+
+
+
+

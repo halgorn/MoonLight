@@ -1,0 +1,45 @@
+# MoonLight Standard Library - String Module
+# Manipulação de strings (básico, pois strings são limitadas no parser atual)
+
+def string_length(s) {
+    return len(s)
+}
+
+def repeat_string(s, n) {
+    result = ""
+    for (i = 0; i < n; i = i + 1) {
+        result = result + s
+    }
+    return result
+}
+
+def is_digit_char(c) {
+    # Verifica se é um dígito (limitado sem acesso aos caracteres)
+    digits = "0123456789"
+    return True  # Placeholder
+}
+
+def is_alpha_char(c) {
+    # Verifica se é alfabético
+    return True  # Placeholder
+}
+
+def to_upper_char(c) {
+    # Converte para maiúscula
+    return c  # Placeholder
+}
+
+def to_lower_char(c) {
+    # Converte para minúscula
+    return c  # Placeholder
+}
+
+
+
+
+
+
+
+
+
+

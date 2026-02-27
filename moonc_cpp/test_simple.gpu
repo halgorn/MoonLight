@@ -1,0 +1,11 @@
+# Teste Simples - MoonLight
+def main() {
+    print("Hello, MoonLight!")
+    x = 10
+    y = 20
+    print("x + y =", x + y)
+    print("Teste concluído!")
+}
+
+main()
+

@@ -1,0 +1,66 @@
+# MoonLight AI Example: Text Generation
+# Generate text using pre-trained models
+
+from ai.text import load_model, generate_text, sentiment_analysis
+
+def main() {
+    print("=== Text Generation with MoonLight AI ===")
+    print("")
+    
+    # Load model
+    print("1. Loading GPT-2 model...")
+    model = load_model("gpt2", "cuda")
+    
+    print("")
+    
+    # Generate text
+    print("2. Generating text...")
+    prompt = "Once upon a time in a distant galaxy"
+    
+    generated = generate_text(
+        model,
+        prompt,
+        max_length=100,
+        temperature=0.8,
+        top_k=50,
+        top_p=0.95
+    )
+    
+    print("")
+    print("Generated text:")
+    print(generated)
+    
+    print("")
+    print("-" * 50)
+    print("")
+    
+    # Sentiment analysis
+    print("3. Sentiment Analysis...")
+    texts = [
+        "I love this product! It's amazing!",
+        "This is terrible, worst experience ever.",
+        "It's okay, nothing special."
+    ]
+    
+    for (i = 0; i < len(texts); i = i + 1) {
+        text = texts[i]
+        result = sentiment_analysis(text, model)
+        print("")
+        print("Text:", text)
+        print("Sentiment:", result["label"], "(", result["score"], ")")
+    }
+    
+    print("")
+    print("Demo complete!")
+}
+
+main()
+
+
+
+
+
+
+
+
+

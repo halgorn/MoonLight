@@ -1,0 +1,34 @@
+# Exemplos de variáveis em MoonLight
+
+# Números
+x = 10
+y = 3.14
+z = 100
+
+# Strings
+nome = "João"
+sobrenome = "Silva"
+
+# Booleanos
+ativo = True
+completo = False
+
+# Operações
+soma = x + z
+produto = x * z
+
+# Impressão
+print("Nome:", nome, sobrenome)
+print("Soma:", soma)
+print("Produto:", produto)
+print("Ativo:", ativo)
+
+
+
+
+
+
+
+
+
+

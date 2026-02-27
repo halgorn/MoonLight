@@ -1,0 +1,89 @@
+# Benchmark 6: Camada Convolucional (Conv2D)
+# Simula o cerne das CNNs
+# Metrica: Giga-Ops/s
+
+cuda kernel def conv2d(input, kernel, output, in_h, in_w, out_h, out_w, k_h, k_w) {
+    out_row = blockIdx_y * blockDim_y + threadIdx_y
+    out_col = blockIdx_x * blockDim_x + threadIdx_x
+    
+    if (out_row < out_h && out_col < out_w) {
+        sum = 0.0
+        
+        # Convolucao 2D
+        for (kr = 0; kr < k_h; kr = kr + 1) {
+            for (kc = 0; kc < k_w; kc = kc + 1) {
+                in_row = out_row + kr
+                in_col = out_col + kc
+                
+                if (in_row < in_h && in_col < in_w) {
+                    sum = sum + input[in_row * in_w + in_col] * kernel[kr * k_w + kc]
+                }
+            }
+        }
+        
+        output[out_row * out_w + out_col] = sum
+    }
+}
+
+def main() {
+    # Parametros da convolucao
+    in_h = 224
+    in_w = 224
+    k_h = 3
+    k_w = 3
+    out_h = in_h - k_h + 1
+    out_w = in_w - k_w + 1
+    
+    in_size = in_h * in_w
+    k_size = k_h * k_w
+    out_size = out_h * out_w
+    
+    # Alocar memoria CPU
+    h_input = [0.0] * in_size
+    h_kernel = [0.0] * k_size
+    h_output = [0.0] * out_size
+    
+    # Inicializar
+    for (i = 0; i < in_size; i = i + 1) {
+        h_input[i] = float(i) * 0.001
+    }
+    for (i = 0; i < k_size; i = i + 1) {
+        h_kernel[i] = 0.1
+    }
+    
+    # Alocar GPU
+    d_input = device[in_size]
+    d_kernel = device[k_size]
+    d_output = device[out_size]
+    
+    # Transfer H->D
+    d_input <- h_input
+    d_kernel <- h_kernel
+    
+    # Launch kernel
+    block_size = 16
+    grid_x = (out_w + block_size - 1) / block_size
+    grid_y = (out_h + block_size - 1) / block_size
+    
+    # Conv2D: out_h * out_w * k_h * k_w operacoes
+    ops = out_h * out_w * k_h * k_w
+    gpu[grid_x * grid_y, block_size * block_size] conv2d(d_input, d_kernel, d_output, in_h, in_w, out_h, out_w, k_h, k_w)
+    
+    # Transfer D->H
+    h_output <- d_output
+    
+    print("Conv2D concluido!")
+    print("Input:", in_h, "x", in_w)
+    print("Kernel:", k_h, "x", k_w)
+    print("Output:", out_h, "x", out_w)
+    print("Operacoes:", ops)
+    print("Resultado[0] =", h_output[0])
+    
+    # Cleanup
+    free(d_input)
+    free(d_kernel)
+    free(d_output)
+}
+
+main()
+

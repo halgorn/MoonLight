@@ -1,0 +1,98 @@
+# MoonLight Example: Unified Memory Access
+# Demonstrates CPU and GPU accessing same memory
+# Automatic page migration handles data movement
+
+cuda kernel def gpu_compute(data, results, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # GPU reads from unified memory
+        value = data[tid]
+        
+        # GPU computes
+        results[tid] = value * value + 1.0
+    }
+}
+
+def main() {
+    print("=== Unified Memory Access ===")
+    print("")
+    print("CPU and GPU access same memory seamlessly")
+    print("Automatic page migration handles data movement")
+    print("")
+    
+    n = 10000
+    
+    # Allocate unified memory
+    unified_input = unified memory[n]
+    unified_output = unified memory[n]
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Memory type: Unified (CPU+GPU accessible)")
+    print("")
+    
+    # CPU initializes data
+    print("Step 1: CPU initializes data")
+    for (i = 0; i < n; i = i + 1) {
+        unified_input[i] = i * 0.1
+    }
+    print("  ✓ CPU wrote", n, "elements")
+    print("")
+    
+    # GPU processes (automatic page migration)
+    print("Step 2: GPU processes data")
+    print("  (Automatic page migration to GPU)")
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    gpu[blocks, threads] gpu_compute(unified_input, unified_output, n)
+    
+    print("  ✓ GPU computed results")
+    print("  ✓ Data automatically migrated to GPU")
+    print("")
+    
+    # CPU reads results (automatic page migration back)
+    print("Step 3: CPU reads results")
+    print("  (Automatic page migration back to CPU)")
+    
+    sum = 0.0
+    for (i = 0; i < 10; i = i + 1) {
+        sum = sum + unified_output[i]
+        print("  output[", i, "] =", unified_output[i])
+    }
+    
+    print("  ✓ CPU read results")
+    print("  ✓ Data automatically migrated back")
+    print("")
+    
+    print("How It Works:")
+    print("  1. CPU writes → data in CPU memory")
+    print("  2. GPU accesses → page fault → migrate to GPU")
+    print("  3. GPU processes → data in GPU memory")
+    print("  4. CPU accesses → page fault → migrate back to CPU")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Simplified programming (no explicit transfers)")
+    print("  ✓ Automatic optimization")
+    print("  ✓ Works for irregular access patterns")
+    print("  ✓ Good for: prototyping, small data, shared state")
+    print("")
+    
+    print("Trade-offs:")
+    print("  - Page faults add latency (first access)")
+    print("  - May be slower than explicit transfers for large data")
+    print("  - Best for: small-medium data, irregular patterns")
+    print("")
+    
+    # Cleanup
+    free(unified_input)
+    free(unified_output)
+    
+    print("Done!")
+}
+
+main()
+

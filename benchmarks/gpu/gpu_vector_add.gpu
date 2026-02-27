@@ -1,0 +1,46 @@
+# MoonLight GPU Benchmark: Vector Addition
+# Simple kernel to test basic GPU functionality
+
+cuda kernel def vector_add(a, b, c, n) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    if (i < n) {
+        c[i] = a[i] + b[i]
+    }
+}
+
+def main() {
+    n = 10000000  # 10 million elements
+    
+    print("Allocating memory...")
+    
+    # Allocate device memory
+    d_a = device[n]
+    d_b = device[n]
+    d_c = device[n]
+    
+    print("Transferring data to GPU...")
+    
+    # Prepare host data (simulated - in real implementation)
+    # h_a and h_b would be populated
+    
+    # Launch kernel
+    threads_per_block = 256
+    blocks = (n + threads_per_block - 1) / threads_per_block
+    
+    print("Launching kernel...")
+    print("Grid:", blocks, "blocks x", threads_per_block, "threads")
+    
+    gpu[blocks, threads_per_block] vector_add(d_a, d_b, d_c, n)
+    
+    print("Kernel completed!")
+    
+    # Clean up
+    free(d_a)
+    free(d_b)
+    free(d_c)
+    
+    print("Benchmark complete!")
+}
+
+main()
+

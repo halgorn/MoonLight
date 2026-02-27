@@ -1,0 +1,37 @@
+# Teste minimo - sem timer
+cuda kernel def saxpy(x, y, a, n) {
+    i = threadIdx_x + blockIdx_x * blockDim_x
+    if (i < n) {
+        y[i] = a * x[i] + y[i]
+    }
+}
+
+def main() {
+    n = 100
+    a = 2.5
+    h_x = [0.0] * n
+    h_y = [0.0] * n
+    
+    for (i = 0; i < n; i = i + 1) {
+        h_x[i] = float(i) * 0.001
+    }
+    
+    d_x = device[n]
+    d_y = device[n]
+    d_x <- h_x
+    d_y <- h_y
+    
+    threads = 256
+    blocks = (n + threads - 1) / threads
+    gpu[blocks, threads] saxpy(d_x, d_y, a, n)
+    
+    h_y <- d_y
+    print("SAXPY concluido!")
+    print("Elementos:", n)
+    
+    free(d_x)
+    free(d_y)
+}
+
+main()
+

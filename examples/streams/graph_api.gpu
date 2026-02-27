@@ -1,0 +1,98 @@
+# MoonLight Example: CUDA Graph API
+# Demonstrates CUDA Graph for low-overhead kernel launches
+# Captures kernel sequence and replays efficiently
+
+# Kernels in the graph
+cuda kernel def graph_kernel1(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] * 2.0
+    }
+}
+
+cuda kernel def graph_kernel2(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = data[tid] + 1.0
+    }
+}
+
+cuda kernel def graph_kernel3(data, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    if (tid < n) {
+        data[tid] = sqrt(data[tid])
+    }
+}
+
+def graph_example() {
+    print("=== CUDA Graph API Example ===")
+    print("")
+    print("Demonstrates CUDA Graph for low-overhead execution")
+    print("Captures kernel sequence and replays efficiently")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Kernels in graph: 3")
+    print("  Replay iterations: 1000")
+    print("")
+    
+    # Allocate data
+    d_data = device[n]
+    
+    print("Capturing CUDA Graph...")
+    print("")
+    
+    # Begin graph capture
+    graph = cuda_graph_begin()
+    print("  → Graph capture started")
+    
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    # Capture kernel sequence
+    gpu[blocks, threads] graph_kernel1(d_data, n)
+    print("  → Kernel 1 captured")
+    
+    gpu[blocks, threads] graph_kernel2(d_data, n)
+    print("  → Kernel 2 captured")
+    
+    gpu[blocks, threads] graph_kernel3(d_data, n)
+    print("  → Kernel 3 captured")
+    
+    # End graph capture
+    cuda_graph_end()
+    print("  ✓ Graph capture completed")
+    print("")
+    
+    # Replay graph multiple times (low overhead!)
+    print("Replaying graph 1000 times...")
+    for (i = 0; i < 1000; i = i + 1) {
+        cuda_graph_launch(graph)
+    }
+    print("  ✓ Graph replayed 1000 times")
+    print("")
+    
+    print("CUDA Graph Benefits:")
+    print("  ✓ Low launch overhead")
+    print("  ✓ Pre-compiled execution plan")
+    print("  ✓ Efficient replay")
+    print("  ✓ Reduced CPU overhead")
+    print("")
+    
+    print("Use Cases:")
+    print("  - Repeated kernel sequences")
+    print("  - Inference pipelines")
+    print("  - Real-time processing")
+    print("  - Low-latency applications")
+    print("")
+    
+    free(d_data)
+    
+    print("Done!")
+}
+
+graph_example()
+

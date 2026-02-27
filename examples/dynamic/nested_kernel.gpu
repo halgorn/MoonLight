@@ -1,0 +1,110 @@
+# MoonLight Example: Nested Kernel Launches
+# Demonstrates kernels launching other kernels (Dynamic Parallelism)
+# Requires CUDA compute capability 3.5+ and -rdc=true compilation
+#
+# IMPORTANT: CUDA Dynamic Parallelism Limits
+# - Maximum recursion depth: 24 levels
+# - Requires compute capability 3.5+
+# - Compile with: -rdc=true -lcudadevrt
+# - Child kernels must be __device__ functions
+
+# Child kernel (will be launched from parent)
+cuda kernel def child_kernel(data, start_idx, n) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    if (tid < n) {
+        # Process subset of data
+        idx = start_idx + tid
+        data[idx] = data[idx] * data[idx]
+    }
+}
+
+# Parent kernel (launches child kernels)
+cuda kernel def parent_kernel(data, n, chunk_size) {
+    tid = threadIdx_x + blockIdx_x * blockDim_x
+    
+    # Each thread block launches its own child kernel
+    if (tid * chunk_size < n) {
+        start_idx = tid * chunk_size
+        child_n = chunk_size
+        if (start_idx + child_n > n) {
+            child_n = n - start_idx
+        }
+        
+        # Launch child kernel FROM WITHIN THIS KERNEL!
+        # This is dynamic parallelism!
+        child_blocks = (child_n + 255) / 256
+        child_threads = 256
+        
+        gpu[child_blocks, child_threads] child_kernel(data, start_idx, child_n)
+        
+        # Note: In real CUDA, would need cudaDeviceSynchronize() here
+        # to wait for child kernel to complete
+    }
+}
+
+def main() {
+    print("=== Nested Kernel Launches (Dynamic Parallelism) ===")
+    print("")
+    print("Demonstrates kernels launching other kernels")
+    print("Requires CUDA compute capability 3.5+")
+    print("")
+    
+    n = 100000
+    chunk_size = 1000
+    
+    print("Configuration:")
+    print("  Total elements:", n)
+    print("  Chunk size per thread block:", chunk_size)
+    print("  Parent kernel blocks:", (n + chunk_size - 1) / chunk_size)
+    print("")
+    
+    # Allocate data
+    d_data = device[n]
+    
+    # Initialize (in real app: cudaMemcpy)
+    print("Initializing data...")
+    print("")
+    
+    # Launch parent kernel
+    # Parent will launch child kernels dynamically
+    print("Launching parent kernel...")
+    print("  Parent kernel will launch child kernels dynamically")
+    
+    parent_blocks = (n + chunk_size - 1) / chunk_size
+    parent_threads = 256
+    
+    gpu[parent_blocks, parent_threads] parent_kernel(d_data, n, chunk_size)
+    
+    print("✓ Parent kernel completed")
+    print("  Child kernels were launched from within parent!")
+    print("")
+    
+    print("How It Works:")
+    print("  1. Parent kernel launches")
+    print("  2. Each thread block in parent decides to launch child kernel")
+    print("  3. Child kernel processes its chunk of data")
+    print("  4. Parent continues after child completes")
+    print("")
+    
+    print("Benefits:")
+    print("  ✓ Dynamic work generation")
+    print("  ✓ Adaptive parallelism")
+    print("  ✓ Recursive algorithms possible")
+    print("  ✓ Tree traversal, AMR, etc.")
+    print("")
+    
+    print("Requirements:")
+    print("  - CUDA compute capability 3.5+")
+    print("  - Compile with -rdc=true")
+    print("  - Link with -lcudadevrt")
+    print("  - Child kernels need __device__ attribute")
+    print("")
+    
+    free(d_data)
+    
+    print("Done!")
+}
+
+main()
+

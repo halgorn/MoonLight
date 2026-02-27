@@ -1,0 +1,108 @@
+# MoonLight Example: Bank Conflict Detection and Avoidance
+# Demonstrates shared memory bank conflicts and solutions
+# Shows how to avoid conflicts for optimal performance
+
+# Kernel with bank conflicts (BAD)
+cuda kernel def bank_conflict_kernel_bad(data, results, n) {
+    tid = threadIdx_x
+    bid = blockIdx_x
+    
+    # Shared memory
+    # shared_data = shared[1024]
+    
+    # BAD: Stride access causes bank conflicts
+    # All threads access same bank (conflict!)
+    # shared_data[tid * 4] = data[tid]  # Stride 4 = bank conflict
+    
+    # Process
+    results[bid * 256 + tid] = data[tid] * 2
+}
+
+# Kernel without bank conflicts (GOOD)
+cuda kernel def bank_conflict_kernel_good(data, results, n) {
+    tid = threadIdx_x
+    bid = blockIdx_x
+    
+    # Shared memory
+    # shared_data = shared[1024 + 16]  # Pad to avoid conflicts
+    
+    # GOOD: Sequential access, no conflicts
+    # shared_data[tid] = data[tid]  # Sequential = no conflict
+    
+    # Or: Use padding to avoid conflicts
+    # shared_data[tid + tid / 32] = data[tid]  # Padded access
+    
+    # Process
+    results[bid * 256 + tid] = data[tid] * 2
+}
+
+def main() {
+    print("=== Bank Conflict Detection and Avoidance ===")
+    print("")
+    print("Demonstrates shared memory bank conflicts")
+    print("Shows how to avoid conflicts for optimal performance")
+    print("")
+    
+    n = 10000
+    
+    print("Configuration:")
+    print("  Elements:", n)
+    print("  Shared memory banks: 32")
+    print("  Bank width: 4 bytes")
+    print("")
+    
+    # Allocate data
+    d_data = device[n]
+    d_results = device[n]
+    
+    print("Bank Conflict Patterns:")
+    print("")
+    print("BAD Patterns (causes conflicts):")
+    print("  - Stride access: shared[tid * 4]")
+    print("  - Multiple threads → same bank")
+    print("  - Results in serialization")
+    print("")
+    
+    print("GOOD Patterns (no conflicts):")
+    print("  - Sequential access: shared[tid]")
+    print("  - Padding: shared[tid + padding]")
+    print("  - Broadcast: shared[0] (read-only)")
+    print("")
+    
+    # Launch both versions
+    print("Testing both versions...")
+    blocks = (n + 255) / 256
+    threads = 256
+    
+    print("  Bad version (with conflicts):")
+    gpu[blocks, threads] bank_conflict_kernel_bad(d_data, d_results, n)
+    print("    ✓ Completed (slower due to conflicts)")
+    print("")
+    
+    print("  Good version (no conflicts):")
+    gpu[blocks, threads] bank_conflict_kernel_good(d_data, d_results, n)
+    print("    ✓ Completed (faster, no conflicts)")
+    print("")
+    
+    print("Performance Impact:")
+    print("  - Bank conflicts: 2-32x slower")
+    print("  - No conflicts: Optimal performance")
+    print("  - Detection: Compiler can warn")
+    print("  - Solution: Padding or access pattern change")
+    print("")
+    
+    print("Future Enhancement:")
+    print("  - Automatic bank conflict detection")
+    print("  - Compiler warnings")
+    print("  - Automatic padding")
+    print("  - Access pattern optimization")
+    print("")
+    
+    free(d_data)
+    free(d_results)
+    
+    print("Done!")
+}
+
+main()
+

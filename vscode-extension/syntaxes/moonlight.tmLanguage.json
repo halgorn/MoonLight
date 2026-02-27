@@ -1,0 +1,126 @@
+{
+  "name": "MoonLight",
+  "scopeName": "source.moonlight",
+  "fileTypes": ["gpu"],
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#decorators"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.number-sign.moonlight",
+          "match": "#.*$"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.moonlight",
+          "match": "\\b(if|else|elif|for|while|break|continue|return|yield|with|try|except|finally|raise)\\b"
+        },
+        {
+          "name": "keyword.declaration.moonlight",
+          "match": "\\b(def|class|lambda|import|from|as)\\b"
+        },
+        {
+          "name": "keyword.cuda.moonlight",
+          "match": "\\b(cuda|kernel|device|gpu|shared|syncthreads)\\b"
+        },
+        {
+          "name": "keyword.decorator.moonlight",
+          "match": "\\b(jit|property|staticmethod|classmethod)\\b"
+        },
+        {
+          "name": "keyword.operator.moonlight",
+          "match": "\\b(and|or|not|in|is)\\b"
+        },
+        {
+          "name": "constant.language.moonlight",
+          "match": "\\b(True|False|None)\\b"
+        },
+        {
+          "name": "support.function.builtin.moonlight",
+          "match": "\\b(print|len|sum|max|min|range|int|float|str|bool|list|dict|set|tuple)\\b"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.moonlight",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.moonlight",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.moonlight",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.moonlight",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.moonlight",
+          "match": "\\b[0-9]+(\\.[0-9]+)?([eE][+-]?[0-9]+)?\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.moonlight",
+          "match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*(?=\\()"
+        }
+      ]
+    },
+    "decorators": {
+      "patterns": [
+        {
+          "name": "entity.name.function.decorator.moonlight",
+          "match": "@[a-zA-Z_][a-zA-Z0-9_]*"
+        }
+      ]
+    }
+  }
+}
+
+
+
+
+
+
+
+
+

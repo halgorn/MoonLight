@@ -1,0 +1,54 @@
+# MoonLight GPU Benchmark: Matrix Multiplication
+# Tests 2D grid/block configuration
+
+cuda kernel def matrix_mult(A, B, C, N) {
+    row = blockIdx_y * blockDim_y + threadIdx_y
+    col = blockIdx_x * blockDim_x + threadIdx_x
+    
+    if (row < N and col < N) {
+        sum = 0.0
+        for (k = 0; k < N; k = k + 1) {
+            sum = sum + A[row * N + k] * B[k * N + col]
+        }
+        C[row * N + col] = sum
+    }
+}
+
+def main() {
+    N = 1024  # 1024x1024 matrices
+    size = N * N
+    
+    print("Matrix size:", N, "x", N)
+    print("Total elements:", size)
+    print("Memory:", size * 4, "bytes per matrix")
+    
+    # Allocate device memory
+    d_A = device[size]
+    d_B = device[size]
+    d_C = device[size]
+    
+    print("Memory allocated on GPU")
+    
+    # Configure 2D grid
+    block_size = 16
+    grid_size = (N + block_size - 1) / block_size
+    
+    print("Launching kernel...")
+    print("Grid: (", grid_size, ",", grid_size, ")")
+    print("Block: (", block_size, ",", block_size, ")")
+    
+    # Launch kernel with 2D configuration
+    gpu[(grid_size, grid_size), (block_size, block_size)] matrix_mult(d_A, d_B, d_C, N)
+    
+    print("Matrix multiplication complete!")
+    
+    # Clean up
+    free(d_A)
+    free(d_B)
+    free(d_C)
+    
+    print("Benchmark complete!")
+}
+
+main()
+
