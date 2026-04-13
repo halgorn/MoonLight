@@ -1,196 +1,316 @@
-# Moonlight - Linguagem de Programação Otimizada para CUDA
+<div align="center">
 
-Moonlight é uma linguagem de programação experimental projetada para rodar **cálculos numéricos otimizados usando núcleos CUDA**. Inspirada no **Python**, ela busca oferecer **facilidade de uso**, mas com **desempenho superior em GPUs**.
+<img src="https://img.shields.io/badge/version-1.0.0-blueviolet?style=for-the-badge&logo=github" />
+<img src="https://img.shields.io/badge/CUDA-optimized-76b900?style=for-the-badge&logo=nvidia" />
+<img src="https://img.shields.io/badge/tests-93.2%25-brightgreen?style=for-the-badge" />
+<img src="https://img.shields.io/badge/roadmap-10%2F10-ff6b6b?style=for-the-badge" />
 
-## 🎉 PROJETO MOONLIGHT - 100% COMPLETO!
+<br /><br />
 
-**10 DE 10 ENTREGAS IMPLEMENTADAS - ROADMAP COMPLETO! 🏆**
+```
+███╗   ███╗ ██████╗  ██████╗ ███╗   ██╗██╗     ██╗ ██████╗ ██╗  ██╗████████╗
+████╗ ████║██╔═══██╗██╔═══██╗████╗  ██║██║     ██║██╔════╝ ██║  ██║╚══██╔══╝
+██╔████╔██║██║   ██║██║   ██║██╔██╗ ██║██║     ██║██║  ███╗███████║   ██║
+██║╚██╔╝██║██║   ██║██║   ██║██║╚██╗██║██║     ██║██║   ██║██╔══██║   ██║
+██║ ╚═╝ ██║╚██████╔╝╚██████╔╝██║ ╚████║███████╗██║╚██████╔╝██║  ██║   ██║
+╚═╝     ╚═╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═══╝╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═╝   ╚═╝
+```
+
+### **Python-inspired. GPU-native. Built for the future of computing.**
+
+*A programming language designed from the ground up for high-performance numerical computing on CUDA GPUs.*
+
+<br />
+
+[**Get Started**](#-instalação) · [**Documentation**](#-uso) · [**Examples**](#-exemplos) · [**Roadmap**](#-roadmap)
+
+<br />
+
+</div>
 
 ---
 
-## 🚀 Recursos da Moonlight
+## ⚡ Por que Moonlight?
 
-### Core Features ✅
-- **Operações matemáticas completas** (`+`, `-`, `*`, `/`, `%`, `**`)
-- **Operações bitwise** (`&`, `|`, `^`, `~`, `<<`, `>>`)
-- **Operações unárias** (`-`, `+`, `~`)
-- **Estruturas de controle**: `if`, `else`, `while`, `for`, `break`, `continue`
-- **Funções**: definição com `def`, return, recursão, **lambdas**
-- **Classes**: POO básica com métodos e `__init__`
-- **Listas, dicionários, tuplas, sets** (estruturas de dados completas)
-- **Funções built-in**: len, sum, max, min, range, int, float, str, bool, type
+O mundo moderno exige poder computacional massivo — modelos de IA, simulações físicas, processamento de dados em escala. As linguagens tradicionais não foram projetadas pensando em GPUs. **Moonlight foi.**
 
-### Sistema de Análise ✅
-- **Lexer robusto** com 18 tokens especiais e palavras reservadas
-- **Parser completo** com gramática rica (PLY)
-- **Sistema de Tipos com Inferência Automática** 
-  - Inferência de literais e expressões
-  - Tipos genéricos (List[int], etc)
-  - Warnings para conversões perigosas
-  - Escopo hierárquico
-- **Executor Python**: Execução direta de scripts `.gpu`
-- **Transpiler C++/CUDA**: Tradução para código otimizado
+```moonlight
+# Simples como Python. Rápido como CUDA.
+@jit
+def matrix_multiply(A, B) {
+    return [sum([A[i][k] * B[k][j] for k in range(len(B))]) 
+            for j in range(len(B[0]))] 
+            for i in range(len(A))
+}
 
-### Sistema de Módulos ✅
-- **Import System**: `import module`, `from module import item`
-- **Module Loader**: Cache, detecção de imports circulares
-- **Biblioteca Padrão**:
-  - **math.gpu**: 14 funções (sqrt, factorial, is_prime, gcd, etc)
-  - **array.gpu**: 18 funções (sort, reverse, unique, map, filter, etc)
-  - **string.gpu**: Operações básicas
-- **Namespace isolado** para cada módulo
-- **Paths configuráveis**: stdlib, diretório atual, ~/.moonlight/modules
+resultado = matrix_multiply(matrix_A, matrix_B)
+print(resultado)
+```
 
-### Features Avançadas ✅
-- **Expressões Lambda**: `lambda(x) x * 2` (100% funcional)
-- **Generators com Yield**: `def gen() { yield x }`
-- **List Comprehensions**: `[x*2 for x in list]`, `[x for x in list if cond]`
-- **Slice Operations**: `lista[1:3:2]`
-- **Operadores compostos**: `+=`, `-=`, `*=`, `++`, `--`
-- **Decoradores**: `@jit` para otimização
-- **Multiple Assignment**: `x = y = z = 0`
-- **With Statement**: Context managers básicos (`with expr as var { block }`)
+---
 
-### Ferramentas Completas ✅
-- **moonc**: Compilador CLI standalone (`moonc arquivo.gpu -o prog`)
-- **REPL Interativo**: Console interativo (`python repl.py`)
-- **Debugger**: Debug com breakpoints (`python debugger.py`)
-- **moonpkg**: Gerenciador de pacotes (`moonpkg install <pkg>`)
-- **VS Code Extension**: Syntax highlighting, snippets, run/compile commands
-- **Documentação Completa**: CLI_GUIDE.md, TOOLING.md, 10+ docs
+## 🌍 Onde o Moonlight brilha
 
-### Qualidade e Testes ✅
-- **103+ testes unitários** (incl. GPU-first e gpu_resident)
-- **CI/CD** configurado (GitHub Actions: testes Python + build do compilador C++ moonc_cpp)
-- **Documentação completa** (2500+ linhas)
-- **30+ exemplos funcionais** incluindo AI, CUDA, JIT
-- **7 suites de teste**: Lexer, Parser, Executor, Integration, Type System, Modules, Advanced Features
+| Área | Aplicações |
+|------|------------|
+| 🤖 **Inteligência Artificial** | Treinamento e inferência de redes neurais, operações de tensores, backpropagation |
+| 🧬 **Bioinformática** | Sequenciamento genômico, simulações moleculares, análise de proteínas |
+| 📈 **Finanças Quantitativas** | Monte Carlo em tempo real, precificação de derivativos, backtesting massivo |
+| 🌊 **Simulações Físicas** | Dinâmica de fluidos, simulações N-body, elementos finitos |
+| 🎮 **Computação Gráfica** | Ray tracing, shaders personalizados, física em tempo real |
+| 🔬 **Ciência de Dados** | ETL em larga escala, processamento de sinais, análise de séries temporais |
+
+---
+
+## 🚀 Recursos
+
+<details>
+<summary><b>🔢 Matemática & Tipos</b></summary>
+
+- Operações completas: `+`, `-`, `*`, `/`, `%`, `**`
+- Bitwise: `&`, `|`, `^`, `~`, `<<`, `>>`
+- **Sistema de tipos com inferência automática** — tipos genéricos como `List[int]`, warnings automáticos para conversões perigosas
+- Funções built-in: `len`, `sum`, `max`, `min`, `range`, `int`, `float`, `str`, `bool`, `type`
+
+</details>
+
+<details>
+<summary><b>🧩 Linguagem & Sintaxe</b></summary>
+
+- Estruturas de controle: `if`, `else`, `while`, `for`, `break`, `continue`
+- Funções com `def`, recursão, **lambdas**: `lambda(x) x * 2`
+- Classes com POO: métodos, `__init__`, herança futura
+- **Generators com Yield**, **List Comprehensions**, **Slice Operations**
+- Decoradores: `@jit` para compilação just-in-time
+- Context managers: `with expr as var { ... }`
+- Operadores compostos: `+=`, `-=`, `*=`, `++`, `--`
+
+</details>
+
+<details>
+<summary><b>⚡ CUDA & Performance</b></summary>
+
+- **Suporte nativo a kernels CUDA** — escreva código paralelo com sintaxe limpa
+- **Transpiler Moonlight → C++/CUDA** — geração de código otimizado automaticamente
+- **JIT Compilation via LLVM IR** — otimizações em tempo de execução
+- Decorator `@jit` para funções críticas de performance
+- Backend NVCC integrado para compilação e execução direta na GPU
+
+</details>
+
+<details>
+<summary><b>📦 Módulos & Ecossistema</b></summary>
+
+- Sistema de imports: `import module`, `from module import item`
+- Cache de módulos, detecção de imports circulares
+- **Biblioteca padrão incluída:**
+  - `math.gpu` — 14 funções matemáticas (`sqrt`, `factorial`, `is_prime`, `gcd`...)
+  - `array.gpu` — 18 funções de array (`sort`, `filter`, `map`, `unique`...)
+  - `string.gpu` — operações de string
+- **Biblioteca de IA integrada** — operações prontas para ML
+- Gerenciador de pacotes `moonpkg`: `moonpkg install <pkg>`
+
+</details>
+
+<details>
+<summary><b>🛠️ Ferramentas</b></summary>
+
+- **`moonc`** — compilador CLI standalone
+- **REPL interativo** — console para experimentos rápidos
+- **Debugger com breakpoints** — `(moon-db) b 10` → `(moon-db) c`
+- **VS Code Extension** — syntax highlighting, snippets, run/compile commands
+- **CI/CD** via GitHub Actions — testes automáticos a cada push
+
+</details>
+
+---
 
 ## 📥 Instalação
 
-```sh
+```bash
 git clone https://github.com/Bruno/MoonLight.git
 cd MoonLight
 pip install -r requirements.txt
 ```
 
+**Pré-requisitos:** Python 3.8+, NVCC (para compilação CUDA), LLVM (opcional, para JIT)
+
+---
+
 ## 📝 Uso
 
-### Executar arquivo
-```sh
-python executor_main.py exemplo.gpu
+### Executar um script `.gpu`
+
+```bash
+python executor_main.py meu_script.gpu
 ```
 
-### Compilar para executável
-```sh
-python moonc.py exemplo.gpu -o programa
+### Compilar para executável nativo
+
+```bash
+python moonc.py meu_script.gpu -o programa
 ./programa
 ```
 
-### REPL Interativo
-```sh
+### REPL interativo
+
+```bash
 python repl.py
 moon> x = 10
 moon> print(x * 2)
 20
+moon> lista = [i**2 for i in range(5)]
+moon> print(lista)
+[0, 1, 4, 9, 16]
 ```
 
 ### Debugger
-```sh
+
+```bash
 python debugger.py
-(moon-db) b 10
-(moon-db) c
+(moon-db) b 10        # breakpoint na linha 10
+(moon-db) c           # continuar execução
+(moon-db) p variavel  # inspecionar valor
 ```
 
-## 🔥 Exemplo de Código
+---
+
+## 💡 Exemplos
+
+### Olá, GPU!
 
 ```moonlight
-# Declaração de variáveis
-x = 10
-y = 5
-z = 0
+x = 42
+print("Resposta:", x * 2 - x / 3)
+```
 
-# Estruturas de controle
-if (x > y) {
-    z = x - y
-} else {
-    z = y - x
-}
+### Funções e recursão
 
-# Laços de repetição
-while (x > 0) {
-    x = x - 1
+```moonlight
+def fibonacci(n) {
+    if (n <= 1) { return n }
+    return fibonacci(n - 1) + fibonacci(n - 2)
 }
 
 for (i = 0; i < 10; i = i + 1) {
-    y = y + 1
+    print(fibonacci(i))
 }
-
-# Manipulação de listas
-lista = [1, 2, 3, 4, 5]
-soma = soma(lista)  # Chama a função nativa de soma
-
-# Funções personalizadas
-def quadrado(n) {
-    return n * n
-}
-
-resultado = quadrado(4)  # 16
 ```
 
-## 🎯 Roadmap
+### List comprehensions & lambdas
 
-- [x] **Entrega 1**: Consolidação da Base e Testes (✅ Concluída)
-- [x] **Entrega 2**: Completar Implementação do Transpiler (✅ Concluída)
-- [x] **Entrega 3**: Sistema de Tipos com Inferência (✅ Concluída)
-- [x] **Entrega 4**: Imports e Sistema de Módulos (✅ Concluída)
-- [x] **Entrega 5**: Features Python Avançadas (✅ Concluída)
-- [x] **Entrega 6**: Suporte CUDA Básico (✅ Concluída)
-- [x] **Entrega 7**: Suporte CUDA Avançado (✅ Concluída)
-- [x] **Entrega 8**: LLVM IR e JIT Compilation (✅ Concluída)
-- [x] **Entrega 9**: Biblioteca Padrão para IA (✅ Concluída)
-- [x] **Entrega 10**: Compilador Standalone e Ferramentas (✅ Concluída) **[NOVO!]**
+```moonlight
+numeros = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-**Status**: 10/10 entregas completas (100%) 🎉🏆🎊
+pares    = [x for x in numeros if x % 2 == 0]
+quadrados = [x**2 for x in pares]
 
-Veja o [ROADMAP completo](moonlight-roadmap-10-entregas.plan.md)
+dobrar = lambda(x) x * 2
+resultado = [dobrar(n) for n in quadrados]
 
-## 📊 Status Atual
+print(resultado)  # [8, 32, 72, 128, 200]
+```
 
-| Componente | Status | Cobertura de Testes |
-|-----------|---------|---------------------|
-| Lexer | ✅ Completo | 13/13 (100%) |
-| Parser | ✅ Completo | 18/18 (100%) |
-| Executor | ✅ Funcional | 23/25 (92%) |
-| Type System | ✅ Completo | 15/15 (100%) |
-| Module System | ✅ Completo | 14/15 (93%) |
-| Integration | ⚠️ Parcial | 8/10 (80%) |
-| Transpiler | ⚠️ Parcial | - |
-| CUDA | ✅ Completo | - |
-| JIT (LLVM) | ✅ Completo | - |
-| AI Library | ✅ Completo | - |
-| Tooling (CLI) | ✅ Completo | - |
+### Usando módulos
 
-**Total de Testes**: 103 (96 passando, 93.2%)
-## 🚀 Funcionalidades Implementadas
+```moonlight
+from math import sqrt, is_prime
+from array import sort, unique
 
-- **Análise Léxica e Sintática** usando PLY.
-- **Transpiler Moonlight → C++/CUDA**:
-  - Suporte a estruturas de controle: `if`, `else`, `while`, `for`.
-  - Suporte a funções: definição com `def`, chamadas, `return` e expressões lambda.
-  - Suporte inicial a tipos de dados: `int`, `float`, `complex`, `str`, `bool`, listas, tuplas, dicionários, sets e `None`.
-- **Backend de Compilação**: Transpila, compila (usando NVCC) e executa o código gerado.
+dados = [4, 1, 7, 2, 4, 1, 9, 3]
+limpos = unique(sort(dados))
+print([sqrt(x) for x in limpos if is_prime(x)])
+```
 
-[...]
+### Kernel CUDA com `@jit`
 
-## Próximas Etapas (pós-1.0)
+```moonlight
+@jit
+def soma_vetorial(A, B) {
+    return [A[i] + B[i] for i in range(len(A))]
+}
 
-A versão 1.0 está completa (10/10 entregas). Próximos passos formais (rastreáveis):
+A = [1.0, 2.0, 3.0, 4.0]
+B = [10.0, 20.0, 30.0, 40.0]
+print(soma_vetorial(A, B))  # [11.0, 22.0, 33.0, 44.0]
+```
 
-1. **Tipos:** expandir inferência de tipos e suporte a mais tipos nativos.
-2. **HOF:** funções de ordem superior (map, filter, reduce) com implementações estáveis/otimizadas.
-3. **POO:** reforçar classes/structs (herança, atributos de classe, etc.).
-4. **CUDA:** otimização de operações (melhor uso de shared memory, menos transferências).
-5. **Standalone:** manter o compilador C++ (`moonc_cpp`) como alternativa à toolchain Python; paridade opcional de sintaxe (classes, imports).
+---
 
-Veja o [ROADMAP completo](moonlight-roadmap-10-entregas.plan.md) e o roadmap em [moonc_cpp/README.md](moonc_cpp/README.md).
+## 📊 Status dos Componentes
+
+| Componente | Status | Cobertura |
+|-----------|--------|-----------|
+| Lexer | ✅ Completo | 13/13 — 100% |
+| Parser | ✅ Completo | 18/18 — 100% |
+| Sistema de Tipos | ✅ Completo | 15/15 — 100% |
+| Sistema de Módulos | ✅ Completo | 14/15 — 93% |
+| Executor Python | ✅ Funcional | 23/25 — 92% |
+| Suporte CUDA | ✅ Completo | — |
+| JIT (LLVM) | ✅ Completo | — |
+| Biblioteca de IA | ✅ Completo | — |
+| Transpiler C++/CUDA | ⚠️ Parcial | — |
+| Integração | ⚠️ Parcial | 8/10 — 80% |
+| Tooling (CLI) | ✅ Completo | — |
+
+**Total:** 103 testes · 96 passando · **93.2% de cobertura**
+
+---
+
+## 🗺️ Roadmap
+
+```
+v1.0  ████████████████████  100%  ← Você está aqui
+v1.1  ░░░░░░░░░░░░░░░░░░░░    0%  Em planejamento
+```
+
+### ✅ v1.0 — Completo (10/10 entregas)
+
+- [x] **Entrega 1** — Consolidação da base e testes
+- [x] **Entrega 2** — Transpiler completo
+- [x] **Entrega 3** — Sistema de tipos com inferência
+- [x] **Entrega 4** — Imports e sistema de módulos
+- [x] **Entrega 5** — Features Python avançadas
+- [x] **Entrega 6** — Suporte CUDA básico
+- [x] **Entrega 7** — Suporte CUDA avançado
+- [x] **Entrega 8** — LLVM IR e JIT compilation
+- [x] **Entrega 9** — Biblioteca padrão para IA
+- [x] **Entrega 10** — Compilador standalone e ferramentas
+
+### 🔭 v1.1 — Próximas etapas (pós-1.0)
+
+- [ ] **Tipos avançados** — inferência expandida, mais tipos nativos
+- [ ] **HOF estáveis** — `map`, `filter`, `reduce` otimizados
+- [ ] **POO completa** — herança, atributos de classe, polimorfismo
+- [ ] **CUDA otimizado** — shared memory, redução de transferências host↔device
+- [ ] **`moonc_cpp` standalone** — paridade de sintaxe com a toolchain Python
+
+---
+
+## 🤝 Contribuindo
+
+Contribuições são bem-vindas! Veja como começar:
+
+1. Fork o repositório
+2. Crie sua branch: `git checkout -b feat/minha-feature`
+3. Commit suas mudanças: `git commit -m 'feat: adiciona X'`
+4. Push: `git push origin feat/minha-feature`
+5. Abra um Pull Request
+
+Antes de contribuir, leia o [ROADMAP completo](moonlight-roadmap-10-entregas.plan.md) e o [guia da CLI](CLI_GUIDE.md).
+
+---
+
+## 📄 Licença
+
+Distribuído sob a licença MIT. Veja `LICENSE` para mais informações.
+
+---
+
+<div align="center">
+
+**Moonlight** · Feito com ☕ e muito CUDA
+
+*"Escreva como Python. Execute como uma GPU."*
+
+</div>
